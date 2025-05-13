@@ -131,7 +131,12 @@ END
 
 /* Seccion Evelyn */
 
-
+create table Categoria (
+	Id int primary key not null,
+	Nombre varchar(50),
+	Descripcion varchar(100),
+	Estado bit
+)
 
 
 
