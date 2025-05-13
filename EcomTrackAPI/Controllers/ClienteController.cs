@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using EcomTrackAPI.Models;
+using EcomTrackAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EcomTrackAPI.Controllers
@@ -7,5 +8,12 @@ namespace EcomTrackAPI.Controllers
     [ApiController]
     public class ClienteController : ControllerBase
     {
+        [HttpGet]
+        [Route("[action]")]
+        public List<Cliente> ObtenerClientes()
+        {
+            List<Cliente> clientes = ClienteService.ObtenerClientes();
+            return clientes;
+        }
     }
 }

@@ -2,11 +2,11 @@ CREATE DATABASE DB_EcomTrack
 USE DB_EcomTrack;
 
 CREATE TABLE Cliente(
-	ID INT PRIMARY KEY NOT NULL,
+	Id INT PRIMARY KEY NOT NULL,
 	Nombre VARCHAR(100),
-	CorreoElectronico VARCHAR(100),
+	Correo VARCHAR(100),
+	Pwd VARCHAR(100),
 	Telefono VARCHAR(15),
-	Direccion VARCHAR(200),
 	FechaRegistro DATETIME DEFAULT GETDATE()
 );
 
@@ -85,13 +85,15 @@ CREATE TABLE Envio(
 	FOREIGN KEY (IdPedido) REFERENCES Pedido(ID),
 	FOREIGN KEY (IdTransportista) REFERENCES Transportista(ID)
 );
+SELECT * FROM Cliente
+EXECUTE GuardarCliente @Id = 0, @Nombre = 'Aldo Hassiel', @Correo = 'aldo@gmail.com', @Pwd = '1421', @Telefono ='6681461721'
 
 CREATE PROCEDURE GuardarCliente(
 	@Id INT,
 	@Nombre VARCHAR(100),
-	@CorreoElectronico VARCHAR(100),
-	@Telefono VARCHAR(15),
-	@Direccion VARCHAR(200)
+	@Correo VARCHAR(100),
+	@Pwd VARCHAR(100),
+	@Telefono VARCHAR(15)
 )
 AS
 BEGIN
@@ -100,19 +102,16 @@ BEGIN
 		DECLARE @NuevoId INT
 		SELECT @NuevoId = ISNULL(MAX(Id),0) + 1 FROM Cliente
 
-		INSERT INTO Cliente(ID, Nombre, CorreoElectronico, Telefono, Direccion, FechaRegistro)
-		VALUES (@NuevoId, @Nombre, @CorreoElectronico, @Telefono, @Direccion, GETDATE())
+		INSERT INTO Cliente(Id, Nombre, Correo, Pwd,Telefono, FechaRegistro)
+		VALUES (@NuevoId, @Nombre, @Correo, @Pwd,@Telefono, GETDATE())
 	END
 	ELSE
 	BEGIN
 		UPDATE Cliente
 		SET 
 		Nombre = @Nombre, 
-		CorreoElectronico = @CorreoElectronico, 
-		Telefono = @Telefono,
-		Direccion = @Direccion
-		WHERE ID = @Id
+		Correo = @Correo, 
+		Telefono = @Telefono
+		WHERE Id = @Id
 	END
 END
-
-CREATE PROCEDURE 
