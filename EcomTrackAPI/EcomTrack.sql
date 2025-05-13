@@ -1,15 +1,7 @@
 CREATE DATABASE DB_EcomTrack
 USE DB_EcomTrack;
 
-CREATE TABLE Cliente(
-	Id INT PRIMARY KEY NOT NULL,
-	Nombre VARCHAR(100),
-	Correo VARCHAR(100),
-	Pwd VARCHAR(100),
-	Telefono VARCHAR(15),
-	FechaRegistro DATETIME DEFAULT GETDATE()
-);
-
+/*  Tablas de referencias
 CREATE TABLE Producto(
 	ID INT PRIMARY KEY NOT NULL,
 	Nombre VARCHAR(50),
@@ -43,7 +35,6 @@ CREATE TABLE Categoria(
 	Descripcion VARCHAR(200)
 );
 
-
 CREATE TABLE Pedido(
 	ID INT PRIMARY KEY NOT NULL,
 	IdCliente INT,
@@ -70,6 +61,17 @@ CREATE TABLE Pago(
 	Importe DECIMAL(10,2),
 	Fecha DATETIME DEFAULT GETDATE(),
 	FOREIGN KEY (IdPedido) REFERENCES Pedido(ID)
+);
+*/
+
+/* Seccion Aldo */
+CREATE TABLE Cliente(
+	Id INT PRIMARY KEY NOT NULL,
+	Nombre VARCHAR(100),
+	Correo VARCHAR(100),
+	Pwd VARCHAR(100),
+	Telefono VARCHAR(15),
+	FechaRegistro DATETIME DEFAULT GETDATE()
 );
 
 INSERT INTO Cliente(Id, Nombre) values (1, 'Aldo');
@@ -115,3 +117,26 @@ BEGIN
 		WHERE Id = @Id
 	END
 END
+
+
+
+
+/* Seccion Yuriana */
+
+
+
+
+
+
+
+/* Seccion Evelyn */
+
+
+
+
+
+
+/* Seccion David */
+
+
+
