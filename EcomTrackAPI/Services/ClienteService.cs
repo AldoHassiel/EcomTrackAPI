@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Data.SqlClient;
 using EcomTrackAPI.Models;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using System.Reflection.PortableExecutable;
 namespace EcomTrackAPI.Services
 {
     public class ClienteService
@@ -61,6 +63,37 @@ namespace EcomTrackAPI.Services
             conx.Close();
 
             return cliente;
+        }
+        public static string GuardarCliente(Cliente cliente)
+        {
+            string mensaje = "Ok";
+
+            SqlConnection conx = Datos.conectar();
+
+            SqlCommand command = new SqlCommand("GuardarCliente", conx);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.AddWithValue("@Id", cliente.Id);
+            command.Parameters.AddWithValue("@Nombre", cliente.Nombre);
+            command.Parameters.AddWithValue("@Correo", cliente.Correo);
+            command.Parameters.AddWithValue("@Pwd", cliente.Pwd);
+            command.Parameters.AddWithValue("@Telefono", cliente.Telefono);
+
+            conx.Open();
+            try
+            {
+                command.ExecuteNonQuery();
+            }
+            catch (SqlException ex)
+            {
+                mensaje = ex.Message;
+            }
+            finally
+            {
+                command.Dispose();
+            }
+
+            conx.Close();
+            return mensaje;
         }
     }
 }

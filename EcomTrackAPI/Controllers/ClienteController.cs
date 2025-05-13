@@ -22,5 +22,19 @@ namespace EcomTrackAPI.Controllers
             Cliente cliente = ClienteService.ObtenerCliente(Id);
             return cliente;
         }
+        [HttpPost]
+        [Route("[action]")]
+        public string GuardarCliente(int Id, string Nombre, string Correo, string Pwd, string Telefono)
+        {
+            Cliente cliente = new Cliente();
+            cliente.Id = Id;
+            cliente.Nombre = Nombre;
+            cliente.Correo = Correo;
+            cliente.Pwd = Pwd;
+            cliente.Telefono = Telefono;
+
+            string mensaje  = ClienteService.GuardarCliente(cliente);
+            return mensaje;
+        }
     }
 }
