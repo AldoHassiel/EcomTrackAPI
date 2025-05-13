@@ -35,5 +35,32 @@ namespace EcomTrackAPI.Services
 
             return clientes;
         }
+        public static Cliente ObtenerCliente(int Id)
+        {
+            Cliente cliente = new Cliente();
+            SqlConnection conx = Datos.conectar();
+
+            string query = $"SELECT Nombre, Correo, Pwd, Telefono, FechaRegistro FROM Cliente WHERE Id = {Id}";
+            SqlCommand command = new SqlCommand(query, conx);
+
+            conx.Open();
+            SqlDataReader reader = command.ExecuteReader();
+
+            if (reader.Read())
+            {
+                cliente.Id = Id;
+                cliente.Nombre = reader.GetString(0);
+                cliente.Correo = reader.GetString(1);
+                cliente.Pwd = reader.GetString(2);
+                cliente.Telefono = reader.GetString(3);
+                cliente.FechaRegistro = reader.GetDateTime(4);
+            }
+
+            reader.Close();
+            command.Dispose();
+            conx.Close();
+
+            return cliente;
+        }
     }
 }

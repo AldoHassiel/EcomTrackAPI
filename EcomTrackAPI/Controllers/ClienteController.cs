@@ -15,5 +15,12 @@ namespace EcomTrackAPI.Controllers
             List<Cliente> clientes = ClienteService.ObtenerClientes();
             return clientes;
         }
+        [HttpGet]
+        [Route("[action]")]
+        public Cliente ObtenerCliente(int Id)
+        {
+            Cliente cliente = ClienteService.ObtenerCliente(Id);
+            return cliente;
+        }
     }
 }
