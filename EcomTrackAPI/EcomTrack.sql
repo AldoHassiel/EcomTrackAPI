@@ -135,10 +135,42 @@ create table Categoria (
 	Id int primary key not null,
 	Nombre varchar(50),
 	Descripcion varchar(100),
+	CantidadProducto int,
 	Estado bit
 )
 
+create procedure GuardarCategoria (
+	@Id int, 
+	@Nombre varchar(50), 
+	@Descripcion varchar(100),
+	@CantidadProducto int,
+	@Estado bit
+)
+as
+begin
+	if @Id = 0
+	begin
+		declare @NuevoId INT
+		select @NuevoId = ISNULL(MAX(Id),0) + 1 FROM Categoria 
 
+		INSERT INTO Categoria(Id, Nombre, Descripcion, CantidadProducto, Estado)
+		VALUES (@NuevoId, @Nombre, @Descripcion, @CantidadProducto, @Estado)
+	end
+	else
+	begin
+		UPDATE Categoria
+		SET 
+		Nombre = @Nombre, 
+		Descripcion = @Descripcion,
+		CantidadProducto = @CantidadProducto,
+		Estado = @Estado
+		where Id = @Id
+	end
+end
+
+select * from Categoria
+
+Execute GuardarCategoria @Id = 0, @Nombre = 'Audífonos', @Descripcion = 'Audifonos', @CantidadProducto = 0, @Estado = 0
 
 
 /* Seccion David */
