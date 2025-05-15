@@ -130,6 +130,7 @@ END
 
 
 /* Seccion Evelyn */
+/*editar, guardar, borrar*/
 
 create table Categoria (
 	Id int primary key not null,
@@ -169,8 +170,7 @@ begin
 end
 
 select * from Categoria
-
-Execute GuardarCategoria @Id = 0, @Nombre = 'Audífonos', @Descripcion = 'Audifonos', @CantidadProducto = 0, @Estado = 0
+Execute GuardarCategoria @Id = 0, @Nombre = 'audfinos', @Descripcion = 'Telefonos', @CantidadProducto = 0, @Estado = 1
 
 
 /* Seccion David */
