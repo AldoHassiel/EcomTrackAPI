@@ -158,8 +158,31 @@ CREATE TABLE Direcciones(
     FOREIGN KEY (Cliente) REFERENCES Cliente(Id)
 );
 
+--VERIFICAR LA LÓGICA
+CREATE PROCEDURE RegistrarPedidos(
+	@Id INT,
+	@Cliente INT,
+	@Importe FLOAT,
+    @Estado INT
+)
+AS
+BEGIN
+	IF(@Id = 0)
+		BEGIN
+			DECLARE @NuevoId INT
+			SELECT @NuevoId = ISNULL(MAX(Id), 0) + 1 FROM Pedidos
+			INSERT INTO Pedidos(Id, Cliente, FechaPedido, Importe, Estado)
+			VALUES (@NuevoId, @Cliente, GETDATE(), @Importe, @Estado);
+		END
 
+	ELSE
+		BEGIN
+			UPDATE Pedidos
+			SET Estado = @Estado 
+			WHERE Id = @Id
 
+		END
+END
 
 
 /* Seccion Evelyn */
