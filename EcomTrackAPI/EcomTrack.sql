@@ -122,8 +122,41 @@ END
 
 
 /* Seccion Yuriana */
+CREATE TABLE Pedidos(
+	Id INT PRIMARY KEY NOT NULL,
+	Cliente INT,
+	FechaPedido DATETIME DEFAULT GETDATE(),
+	Importe FLOAT,
+	Estado INT,
+	FOREIGN KEY (Cliente) REFERENCES Cliente(Id),
+	FOREIGN KEY (Estado) REFERENCES Estado(Id)
+)
 
+CREATE TABLE Pago(
+	Id INT PRIMARY KEY NOT NULL,
+	Pedido INT,
+	MetodoPago INT,
+	ImporteAbonado FLOAT,
+	FechaPago DATETIME DEFAULT GETDATE(),
+	FOREIGN KEY (Pedido) REFERENCES Pedidos(Id),
+	FOREIGN KEY (MetodoPago) REFERENCES MetodoPago(Id),
 
+)
+
+CREATE TABLE Direcciones(
+	Id INT PRIMARY KEY NOT NULL,
+	Cliente INT,
+	Tipo INT,
+	Calle VARCHAR(100) NOT NULL,
+	EntreCalles VARCHAR(200),
+    Numero VARCHAR(10),
+    Colonia VARCHAR(100),
+    Ciudad VARCHAR(100),
+    Estado VARCHAR(100),
+    CodigoPostal VARCHAR(10),
+    Pais VARCHAR(100),
+    FOREIGN KEY (Cliente) REFERENCES Cliente(Id)
+);
 
 
 
