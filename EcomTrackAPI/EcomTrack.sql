@@ -118,9 +118,6 @@ BEGIN
 	END
 END
 
-
-
-
 /* Seccion Yuriana */
 
 
@@ -216,8 +213,41 @@ execute GuardarProveedor @Id = 0, @Nombre = 'Apple', @Correo = '@gmail.com', @Te
 
 select * from proveedor
 
+create table Envio (
+	Id int primary key not null,
+	FechaEnvio datetime default getdate(),
+	IdPedido int,
+	IdTransportista int, 
+	IdEstado int,
+	foreign key (IdPedido) references Pedido(Id),
+	foreign key (IdTransportista) references Transportista(Id),
+	foreign key (IdEstado) references Estado(Id)
+)
 
+create procedure GuardarEnvio (
+	@Id int, 
+	@IdPedido int,
+	@IdTransportista int,
+	@IdEstado int
+)
+as
+begin
+	if @Id = 0
+	begin
+		declare @NuevoId INT
+		select @NuevoId = ISNULL(MAX(Id),0) + 1 FROM Envio
 
+		INSERT INTO Envio(Id, IdPedido, IdTransportista, IdEstado)
+		VALUES (@NuevoId, @IdPedido, @IdTransportista, @IdEstado)
+	end
+	else
+	begin
+		UPDATE Envio
+		SET 
+		IdEstado = @IdEstado
+		where Id = @Id
+	end
+end
 
 /* Seccion David */
 CREATE TABLE Estado(
