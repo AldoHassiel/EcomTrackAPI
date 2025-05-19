@@ -120,7 +120,6 @@ CREATE TABLE Producto(
 	FOREIGN KEY(Categoria) REFERENCES Categoria(Id),
 	FOREIGN KEY(Proveedor) REFERENCES Proveedor(Id),
 )
-
 CREATE PROCEDURE GuardarProducto(
 	@Id INT,
 	@Nombre VARCHAR(50),
@@ -154,17 +153,17 @@ BEGIN
 	END
 END
 
-
-/* Falta crearla */
-CREATE TABLE DetalleProducto(
+CREATE TABLE DetallePedido(
 	Id INT PRIMARY KEY NOT NULL,
 	Pedido INT,
 	Producto INT,
 	Cantidad INT,
 	Subtotal DECIMAL(10, 2),
-	FOREIGN KEY(Pedido) REFERENCES Pedido(Id),
+	FOREIGN KEY(Pedido) REFERENCES Pedidos(Id),
 	FOREIGN KEY(Producto) REFERENCES Producto(Id),
 )
+
+
 
 /* Seccion Yuriana */
 CREATE TABLE Pedidos(
