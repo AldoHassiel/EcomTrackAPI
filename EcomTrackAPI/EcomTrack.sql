@@ -163,7 +163,20 @@ CREATE TABLE DetallePedido(
 	FOREIGN KEY(Producto) REFERENCES Producto(Id),
 )
 
+CREATE PROCEDURE RegistrarPedidoDetalle(
+	@Pedido INT,
+	@Producto INT,
+	@Cantidad INT,
+	@Subtotal DECIMAL(10,2)
+)
+AS
+BEGIN
+	DECLARE @NuevoId INT
+	SELECT @NuevoId = ISNULL(MAX(Id),0) + 1 FROM DetallePedido
 
+	INSERT INTO DetallePedido(Id, Pedido, Producto, Cantidad, Subtotal)
+	VALUES (@NuevoId, @Pedido, @Producto, @Cantidad, @Subtotal)
+END
 
 /* Seccion Yuriana */
 CREATE TABLE Pedidos(
