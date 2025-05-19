@@ -78,15 +78,6 @@ INSERT INTO Cliente(Id, Nombre) values (1, 'Aldo');
 SELECT * FROM Cliente
 SELECT ISNULL(MAX(Id),0) + 1 FROM Cliente
 
-CREATE TABLE Envio(
-	ID INT PRIMARY KEY NOT NULL,
-	IdPedido INT,
-	Estado VARCHAR(20) CHECK (Estado IN ('Pendiente','En camino','Entregado')),
-	FechaEnvio DATETIME DEFAULT GETDATE(),
-	IdTransportista INT,
-	FOREIGN KEY (IdPedido) REFERENCES Pedido(ID),
-	FOREIGN KEY (IdTransportista) REFERENCES Transportista(ID)
-);
 SELECT * FROM Cliente
 EXECUTE GuardarCliente @Id = 0, @Nombre = 'Aldo Hassiel', @Correo = 'aldo@gmail.com', @Pwd = '1421', @Telefono ='6681461721'
 
@@ -117,7 +108,6 @@ BEGIN
 		WHERE Id = @Id
 	END
 END
-
 
 
 
