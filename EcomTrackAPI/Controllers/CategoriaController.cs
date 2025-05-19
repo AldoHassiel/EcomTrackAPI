@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EcomTrackAPI.Controllers
 {
-    [Route ("api/[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
     public class CategoriaController : ControllerBase
     {
@@ -15,5 +15,23 @@ namespace EcomTrackAPI.Controllers
             List<Categoria> categorias = CategoriaService.ObtenerCategorias();
             return categorias;
         }
+
+        [HttpDelete("{id}")]
+        public bool EliminarCategoria(int id) //pendiente
+        {
+            bool eliminado = CategoriaService.EliminarCategoria(id);
+            return eliminado;
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+
+        public void GuardarCategoria(Categoria categoria)
+        {
+           
+      
+        }
+
+
     }
 }

@@ -129,8 +129,10 @@ END
 
 
 
+
+
 /* Seccion Evelyn */
-/*editar, guardar, borrar*/
+/*falta borrar*/
 
 create table Categoria (
 	Id int primary key not null,
@@ -171,6 +173,50 @@ end
 
 select * from Categoria
 Execute GuardarCategoria @Id = 0, @Nombre = 'audfinos', @Descripcion = 'Telefonos', @CantidadProducto = 0, @Estado = 1
+
+/*falta borrar*/
+create table Proveedor (
+	Id int primary key not null,
+	Nombre varchar(50),
+	Correo varchar(100),
+	Telefono varchar(15),
+	Estado bit
+)
+
+create procedure GuardarProveedor (
+	@Id int, 
+	@Nombre varchar(50), 
+	@Correo varchar(100),
+	@Telefono varchar(15),
+	@Estado bit
+)
+as
+begin
+	if @Id = 0
+	begin
+		declare @NuevoId INT
+		select @NuevoId = ISNULL(MAX(Id),0) + 1 FROM Proveedor
+
+		INSERT INTO Proveedor(Id, Nombre, Correo, Telefono, Estado)
+		VALUES (@NuevoId, @Nombre, @Correo, @Telefono, @Estado)
+	end
+	else
+	begin
+		UPDATE Proveedor
+		SET 
+		Nombre = @Nombre, 
+		Correo = @Correo,
+		Telefono = @Telefono,
+		Estado = @Estado
+		where Id = @Id
+	end
+end
+
+execute GuardarProveedor @Id = 0, @Nombre = 'Apple', @Correo = '@gmail.com', @Telefono = '666666666', @Estado = 1
+
+select * from proveedor
+
+
 
 
 /* Seccion David */
