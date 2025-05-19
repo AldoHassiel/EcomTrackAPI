@@ -126,7 +126,7 @@ CREATE TABLE Pedidos(
 	Id INT PRIMARY KEY NOT NULL,
 	Cliente INT,
 	FechaPedido DATETIME DEFAULT GETDATE(),
-	Importe FLOAT,
+	Importe DECIMAL(10,2),
 	Estado INT,
 	FOREIGN KEY (Cliente) REFERENCES Cliente(Id),
 	FOREIGN KEY (Estado) REFERENCES Estado(Id)
@@ -136,7 +136,7 @@ CREATE TABLE Pedidos(
 CREATE PROCEDURE RegistrarPedidos(
 	@Id INT,
 	@Cliente INT,
-	@Importe FLOAT,
+	@Importe DECIMAL(10,2),
     @Estado INT
 )
 AS
@@ -162,7 +162,7 @@ CREATE TABLE Pago(
 	Id INT PRIMARY KEY NOT NULL,
 	Pedido INT,
 	MetodoPago INT,
-	ImporteAbonado FLOAT,
+	ImporteAbonado DECIMAL(10,2),
 	FechaPago DATETIME DEFAULT GETDATE(),
 	FOREIGN KEY (Pedido) REFERENCES Pedidos(Id),
 	FOREIGN KEY (MetodoPago) REFERENCES MetodoPago(Id),
@@ -175,7 +175,7 @@ CREATE PROCEDURE RegistrarPago(
 	@Id INT,
 	@Pedido INT,
 	@MetodoPago INT,
-	@ImporteAbonado FLOAT
+	@ImporteAbonado DECIMAL(10,2)
 )
 AS
 BEGIN
@@ -217,9 +217,34 @@ CREATE PROCEDURE GuardarDireccion(
 )
 AS
 BEGIN
-	INSERT INTO Direcciones(Id, Cliente, Tipo, Calle, EntreCalles, Numero, Colonia, Ciudad, Estado, CodigoPostal, Pais)
-    VALUES (@Id, @Cliente, @Tipo, @Calle, @EntreCalles,@Numero, @Colonia, @Ciudad, @Estado, @CodigoPostal, @Pais)
+	BEGIN
+	IF(@Id = 0)
+		BEGIN
+			DECLARE @NuevoId INT
+			SELECT @NuevoId = ISNULL(MAX(Id), 0) + 1 FROM Direcciones
+			INSERT INTO Direcciones(Id, Cliente, Tipo, Calle, EntreCalles, Numero, Colonia, Ciudad, Estado, CodigoPostal, Pais)
+			VALUES (@Id, @Cliente, @Tipo, @Calle, @EntreCalles,@Numero, @Colonia, @Ciudad, @Estado, @CodigoPostal, @Pais)
+		END
+
+	ELSE 
+		BEGIN
+			UPDATE Direcciones
+			SET 
+			Cliente = @Cliente,
+			Tipo = @Tipo,
+			Calle = @Calle,
+			EntreCalles = @EntreCalles,
+			Numero = @Numero,
+			Colonia = @Colonia,
+			Ciudad = @Ciudad,
+			Estado = @Estado,
+			CodigoPostal = @CodigoPostal,
+			Pais = @Pais
+			WHERE Id = @Id
+		END
+	END
 END
+	
 
 
 
