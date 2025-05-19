@@ -109,7 +109,62 @@ BEGIN
 	END
 END
 
+CREATE TABLE Producto(
+	Id INT PRIMARY KEY NOT NULL,
+	Nombre VARCHAR(50),
+	Descripcion VARCHAR(100),
+	Categoria INT,
+	Precio DECIMAL(10, 2),
+	Stock INT,
+	Proveedor INT
+	FOREIGN KEY(Categoria) REFERENCES Categoria(Id),
+	FOREIGN KEY(Proveedor) REFERENCES Proveedor(Id),
+)
 
+CREATE PROCEDURE GuardarProducto(
+	@Id INT,
+	@Nombre VARCHAR(50),
+	@Descripcion VARCHAR(100),
+	@Categoria INT,
+	@Precio DECIMAL(10, 2),
+	@Stock INT,
+	@Proveedor INT
+)
+AS
+BEGIN
+	IF @Id = 0
+	BEGIN
+		DECLARE @NuevoId INT
+		SELECT @NuevoId = ISNULL(MAX(Id),0) + 1 FROM Producto
+
+		INSERT INTO Producto(Id, Nombre, Descripcion, Categoria, Precio, Stock, Proveedor)
+		VALUES (@NuevoId, @Nombre, @Descripcion, @Categoria, @Precio, @Stock, @Proveedor)
+	END
+	ELSE
+	BEGIN
+		UPDATE Producto
+		SET 
+		Nombre = @Nombre, 
+		Descripcion = @Descripcion, 
+		Categoria = @Categoria,
+		Precio = @Precio,
+		Stock = @Stock,
+		Proveedor = @Proveedor
+		WHERE Id = @Id
+	END
+END
+
+
+/* Falta crearla */
+CREATE TABLE DetalleProducto(
+	Id INT PRIMARY KEY NOT NULL,
+	Pedido INT,
+	Producto INT,
+	Cantidad INT,
+	Subtotal DECIMAL(10, 2),
+	FOREIGN KEY(Pedido) REFERENCES Pedido(Id),
+	FOREIGN KEY(Producto) REFERENCES Producto(Id),
+)
 
 /* Seccion Yuriana */
 
