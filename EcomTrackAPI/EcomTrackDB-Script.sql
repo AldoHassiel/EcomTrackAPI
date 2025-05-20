@@ -1,5 +1,133 @@
 /* Seccion Aldo */
+CREATE TABLE Rol(
+	Id INT PRIMARY KEY NOT NULL,
+	Nombre VARCHAR(50)
+)
+INSERT INTO Rol(Id, Nombre) VALUES (1, 'Cliente')
+INSERT INTO Rol(Id, Nombre) VALUES (2, 'Administrador')
 
+CREATE TABLE Usuario(
+	Id INT IDENTITY PRIMARY KEY NOT NULL,
+	Correo VARCHAR(100) NOT NULL UNIQUE,
+	Pwd VARCHAR(50) NOT NULL,
+	Rol INT NOT NULL,
+	Estado BIT NOT NULL,
+	FechaRegistro DATETIME DEFAULT GETDATE(),
+	FOREIGN KEY(Rol) REFERENCES Rol(Id)
+)
+
+CREATE TABLE Cliente(
+	Id INT PRIMARY KEY NOT NULL,
+	Nombre VARCHAR(100) NOT NULL,
+	Telefono VARCHAR(15),
+	TotalCompras INT DEFAULT 0,
+	TotalGastado DECIMAL(10, 2) DEFAULT 0,
+	FOREIGN KEY(Id) REFERENCES Usuario(Id)
+)
+
+CREATE TABLE Administrador(
+	Id INT PRIMARY KEY NOT NULL,
+	Nombre VARCHAR(100) NOT NULL,
+	Telefono VARCHAR(15) NOT NULL,
+	FOREIGN KEY(Id) REFERENCES Usuario(Id)
+)
+
+CREATE PROCEDURE RegistrarCliente(
+	@Correo VARCHAR(100),
+	@Pwd VARCHAR(50),
+	@Nombre VARCHAR(100),
+	@Telefono VARCHAR(15),
+	@NuevoId INT OUTPUT
+)
+AS
+BEGIN
+	INSERT INTO Usuario(Correo, Pwd, Rol, Estado) VALUES (@Correo, @Pwd, 1, 1)
+	SET @NuevoId = SCOPE_IDENTITY()
+	INSERT INTO Cliente(Id, Nombre, Telefono, TotalCompras, TotalGastado) VALUES (@NuevoId, @Nombre, @Telefono, 0, 0)
+END
+
+CREATE PROCEDURE RegistrarAdministrador(
+	@Correo VARCHAR(100),
+	@Pwd VARCHAR(50),
+	@Nombre VARCHAR(100),
+	@Telefono VARCHAR(15),
+	@NuevoId INT OUTPUT
+)
+AS
+BEGIN
+	INSERT INTO Usuario(Correo, Pwd, Rol, Estado) VALUES (@Correo, @Pwd, 2, 1)
+	SET @NuevoId = SCOPE_IDENTITY()
+	INSERT INTO Administrador(Id, Nombre, Telefono) VALUES (@NuevoId, @Nombre, @Telefono)
+END
+
+CREATE PROCEDURE ActualizarCliente(
+	@Id INT,
+	@Correo VARCHAR(100),
+	@Pwd VARCHAR(50),
+	@Estado BIT,
+	@Nombre VARCHAR(100),
+	@Telefono VARCHAR(15)
+)
+AS
+BEGIN
+	UPDATE Usuario
+	SET
+		Correo = @Correo,
+		Pwd = @Pwd,
+		Estado = @Estado
+	WHERE Id = @Id
+
+	UPDATE Administrador
+	SET
+		Nombre = @Nombre,
+		Telefono = @Telefono
+	WHERE Id = @Id
+END
+
+CREATE PROCEDURE ActualizarAdministrador(
+	@Id INT,
+	@Correo VARCHAR(100),
+	@Pwd VARCHAR(50),
+	@Estado BIT,
+	@Nombre VARCHAR(100),
+	@Telefono VARCHAR(15)
+)
+AS
+BEGIN
+	UPDATE Usuario
+	SET
+		Correo = @Correo,
+		Pwd = @Pwd,
+		Estado = @Estado
+	WHERE Id = @Id
+
+	UPDATE Cliente
+	SET
+		Nombre = @Nombre,
+		Telefono = @Telefono
+	WHERE Id = @Id
+END
+
+CREATE PROCEDURE EliminarCliente(
+	@Id INT
+)
+AS
+BEGIN
+	DELETE FROM Cliente WHERE Id = @Id;
+	DELETE FROM Usuario WHERE Id = @Id AND Rol = 1; 
+END
+
+CREATE PROCEDURE EliminarAdministrador(
+	@Id INT
+)
+AS
+BEGIN
+	DELETE FROM Administrador WHERE Id = @Id;
+	DELETE FROM Usuario WHERE Id = @Id AND Rol = 2; 
+END
+
+SELECT U.Id, C.Nombre, U.Correo, C.Telefono, U.FechaRegistro, C.TotalCompras, C.TotalGastado 
+FROM Usuario U INNER JOIN Cliente C ON U.Id = C.Id WHERE U.Rol = 1
 
 /* Seccion Yuriana */
 CREATE TABLE Pedido(
