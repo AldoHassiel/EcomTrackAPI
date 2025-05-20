@@ -435,6 +435,25 @@ select * from proveedor
 
 
 /* Seccion David */
+CREATE TABLE Estado(
+	Id int PRIMARY KEY NOT NULL,
+	Descripcion varchar(20)
+);
+
+CREATE TABLE MetodoPago (
+	Id int PRIMARY KEY NOT NULL,
+	Descripcion varchar(20)
+);
+CREATE TABLE TipoDireccion (
+	Id int PRIMARY KEY NOT NULL,
+	Descripcion varchar(20)
+);
+CREATE TABLE Transportista (
+	Id INT PRIMARY KEY NOT NULL,
+	Nombre VARCHAR(100),
+	Correo VARCHAR(100),
+	Telefono VARCHAR(15),
+);
 
 
 

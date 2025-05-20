@@ -1,6 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
 using EcomTrackAPI.Models;
 using System.Data;
+using Microsoft.AspNetCore.Mvc;
 
 namespace EcomTrackAPI.Services
 {
@@ -50,7 +51,7 @@ namespace EcomTrackAPI.Services
             return filasAfectadas > 0;
         }
 
-        public void GuardarCategoria(Categoria categoria)
+        public static IActionResult GuardarCategoria(Categoria categoria)
         {
             SqlConnection conx = Datos.conectar();
             SqlCommand cmd = new SqlCommand("GuardarCategoria", conx);
@@ -63,8 +64,16 @@ namespace EcomTrackAPI.Services
             cmd.Parameters.AddWithValue("@Estado", categoria.Estado);
 
             conx.Open();
-            cmd.ExecuteNonQuery();
-            conx.Close();
+            try
+            {
+                cmd.ExecuteNonQuery();
+                return new OkObjectResult("Categoría guardada");
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult($"Error al guardar: {ex.Message}");
+            }
+            finally { conx.Close(); }
         }
     }
 }

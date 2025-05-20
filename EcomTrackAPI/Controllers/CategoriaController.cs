@@ -17,7 +17,7 @@ namespace EcomTrackAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        public bool EliminarCategoria(int id) //pendiente
+        public bool EliminarCategoria(int id) 
         {
             bool eliminado = CategoriaService.EliminarCategoria(id);
             return eliminado;
@@ -26,10 +26,10 @@ namespace EcomTrackAPI.Controllers
         [HttpPost]
         [Route("[action]")]
 
-        public void GuardarCategoria(Categoria categoria)
+        public IActionResult GuardarCategoria(Categoria categoria)
         {
-           
-      
+            IActionResult guardado = CategoriaService.GuardarCategoria(categoria);
+            return guardado;
         }
 
 

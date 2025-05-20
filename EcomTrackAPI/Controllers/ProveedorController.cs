@@ -23,6 +23,14 @@ namespace EcomTrackAPI.Controllers
             bool eliminado = ProveedorService.EliminarProveedor(id);
             return eliminado;
         }
+
+        [HttpPost]
+        [Route("[action]")]
+        public IActionResult GuardarProveedor(Proveedor proveedor)
+        {
+            IActionResult guardado = ProveedorService.GuardarProveedor(proveedor);
+            return guardado;
+        }
     }
     
 }
