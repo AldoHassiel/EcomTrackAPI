@@ -1,5 +1,7 @@
 ﻿using EcomTrackAPI.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using System.Data;
 
 namespace EcomTrackAPI.Services
 {
@@ -48,6 +50,31 @@ namespace EcomTrackAPI.Services
             conx.Close();
 
             return filasAfectadas > 0;
+        }
+
+        public static IActionResult GuardarProveedor(Proveedor proveedor)
+        {
+            SqlConnection conx = Datos.conectar();
+            SqlCommand cmd = new SqlCommand("GuardarProveedor", conx);
+
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@Id", proveedor.Id);
+            cmd.Parameters.AddWithValue("@Nombre", proveedor.Nombre);
+            cmd.Parameters.AddWithValue("@Descripcion", proveedor.Correo);
+            cmd.Parameters.AddWithValue("@CantidadProducto", proveedor.Telefono);
+            cmd.Parameters.AddWithValue("@Estado", proveedor.Estado);
+
+            conx.Open();
+            try
+            {
+                cmd.ExecuteNonQuery();
+                return new OkObjectResult("Proveedor guardado");
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult($"Error al guardar: {ex.Message}");
+            }
+            finally { conx.Close(); }
         }
     }
 }
