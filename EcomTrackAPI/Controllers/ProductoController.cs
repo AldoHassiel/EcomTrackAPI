@@ -25,5 +25,22 @@ namespace EcomTrackAPI.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "Error al obtener los productos: " + ex.Message);
             }
         }
+        [HttpGet]
+        public ActionResult<Producto> ObtenerProductoPorId(int id)
+        {
+            try
+            {
+                Producto producto = ProductoService.ObtenerProductoPorId(id);
+                if (producto == null)
+                {
+                    return NotFound("Producto no encontrado.");
+                }
+                return Ok(producto);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error al obtener el producto: " + ex.Message);
+            }
+        }
     }
 }
