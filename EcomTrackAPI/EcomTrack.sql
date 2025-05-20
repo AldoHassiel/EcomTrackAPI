@@ -65,6 +65,43 @@ CREATE TABLE Pago(
 */
 
 /* Seccion Aldo */
+CREATE TABLE Rol(
+	Id INT PRIMARY KEY NOT NULL,
+	Nombre VARCHAR(50)
+)
+
+INSERT INTO Rol(Id, Nombre) VALUES (1, 'Cliente')
+INSERT INTO Rol(Id, Nombre) VALUES (2, 'Administrador')
+
+CREATE TABLE Usuario(
+	Id INT IDENTITY PRIMARY KEY NOT NULL,
+	Correo VARCHAR(100),
+	Pwd VARCHAR(100),
+	Rol INT,
+	Estado BIT
+	FOREIGN KEY(Rol) REFERENCES Rol(Id)
+)
+
+CREATE TABLE Cliente(
+	Id INT,
+	Usuario INT,
+	Nombre VARCHAR(100),
+	Telefono VARCHAR(15),
+	TotalCompras INT,
+	TotalGastado DECIMAL(10, 2),
+	FechaRegistro DATETIME DEFAULT GETDATE()
+	FOREIGN KEY(Usuario) REFERENCES Usuario(Id)
+)
+
+CREATE TABLE Administrador(
+	Id INT ,
+	Usuario INT,
+	Nombre VARCHAR(100),
+	Telefono VARCHAR(15),
+	FechaRegistro DATETIME DEFAULT GETDATE()
+	FOREIGN KEY(Usuario) REFERENCES Usuario(Id)
+)
+
 CREATE TABLE Cliente(
 	Id INT PRIMARY KEY NOT NULL,
 	Nombre VARCHAR(100),
