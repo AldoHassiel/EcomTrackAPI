@@ -9,10 +9,21 @@ namespace EcomTrackAPI.Controllers
     public class ProductoController : ControllerBase
     {
         [HttpGet]
-        public List<Producto> ObtenerProductos()
+        public ActionResult<List<Producto>> ObtenerProductos()
         {
-            var productos = ProductoService.ObtenerProductos();
-            return productos;
+            try
+            {
+                List<Producto> productos = ProductoService.ObtenerProductos();
+                if (productos == null || productos.Count == 0)
+                {
+                    return NotFound("No se encontraron productos.");
+                }
+                return Ok(productos);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error al obtener los productos: " + ex.Message);
+            }
         }
     }
 }

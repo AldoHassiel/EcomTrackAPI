@@ -1,5 +1,6 @@
 ﻿using EcomTrackAPI.Models;
 using Microsoft.Data.SqlClient;
+using System.Reflection.PortableExecutable;
 namespace EcomTrackAPI.Services
 {
     public class ProductoService
@@ -10,25 +11,38 @@ namespace EcomTrackAPI.Services
             SqlConnection conx = Datos.conectar();
             string query = "SELECT Id, Nombre, Descripcion, Categoria, Precio, Stock, Proveedor FROM Producto";
             SqlCommand command = new SqlCommand(query, conx);
-            conx.Open();
-            SqlDataReader reader = command.ExecuteReader();
-            while (reader.Read())
+            SqlDataReader reader = null;
+            try
             {
-                Producto producto = new Producto
+                conx.Open();
+
+                reader = command.ExecuteReader();
+                while (reader.Read())
                 {
-                    Id = reader.GetInt32(0),
-                    Nombre = reader.GetString(1),
-                    Descripcion = reader.GetString(2),
-                    IdCategoria = reader.GetInt32(3),
-                    Precio = reader.GetDecimal(4),
-                    Stock = reader.GetInt32(5),
-                    IdProveedor = reader.GetInt32(6)
-                };
-                productos.Add(producto);
+                    Producto producto = new Producto
+                    {
+                        Id = reader.GetInt32(0),
+                        Nombre = reader.GetString(1),
+                        Descripcion = reader.GetString(2),
+                        IdCategoria = reader.GetInt32(3),
+                        Precio = reader.GetDecimal(4),
+                        Stock = reader.GetInt32(5),
+                        IdProveedor = reader.GetInt32(6)
+                    };
+                    productos.Add(producto);
+                }
             }
-            reader.Close();
-            command.Dispose();
-            conx.Close();
+            catch (SqlException ex)
+            {
+                throw new Exception("Error al obtener los productos: " + ex.Message, ex);
+            }
+            finally
+            {
+                reader?.Close();
+                command.Dispose();
+                conx.Close();
+            }
+           
             return productos;
         }
     }
