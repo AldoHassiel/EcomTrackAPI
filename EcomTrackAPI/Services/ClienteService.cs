@@ -6,9 +6,9 @@ namespace EcomTrackAPI.Services
 {
     public class ClienteService
     {
-        public static ClienteRegistroResult RegistrarCliente(ClienteRegistro cliente)
+        public static ResultadoRegistro RegistrarCliente(ClienteRegistro cliente)
         {
-            var resultado = new ClienteRegistroResult();
+            var resultado = new ResultadoRegistro();
 
             SqlConnection conx = Datos.conectar();
             SqlCommand cmd = new SqlCommand("RegistrarCliente", conx);
@@ -32,7 +32,7 @@ namespace EcomTrackAPI.Services
                 cmd.ExecuteNonQuery();
 
                 resultado.Resultado = (bool)resultadoParam.Value;
-                resultado.IdCliente = resultadoParam.Value != DBNull.Value ? (int?)nuevoIdParam.Value : null;
+                resultado.IdUsuario = resultadoParam.Value != DBNull.Value ? (int?)nuevoIdParam.Value : null;
                 resultado.Mensaje = mensajeErrorParam.Value?.ToString();
             }
             catch (SqlException ex)
@@ -52,9 +52,9 @@ namespace EcomTrackAPI.Services
 
             return resultado;
         }
-        public static ClienteActualizarResult ActualizarCliente(ClienteActualizar cliente)
+        public static ResultadoPeticion ActualizarCliente(ClienteActualizar cliente)
         {
-            var resultado = new ClienteActualizarResult();
+            var resultado = new ResultadoPeticion();
 
             SqlConnection conx = Datos.conectar();
             SqlCommand cmd = new SqlCommand("ActualizarCliente", conx);
@@ -169,9 +169,9 @@ namespace EcomTrackAPI.Services
                 conx.Close();
             }
         }
-        public static ClienteEliminarResult EliminarCliente(int id)
+        public static ResultadoPeticion EliminarCliente(int id)
         {
-            var resultado = new ClienteEliminarResult();
+            var resultado = new ResultadoPeticion();
             SqlConnection conx = Datos.conectar();
             SqlCommand cmd = new SqlCommand("EliminarCliente", conx);
             cmd.CommandType = CommandType.StoredProcedure;
