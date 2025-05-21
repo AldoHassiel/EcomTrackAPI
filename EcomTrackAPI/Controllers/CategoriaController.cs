@@ -32,6 +32,11 @@ namespace EcomTrackAPI.Controllers
             return guardado;
         }
 
+        public IActionResult ActualizarCategoria(Categoria categoria)
+        {
+            IActionResult actualizado = CategoriaService.ActualizarCategoria(categoria);
+            return actualizado;
+        }
 
     }
 }

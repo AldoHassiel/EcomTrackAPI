@@ -274,9 +274,6 @@ begin
 end
 
 
-
-
-
 /*Sección Eve actualizado */
 
 create table Categoria (
@@ -433,6 +430,8 @@ as
 		IdEstado = @IdEstado
 		where Id = @Id
 end
+
+
 
 
 

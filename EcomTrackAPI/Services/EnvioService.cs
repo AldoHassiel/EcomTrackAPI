@@ -61,5 +61,29 @@ namespace EcomTrackAPI.Services
             finally { conx.Close(); }
         }
 
+        public static IActionResult ActualizarEnvio(Envio envio)
+        {
+            SqlConnection conx = Datos.conectar();
+            SqlCommand cmd = new SqlCommand("ActualizarEnvio", conx);
+
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@Id", envio.Id);
+            cmd.Parameters.AddWithValue("@IdEstado", envio.IdEstado);
+
+            conx.Open();
+            try
+            {
+                cmd.ExecuteNonQuery();
+                return new OkObjectResult("Estado del envío actualizado");
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult($"No se pudo actualizar el estado del envío: {ex.Message}");
+            }
+            finally { conx.Close(); }
+        }
+
+
+
     }
 }

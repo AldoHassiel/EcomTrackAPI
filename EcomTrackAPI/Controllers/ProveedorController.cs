@@ -31,6 +31,12 @@ namespace EcomTrackAPI.Controllers
             IActionResult guardado = ProveedorService.GuardarProveedor(proveedor);
             return guardado;
         }
+
+        public IActionResult ActualizarProveedor(Proveedor proveedor)
+        {
+            IActionResult actualizado = ProveedorService.ActualizarProveedor(proveedor);
+            return actualizado;
+        }
     }
     
 }
