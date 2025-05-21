@@ -14,10 +14,10 @@ namespace EcomTrackAPI.Services
             SqlCommand cmd = new SqlCommand("RegistrarAdministrador", conx);
             cmd.CommandType = CommandType.StoredProcedure;
 
-            cmd.Parameters.AddWithValue("@Correo", admin.Correo);
-            cmd.Parameters.AddWithValue("@Pwd", admin.Pwd);
-            cmd.Parameters.AddWithValue("@Nombre", admin.Nombre);
-            cmd.Parameters.AddWithValue("@Telefono", admin.Telefono);
+            cmd.Parameters.AddWithValue("@Correo", admin.Correo.Trim());
+            cmd.Parameters.AddWithValue("@Pwd", admin.Pwd.Trim());
+            cmd.Parameters.AddWithValue("@Nombre", admin.Nombre.Trim());
+            cmd.Parameters.AddWithValue("@Telefono", admin.Telefono.Trim());
 
             var nuevoIdParam = new SqlParameter("@NuevoId", SqlDbType.Int) { Direction = ParameterDirection.Output };
             cmd.Parameters.Add(nuevoIdParam);
@@ -61,11 +61,11 @@ namespace EcomTrackAPI.Services
             cmd.CommandType = CommandType.StoredProcedure;
 
             cmd.Parameters.AddWithValue("@Id", admin.Id);
-            cmd.Parameters.AddWithValue("@Correo", admin.Correo);
-            cmd.Parameters.AddWithValue("@Pwd", admin.Pwd);
+            cmd.Parameters.AddWithValue("@Correo", admin.Correo.Trim());
+            cmd.Parameters.AddWithValue("@Pwd", admin.Pwd.Trim());
             cmd.Parameters.AddWithValue("@Estado", admin.Estado == "Activo" ? 1 : 0);
-            cmd.Parameters.AddWithValue("@Nombre", admin.Nombre);
-            cmd.Parameters.AddWithValue("@Telefono", admin.Telefono);
+            cmd.Parameters.AddWithValue("@Nombre", admin.Nombre.Trim());
+            cmd.Parameters.AddWithValue("@Telefono", admin.Telefono.Trim());
 
             var resultadoParam = new SqlParameter("@Resultado", SqlDbType.Bit) { Direction = ParameterDirection.Output };
             cmd.Parameters.Add(resultadoParam);
