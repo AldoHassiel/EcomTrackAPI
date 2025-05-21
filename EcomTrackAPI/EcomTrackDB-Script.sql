@@ -1,4 +1,5 @@
 /* Seccion Aldo */
+
 CREATE TABLE Rol(
 	Id INT PRIMARY KEY NOT NULL,
 	Nombre VARCHAR(50)
@@ -77,7 +78,7 @@ BEGIN
 		Estado = @Estado
 	WHERE Id = @Id
 
-	UPDATE Administrador
+	UPDATE Cliente
 	SET
 		Nombre = @Nombre,
 		Telefono = @Telefono
@@ -101,7 +102,7 @@ BEGIN
 		Estado = @Estado
 	WHERE Id = @Id
 
-	UPDATE Cliente
+	UPDATE Administrador
 	SET
 		Nombre = @Nombre,
 		Telefono = @Telefono

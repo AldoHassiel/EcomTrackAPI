@@ -1,99 +1,209 @@
-﻿using Microsoft.AspNetCore.Mvc.ViewFeatures;
+﻿using EcomTrackAPI.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
-using EcomTrackAPI.Models;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
-using System.Reflection.PortableExecutable;
+using System.Data;
+
 namespace EcomTrackAPI.Services
 {
     public class ClienteService
     {
-        public static List<Cliente> ObtenerClientes()
+        public static ClienteRegistroResult RegistrarCliente(ClienteRegistro cliente)
         {
-            List<Cliente> clientes = new List<Cliente>();
-            SqlConnection conx = Datos.conectar();
-
-            string query = "SELECT Id, Nombre, Correo, Pwd, Telefono, FechaRegistro FROM Cliente";
-            SqlCommand command = new SqlCommand(query, conx);
-
-            conx.Open();
-            SqlDataReader reader = command.ExecuteReader();
-            while (reader.Read())
-            {
-                Cliente cliente = new Cliente
-                {
-                    Id = reader.GetInt32(0),
-                    Nombre = reader.GetString(1),
-                    Correo = reader.GetString(2),
-                    Pwd = reader.GetString(3),
-                    Telefono = reader.GetString(4),
-                    FechaRegistro = reader.GetDateTime(5)
-                };
-                clientes.Add(cliente);
-            }
-
-            reader.Close();
-            command.Dispose();
-            conx.Close();
-
-            return clientes;
-        }
-        public static Cliente ObtenerCliente(int Id)
-        {
-            Cliente cliente = new Cliente();
-            SqlConnection conx = Datos.conectar();
-
-            string query = $"SELECT Nombre, Correo, Pwd, Telefono, FechaRegistro FROM Cliente WHERE Id = {Id}";
-            SqlCommand command = new SqlCommand(query, conx);
-
-            conx.Open();
-            SqlDataReader reader = command.ExecuteReader();
-
-            if (reader.Read())
-            {
-                cliente.Id = Id;
-                cliente.Nombre = reader.GetString(0);
-                cliente.Correo = reader.GetString(1);
-                cliente.Pwd = reader.GetString(2);
-                cliente.Telefono = reader.GetString(3);
-                cliente.FechaRegistro = reader.GetDateTime(4);
-            }
-
-            reader.Close();
-            command.Dispose();
-            conx.Close();
-
-            return cliente;
-        }
-        public static string GuardarCliente(Cliente cliente)
-        {
-            string mensaje = "Ok";
+            var resultado = new ClienteRegistroResult();
 
             SqlConnection conx = Datos.conectar();
+            SqlCommand cmd = new SqlCommand("RegistrarCliente", conx);
+            cmd.CommandType = CommandType.StoredProcedure;
 
-            SqlCommand command = new SqlCommand("GuardarCliente", conx);
-            command.CommandType = System.Data.CommandType.StoredProcedure;
-            command.Parameters.AddWithValue("@Id", cliente.Id);
-            command.Parameters.AddWithValue("@Nombre", cliente.Nombre);
-            command.Parameters.AddWithValue("@Correo", cliente.Correo);
-            command.Parameters.AddWithValue("@Pwd", cliente.Pwd);
-            command.Parameters.AddWithValue("@Telefono", cliente.Telefono);
+            cmd.Parameters.AddWithValue("@Correo", cliente.Correo);
+            cmd.Parameters.AddWithValue("@Pwd", cliente.Pwd);
+            cmd.Parameters.AddWithValue("@Nombre", cliente.Nombre);
+            cmd.Parameters.AddWithValue("@Telefono", cliente.Telefono);
 
-            conx.Open();
+            var nuevoIdParam = new SqlParameter("@NuevoId", SqlDbType.Int) { Direction = ParameterDirection.Output };
+            cmd.Parameters.Add(nuevoIdParam);
+            var mensajeErrorParam = new SqlParameter("@MensajeError", SqlDbType.VarChar, 500) { Direction = ParameterDirection.Output };
+            cmd.Parameters.Add(mensajeErrorParam);
+            var resultadoParam = new SqlParameter("@Resultado", SqlDbType.Bit){ Direction = ParameterDirection.Output};
+            cmd.Parameters.Add(resultadoParam);
+
             try
             {
-                command.ExecuteNonQuery();
+                conx.Open();
+                cmd.ExecuteNonQuery();
+
+                resultado.Resultado = (bool)resultadoParam.Value;
+                resultado.IdCliente = resultadoParam.Value != DBNull.Value ? (int?)nuevoIdParam.Value : null;
+                resultado.Mensaje = mensajeErrorParam.Value?.ToString();
             }
             catch (SqlException ex)
             {
-                mensaje = ex.Message;
+                resultado.Resultado = false;
+                resultado.Mensaje = $"Error en base de datos: {ex.Message}";
+            }
+            catch (Exception ex)
+            {
+                resultado.Resultado = false;
+                resultado.Mensaje = $"Error inesperado: {ex.Message}";
             }
             finally
             {
-                command.Dispose();
+                conx.Close();
             }
 
-            conx.Close();
-            return mensaje;
+            return resultado;
+        }
+        public static ClienteActualizarResult ActualizarCliente(ClienteActualizar cliente)
+        {
+            var resultado = new ClienteActualizarResult();
+
+            SqlConnection conx = Datos.conectar();
+            SqlCommand cmd = new SqlCommand("ActualizarCliente", conx);
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            cmd.Parameters.AddWithValue("@Id", cliente.Id);
+            cmd.Parameters.AddWithValue("@Correo", cliente.Correo);
+            cmd.Parameters.AddWithValue("@Pwd", cliente.Pwd);
+            cmd.Parameters.AddWithValue("@Estado", cliente.Estado == "Activo" ? 1 : 0);
+            cmd.Parameters.AddWithValue("@Nombre", cliente.Nombre);
+            cmd.Parameters.AddWithValue("@Telefono", cliente.Telefono);
+
+            var resultadoParam = new SqlParameter("@Resultado", SqlDbType.Bit) { Direction = ParameterDirection.Output };
+            cmd.Parameters.Add(resultadoParam);
+            var mensajeErrorParam = new SqlParameter("@MensajeError", SqlDbType.VarChar, 500) { Direction = ParameterDirection.Output };
+            cmd.Parameters.Add(mensajeErrorParam);
+            
+            try
+            {
+                conx.Open();
+                cmd.ExecuteNonQuery();
+
+                resultado.Resultado = (bool)resultadoParam.Value;
+                resultado.Mensaje = mensajeErrorParam.Value?.ToString();
+
+            }
+            catch (SqlException ex)
+            {
+                resultado.Resultado = false;
+                resultado.Mensaje = $"Error en base de datos: {ex.Message}";
+            }
+            catch (Exception ex)
+            {
+                resultado.Resultado = false;
+                resultado.Mensaje = $"Error inesperado: {ex.Message}";
+            }
+            finally
+            {
+                conx.Close();
+            }
+
+            return resultado;
+        }
+        public static Cliente ObtenerClientePorId(int id)
+        {
+            SqlConnection conx = Datos.conectar();
+            SqlCommand cmd = new SqlCommand("ObtenerClientePorId", conx);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@Id", id);
+            conx.Open();
+            try
+            {
+                SqlDataReader reader = cmd.ExecuteReader();
+                if (!reader.Read()) return null;
+
+                return new Cliente
+                {
+                    Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                    Nombre = reader.GetString(reader.GetOrdinal("Nombre")),
+                    Correo = reader.GetString(reader.GetOrdinal("Correo")),
+                    Pwd = reader.GetString(reader.GetOrdinal("Pwd")),
+                    Telefono = reader.GetString(reader.GetOrdinal("Telefono")),
+                    FechaRegistro = reader.GetDateTime(reader.GetOrdinal("FechaRegistro")),
+                    TotalCompras = reader.GetInt32(reader.GetOrdinal("TotalCompras")),
+                    TotalGastado = reader.GetDecimal(reader.GetOrdinal("TotalGastado")),
+                    Estado = reader.GetBoolean(reader.GetOrdinal("Estado")) ? "Activo" : "Inactivo"
+                };
+            }
+            catch (SqlException ex)
+            {
+                throw new Exception($"Error en base de datos: {ex.Message}");
+            }
+            finally
+            {
+                conx.Close();
+            }
+        }
+        public static List<Cliente> ObtenerClientes(int orden)
+        {
+            SqlConnection conx = Datos.conectar();
+            SqlCommand cmd = new SqlCommand("ObtenerClientes", conx);
+            cmd.Parameters.AddWithValue("@TipoOrden", orden);
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            try
+            {
+                conx.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+                List<Cliente> clientes = new List<Cliente>();
+                while (reader.Read())
+                {
+                    clientes.Add(new Cliente
+                    {
+                        Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                        Nombre = reader.GetString(reader.GetOrdinal("Nombre")),
+                        Correo = reader.GetString(reader.GetOrdinal("Correo")),
+                        Telefono = reader.GetString(reader.GetOrdinal("Telefono")),
+                        FechaRegistro = reader.GetDateTime(reader.GetOrdinal("FechaRegistro")),
+                        TotalCompras = reader.GetInt32(reader.GetOrdinal("TotalCompras")),
+                        TotalGastado = reader.GetDecimal(reader.GetOrdinal("TotalGastado")),
+                        Estado = reader.GetBoolean(reader.GetOrdinal("Estado")) ? "Activo" : "Inactivo"
+                    });
+                }
+                return clientes;
+            }
+            catch (SqlException ex)
+            {
+                throw new Exception($"Error en base de datos: {ex.Message}");
+            }
+            finally
+            {
+                conx.Close();
+            }
+        }
+        public static ClienteEliminarResult EliminarCliente(int id)
+        {
+            var resultado = new ClienteEliminarResult();
+            SqlConnection conx = Datos.conectar();
+            SqlCommand cmd = new SqlCommand("EliminarCliente", conx);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@Id", id);
+            var resultadoParam = new SqlParameter("@Resultado", SqlDbType.Bit) { Direction = ParameterDirection.Output };
+            cmd.Parameters.Add(resultadoParam);
+            var mensajeErrorParam = new SqlParameter("@MensajeError", SqlDbType.VarChar, 500) { Direction = ParameterDirection.Output };
+            cmd.Parameters.Add(mensajeErrorParam);
+
+            try
+            {
+                conx.Open();
+                cmd.ExecuteNonQuery();
+                resultado.Resultado = (bool)resultadoParam.Value;
+                resultado.Mensaje = mensajeErrorParam.Value?.ToString();
+            }
+            catch (SqlException ex)
+            {
+                resultado.Resultado = false;
+                resultado.Mensaje = $"Error en base de datos: {ex.Message}";
+            }
+            catch (Exception ex)
+            {
+                resultado.Resultado = false;
+                resultado.Mensaje = $"Error inesperado: {ex.Message}";
+            }
+            finally
+            {
+                conx.Close();
+            }
+            return resultado;
         }
     }
 }

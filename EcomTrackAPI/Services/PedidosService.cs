@@ -8,10 +8,6 @@ namespace EcomTrackAPI.Services
 {
     public class PedidosService
     {
-        public static List<Pedidos> ObtenerPedidos()
-        {
-
-        }
         public static IActionResult ActualizarEstadoPedido(Pedidos pedido)
         {
             SqlConnection conx = Datos.conectar();

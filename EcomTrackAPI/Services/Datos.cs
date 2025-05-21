@@ -6,7 +6,8 @@ namespace EcomTrackAPI.Services
         public static SqlConnection conectar()
         {
             SqlConnection conx = new SqlConnection();
-            conx.ConnectionString = "Server=tcp:alydev.database.windows.net;Initial Catalog=DB_EcomTrack;User ID=alydev;Password=Tilines123;";
+            //conx.ConnectionString = "Server=tcp:alydev.database.windows.net;Initial Catalog=DB_EcomTrack;User ID=alydev;Password=Tilines123;";
+            conx.ConnectionString = "Server=tcp:alydev.database.windows.net;Initial Catalog=DB_Pruebas;User ID=alydev;Password=Tilines123;";
             return conx;
         }
     }
