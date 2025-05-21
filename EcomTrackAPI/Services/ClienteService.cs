@@ -105,6 +105,7 @@ namespace EcomTrackAPI.Services
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@Id", id);
             conx.Open();
+
             try
             {
                 SqlDataReader reader = cmd.ExecuteReader();

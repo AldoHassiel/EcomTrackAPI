@@ -16,7 +16,7 @@ namespace EcomTrackAPI.Controllers
 
             if (resultado.Resultado)
             {
-                return Ok(new { Mensaje = "Cliente registrado correctamente", IdCliente = resultado.IdCliente });
+                return Ok(new { Mensaje = "Cliente registrado correctamente", IdCliente = resultado.IdUsuario });
             }
 
             return BadRequest(new { Mensaje = resultado.Mensaje });
