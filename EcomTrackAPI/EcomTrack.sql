@@ -610,7 +610,7 @@ as
 
 execute GuardarProveedor @Id = 0, @Nombre = 'Apple', @Correo = '@gmail.com', @Telefono = '666666666', @Estado = 1
 
-select * from proveedor
+select * from Proveedor
 
 create table Envio (
 	Id int identity primary key not null,
