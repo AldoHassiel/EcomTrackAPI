@@ -17,10 +17,10 @@ namespace EcomTrackAPI.Controllers
 
             if (resultado.Resultado)
             {
-                return Ok(new { Mensaje = "Administrador registrado correctamente", IdAdmin = resultado.IdUsuario });
+                return Ok(new { Resultado = true, Mensaje = "Administrador registrado correctamente", IdAdmin = resultado.IdUsuario });
             }
 
-            return BadRequest(new { Mensaje = resultado.Mensaje });
+            return BadRequest(new { Resultado = false, Mensaje = resultado.Mensaje });
         }
 
         [HttpPut("ActualizarAdmin")]
@@ -32,10 +32,10 @@ namespace EcomTrackAPI.Controllers
 
             if (resultado.Resultado)
             {
-                return Ok(new { Mensaje = "Administrador actualizado correctamente" });
+                return Ok(new { Resultado = true, Mensaje = "Administrador actualizado correctamente" });
             }
 
-            return BadRequest(new { Mensaje = resultado.Mensaje });
+            return BadRequest(new { Resultado = false, Mensaje = resultado.Mensaje });
         }
 
         [HttpDelete("EliminarAdmin")]
@@ -47,10 +47,10 @@ namespace EcomTrackAPI.Controllers
 
             if (resultado.Resultado)
             {
-                return Ok(new { Mensaje = "Administrador eliminado correctamente" });
+                return Ok(new { Resultado = true, Mensaje = "Administrador eliminado correctamente" });
             }
 
-            return BadRequest(new { Mensaje = resultado.Mensaje });
+            return BadRequest(new { Resultado = false, Mensaje = resultado.Mensaje });
         }
 
         [HttpGet("ObtenerAdminPorId")]
@@ -62,10 +62,10 @@ namespace EcomTrackAPI.Controllers
 
             if (admin == null)
             {
-                return NotFound(new { Mensaje = "Administrador no encontrado" });
+                return NotFound(new { Resultado = false, Mensaje = "Administrador no encontrado" });
             }
 
-            return Ok(admin);
+            return Ok(new { Resultado = true, admin });
         }
 
         [HttpGet("ObtenerAdmins")]
@@ -78,7 +78,7 @@ namespace EcomTrackAPI.Controllers
                 return NotFound(new { Mensaje = "No se encontraron administradores" });
             }
 
-            return Ok(admins);
+            return Ok(new { Resultado = true, admins });
         }
     }
 }

@@ -16,10 +16,10 @@ namespace EcomTrackAPI.Controllers
 
             if (resultado.Resultado)
             {
-                return Ok(new { Mensaje = "Cliente registrado correctamente", IdCliente = resultado.IdUsuario });
+                return Ok(new { Resultado = true, Mensaje = "Cliente registrado correctamente", IdCliente = resultado.IdUsuario });
             }
 
-            return BadRequest(new { Mensaje = resultado.Mensaje });
+            return BadRequest(new { Resultado = false, Mensaje = resultado.Mensaje });
         }
 
         [HttpPut("ActualizarCliente")]
@@ -31,9 +31,9 @@ namespace EcomTrackAPI.Controllers
 
             if (resultado.Resultado)
             {
-                return Ok(new { Mensaje = "Cliente actualizado correctamente" });
+                return Ok(new { Resultado = true, Mensaje = "Cliente actualizado correctamente" });
             }
-            return BadRequest(new { Mensaje = resultado.Mensaje });
+            return BadRequest(new { Resultado = false, Mensaje = resultado.Mensaje });
         }
 
         [HttpDelete("EliminarCliente")]
@@ -45,9 +45,9 @@ namespace EcomTrackAPI.Controllers
 
             if (resultado.Resultado)
             {
-                return Ok(new { Mensaje = "Cliente eliminado correctamente" });
+                return Ok(new { Resultado = true, Mensaje = "Cliente eliminado correctamente" });
             }
-            return BadRequest(new { Mensaje = resultado.Mensaje });
+            return BadRequest(new { Resultado = false, Mensaje = resultado.Mensaje });
         }
 
         [HttpGet("ObtenerClientePorId")]
@@ -62,7 +62,7 @@ namespace EcomTrackAPI.Controllers
                 return NotFound(new { Mensaje = "Cliente no encontrado" });
             }
 
-            return Ok(cliente);
+            return Ok(new { Resultado = true, cliente });
         }
 
         [HttpGet("ObtenerClientes")]
@@ -72,9 +72,9 @@ namespace EcomTrackAPI.Controllers
 
             if (clientes == null || clientes.Count == 0)
             {
-                return NotFound(new { Mensaje = "No se encontraron clientes" });
+                return NotFound(new { Resultado = false, Mensaje = "No se encontraron clientes" });
             }
-            return Ok(clientes);
+            return Ok( new { Resultado = true , clientes });
         }
     }
 }
