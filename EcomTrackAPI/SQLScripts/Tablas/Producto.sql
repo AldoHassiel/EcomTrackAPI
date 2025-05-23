@@ -12,3 +12,144 @@ CREATE TABLE Producto(
 	FOREIGN KEY(Categoria) REFERENCES Categoria(Id),
 	FOREIGN KEY(Proveedor) REFERENCES Proveedor(Id)
 );
+
+CREATE PROCEDURE GuardarProducto(
+	@Nombre VARCHAR(100),
+	@Descripcion VARCHAR(100),
+	@Categoria INT,
+	@Precio DECIMAL(10,2),
+	@Stock INT,
+	@Proveedor INT,
+	@UrlImagen NVARCHAR(255),
+	@Estado BIT,
+	@Resultado BIT OUTPUT,
+	@Mensaje VARCHAR(500) OUTPUT
+)
+AS
+BEGIN
+	BEGIN TRY
+		IF EXISTS (SELECT 1 FROM Producto WHERE Nombre = @Nombre)
+        BEGIN
+            SET @Resultado = 0
+            SET @Mensaje = 'Ya existe un producto con ese nombre'
+            RETURN
+        END
+		
+		IF NOT EXISTS (SELECT 1 FROM Categoria WHERE Id = @Categoria)
+        BEGIN
+            SET @Resultado = 0
+            SET @Mensaje = 'No existe la categoría'
+            RETURN
+        END
+
+		IF NOT EXISTS (SELECT 1 FROM Proveedor WHERE Id = @Proveedor)
+        BEGIN
+            SET @Resultado = 0
+            SET @Mensaje = 'No existe el proveedor'
+            RETURN
+        END
+
+		INSERT INTO Producto(Nombre, Descripcion, Categoria, Precio, Stock, Proveedor, UrlImagen, FechaRegistro, Estado)
+		VALUES (@Nombre, @Descripcion, @Categoria, @Precio, @Stock, @Proveedor, @UrlImagen, GETDATE(), @Estado)
+
+		SET @Resultado = 1
+		SET @Mensaje = 'Registro exitoso'
+
+	END TRY
+	BEGIN CATCH
+		SET @Resultado = 0
+		SET @Mensaje = ERROR_MESSAGE()
+	END CATCH
+END
+
+CREATE PROCEDURE ActualizarProducto(
+	@Id INT,
+	@Nombre VARCHAR(100),
+	@Descripcion VARCHAR(100),
+	@Categoria INT,
+	@Precio DECIMAL(10,2),
+	@Stock INT,
+	@Proveedor INT,
+	@UrlImagen NVARCHAR(255),
+	@Estado BIT,
+	@Resultado BIT OUTPUT,
+	@Mensaje VARCHAR(500) OUTPUT
+)
+AS
+BEGIN
+	BEGIN TRY
+		IF NOT EXISTS (SELECT 1 FROM Producto WHERE Id = @Id)
+		BEGIN
+			SET @Resultado = 0
+			SET @Mensaje = 'El producto no existe'
+			RETURN
+		END
+
+		IF EXISTS (SELECT 1 FROM Producto WHERE Nombre = @Nombre AND Id <> @Id)
+		BEGIN
+			SET @Resultado = 0
+			SET @Mensaje = 'Ya existe otro producto con ese nombre'
+			RETURN
+		END
+
+		IF NOT EXISTS (SELECT 1 FROM Categoria WHERE Id = @Categoria)
+        BEGIN
+            SET @Resultado = 0
+            SET @Mensaje = 'No existe la categoría'
+            RETURN
+        END
+
+        IF NOT EXISTS (SELECT 1 FROM Proveedor WHERE Id = @Proveedor)
+        BEGIN
+            SET @Resultado = 0
+            SET @Mensaje = 'No existe el proveedor'
+            RETURN
+        END
+
+		UPDATE Producto
+		SET Nombre = @Nombre,
+			Descripcion = @Descripcion,
+			Categoria = @Categoria,
+			Precio = @Precio,
+			Stock = @Stock,
+			Proveedor = @Proveedor,
+			UrlImagen = @UrlImagen,
+			Estado = @Estado
+		WHERE Id = @Id
+
+		SET @Resultado = 1
+		SET @Mensaje = 'Actualización exitosa'
+
+	END TRY
+	BEGIN CATCH
+		SET @Resultado = 0
+		SET @Mensaje = ERROR_MESSAGE()
+	END CATCH
+END
+
+CREATE PROCEDURE EliminarProducto(
+	@Id INT,
+	@Resultado BIT OUTPUT,
+	@Mensaje VARCHAR(500) OUTPUT
+)
+AS
+BEGIN
+	BEGIN TRY
+		IF NOT EXISTS (SELECT 1 FROM Producto WHERE Id = @Id)
+		BEGIN
+			SET @Resultado = 0
+			SET @Mensaje = 'El producto no existe'
+			RETURN
+		END
+
+		DELETE FROM Producto WHERE Id = @Id
+
+		SET @Resultado = 1
+		SET @Mensaje = 'Producto eliminado exitosamente'
+	END TRY
+	BEGIN CATCH
+		SET @Resultado = 0
+		SET @Mensaje = ERROR_MESSAGE()
+	END CATCH
+END
+
