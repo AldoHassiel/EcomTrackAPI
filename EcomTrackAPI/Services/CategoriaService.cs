@@ -75,5 +75,30 @@ namespace EcomTrackAPI.Services
             }
             finally { conx.Close(); }
         }
+
+        public static IActionResult ActualizarCategoria(Categoria categoria)
+        {
+            SqlConnection conx = Datos.conectar();
+            SqlCommand cmd = new SqlCommand("ActualizarCategoria", conx);
+
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@Id", categoria.Id);
+            cmd.Parameters.AddWithValue("@Nombre", categoria.Nombre);
+            cmd.Parameters.AddWithValue("@Descripcion", categoria.Descripcion);
+            cmd.Parameters.AddWithValue("@CantidadProducto", categoria.CantidadProducto);
+            cmd.Parameters.AddWithValue("@Estado", categoria.Estado);
+
+            conx.Open();
+            try
+            {
+                cmd.ExecuteNonQuery();
+                return new OkObjectResult("Categoría actualizada");
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult($"Error al actualizar: {ex.Message}");
+            }
+            finally { conx.Close(); }
+        }
     }
 }

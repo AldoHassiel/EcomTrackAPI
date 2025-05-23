@@ -60,8 +60,8 @@ namespace EcomTrackAPI.Services
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@Id", proveedor.Id);
             cmd.Parameters.AddWithValue("@Nombre", proveedor.Nombre);
-            cmd.Parameters.AddWithValue("@Descripcion", proveedor.Correo);
-            cmd.Parameters.AddWithValue("@CantidadProducto", proveedor.Telefono);
+            cmd.Parameters.AddWithValue("@Correo", proveedor.Correo);
+            cmd.Parameters.AddWithValue("@Telefono", proveedor.Telefono);
             cmd.Parameters.AddWithValue("@Estado", proveedor.Estado);
 
             conx.Open();
@@ -73,6 +73,31 @@ namespace EcomTrackAPI.Services
             catch (Exception ex)
             {
                 return new BadRequestObjectResult($"Error al guardar: {ex.Message}");
+            }
+            finally { conx.Close(); }
+        }
+
+        public static IActionResult ActualizarProveedor(Proveedor proveedor)
+        {
+            SqlConnection conx = Datos.conectar();
+            SqlCommand cmd = new SqlCommand("ActualizarProveedor", conx);
+
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@Id", proveedor.Id);
+            cmd.Parameters.AddWithValue("@Nombre", proveedor.Nombre);
+            cmd.Parameters.AddWithValue("@Correo", proveedor.Correo);
+            cmd.Parameters.AddWithValue("@Telefono", proveedor.Telefono);
+            cmd.Parameters.AddWithValue("@Estado", proveedor.Estado);
+
+            conx.Open();
+            try
+            {
+                cmd.ExecuteNonQuery();
+                return new OkObjectResult("Proveedor actualizado");
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult($"Error al actualizar el proveedor: {ex.Message}");
             }
             finally { conx.Close(); }
         }
