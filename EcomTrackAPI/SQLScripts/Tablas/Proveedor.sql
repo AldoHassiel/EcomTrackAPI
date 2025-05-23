@@ -6,7 +6,7 @@ create table Proveedor (
 	Estado bit default 1
 )
 
-ALTER PROCEDURE GuardarProveedor( 
+CREATE PROCEDURE GuardarProveedor( 
 	@Id INT,
 	@Nombre VARCHAR(50), 
 	@Correo VARCHAR(100),
