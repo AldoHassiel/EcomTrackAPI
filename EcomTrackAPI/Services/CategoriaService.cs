@@ -19,7 +19,9 @@ namespace EcomTrackAPI.Services
             try
             {
                 conx.Open();
+
                 SqlDataReader reader = cmd.ExecuteReader();
+
                 while (reader.Read())
                 {
                     Categoria categoria = new Categoria()

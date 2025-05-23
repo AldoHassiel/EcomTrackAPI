@@ -6,12 +6,12 @@ namespace EcomTrackAPI.Services
 {
     public class ClienteService
     {
-        public static ResultadoRegistro RegistrarCliente(ClienteRegistro cliente)
+        public static RespuestaAPI RegistrarCliente(ClienteRegistro cliente)
         {
-            var resultado = new ResultadoRegistro();
+            var respuestaAPI = new RespuestaAPI();
 
             SqlConnection conx = Datos.conectar();
-            SqlCommand cmd = new SqlCommand("RegistrarCliente", conx);
+            SqlCommand cmd = new SqlCommand("GuardarCliente", conx);
             cmd.CommandType = CommandType.StoredProcedure;
 
             cmd.Parameters.AddWithValue("@Correo", cliente.Correo.Trim());
@@ -19,42 +19,40 @@ namespace EcomTrackAPI.Services
             cmd.Parameters.AddWithValue("@Nombre", cliente.Nombre.Trim());
             cmd.Parameters.AddWithValue("@Telefono", cliente.Telefono.Trim());
 
-            var nuevoIdParam = new SqlParameter("@NuevoId", SqlDbType.Int) { Direction = ParameterDirection.Output };
-            cmd.Parameters.Add(nuevoIdParam);
-            var mensajeErrorParam = new SqlParameter("@MensajeError", SqlDbType.VarChar, 500) { Direction = ParameterDirection.Output };
-            cmd.Parameters.Add(mensajeErrorParam);
-            var resultadoParam = new SqlParameter("@Resultado", SqlDbType.Bit){ Direction = ParameterDirection.Output};
-            cmd.Parameters.Add(resultadoParam);
+            var nuevoId = new SqlParameter("@NuevoId", SqlDbType.Int) { Direction = ParameterDirection.Output };
+            var mensaje = new SqlParameter("@MensajeError", SqlDbType.VarChar, 500) { Direction = ParameterDirection.Output };
+            var resultado = new SqlParameter("@Resultado", SqlDbType.Bit){ Direction = ParameterDirection.Output};
+
+            cmd.Parameters.Add(nuevoId);
+            cmd.Parameters.Add(mensaje);
+            cmd.Parameters.Add(resultado);
 
             try
             {
                 conx.Open();
                 cmd.ExecuteNonQuery();
 
-                resultado.Resultado = (bool)resultadoParam.Value;
-                resultado.IdUsuario = resultadoParam.Value != DBNull.Value ? (int?)nuevoIdParam.Value : null;
-                resultado.Mensaje = mensajeErrorParam.Value?.ToString();
-            }
-            catch (SqlException ex)
-            {
-                resultado.Resultado = false;
-                resultado.Mensaje = $"Error en base de datos: {ex.Message}";
+                respuestaAPI.Resultado = (bool)resultado.Value;
+                respuestaAPI.Mensaje = mensaje.Value?.ToString();
+
+                respuestaAPI.Datos = nuevoId.Value != DBNull.Value ? Convert.ToInt32(nuevoId.Value) : null;
             }
             catch (Exception ex)
             {
-                resultado.Resultado = false;
-                resultado.Mensaje = $"Error inesperado: {ex.Message}";
+                respuestaAPI.Resultado = false;
+                respuestaAPI.Mensaje = $"Error inesperado: {ex.Message}";
+                respuestaAPI.Datos = null;
             }
             finally
             {
                 conx.Close();
             }
 
-            return resultado;
+            return respuestaAPI;
         }
-        public static ResultadoPeticion ActualizarCliente(ClienteActualizar cliente)
+        public static RespuestaAPI ActualizarCliente(ClienteActualizar cliente)
         {
-            var resultado = new ResultadoPeticion();
+            var respuestaAPI = new RespuestaAPI();
 
             SqlConnection conx = Datos.conectar();
             SqlCommand cmd = new SqlCommand("ActualizarCliente", conx);
@@ -67,51 +65,60 @@ namespace EcomTrackAPI.Services
             cmd.Parameters.AddWithValue("@Nombre", cliente.Nombre.Trim());
             cmd.Parameters.AddWithValue("@Telefono", cliente.Telefono.Trim());
 
-            var resultadoParam = new SqlParameter("@Resultado", SqlDbType.Bit) { Direction = ParameterDirection.Output };
-            cmd.Parameters.Add(resultadoParam);
-            var mensajeErrorParam = new SqlParameter("@MensajeError", SqlDbType.VarChar, 500) { Direction = ParameterDirection.Output };
-            cmd.Parameters.Add(mensajeErrorParam);
-            
+            var mensaje = new SqlParameter("@MensajeError", SqlDbType.VarChar, 500) { Direction = ParameterDirection.Output };
+            var resultado = new SqlParameter("@Resultado", SqlDbType.Bit) { Direction = ParameterDirection.Output };
+
+
+            cmd.Parameters.Add(mensaje);
+            cmd.Parameters.Add(resultado);
+
             try
             {
                 conx.Open();
                 cmd.ExecuteNonQuery();
 
-                resultado.Resultado = (bool)resultadoParam.Value;
-                resultado.Mensaje = mensajeErrorParam.Value?.ToString();
+                respuestaAPI.Resultado = (bool)resultado.Value;
+                respuestaAPI.Mensaje = mensaje.Value?.ToString();
+                respuestaAPI.Datos = null;
 
-            }
-            catch (SqlException ex)
-            {
-                resultado.Resultado = false;
-                resultado.Mensaje = $"Error en base de datos: {ex.Message}";
             }
             catch (Exception ex)
             {
-                resultado.Resultado = false;
-                resultado.Mensaje = $"Error inesperado: {ex.Message}";
+                respuestaAPI.Resultado = false;
+                respuestaAPI.Mensaje = $"Error inesperado: {ex.Message}";
+                respuestaAPI.Datos = null;
             }
             finally
             {
                 conx.Close();
             }
 
-            return resultado;
+            return respuestaAPI;
         }
-        public static Cliente ObtenerClientePorId(int id)
+        public static RespuestaAPI ObtenerUnCliente(int id)
         {
+            var respuestaAPI = new RespuestaAPI();
+
             SqlConnection conx = Datos.conectar();
             SqlCommand cmd = new SqlCommand("ObtenerClientePorId", conx);
             cmd.CommandType = CommandType.StoredProcedure;
+
             cmd.Parameters.AddWithValue("@Id", id);
-            conx.Open();
 
             try
             {
-                SqlDataReader reader = cmd.ExecuteReader();
-                if (!reader.Read()) return null;
+                conx.Open();
 
-                return new Cliente
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                if (!reader.Read())
+                {
+                    respuestaAPI.Resultado = false;
+                    respuestaAPI.Mensaje = "No se encontró el cliente";
+                    return respuestaAPI;
+                }
+
+                var cliente = new Cliente
                 {
                     Id = reader.GetInt32(reader.GetOrdinal("Id")),
                     Nombre = reader.GetString(reader.GetOrdinal("Nombre")),
@@ -123,28 +130,47 @@ namespace EcomTrackAPI.Services
                     TotalGastado = reader.GetDecimal(reader.GetOrdinal("TotalGastado")),
                     Estado = reader.GetBoolean(reader.GetOrdinal("Estado")) ? "Activo" : "Inactivo"
                 };
+                respuestaAPI.Resultado = true;
+                respuestaAPI.Mensaje = "Cliente encontrado";
+                respuestaAPI.Datos = cliente;
             }
-            catch (SqlException ex)
+            catch (Exception ex)
             {
-                throw new Exception($"Error en base de datos: {ex.Message}");
+                respuestaAPI.Resultado = false;
+                respuestaAPI.Mensaje = $"Error inesperado: {ex.Message}";
             }
             finally
             {
                 conx.Close();
             }
+
+            return respuestaAPI;
         }
-        public static List<Cliente> ObtenerClientes(int orden)
+        public static RespuestaAPI ObtenerClientes(int orden)
         {
+            var respuestaAPI = new RespuestaAPI();
+
             SqlConnection conx = Datos.conectar();
             SqlCommand cmd = new SqlCommand("ObtenerClientes", conx);
-            cmd.Parameters.AddWithValue("@TipoOrden", orden);
             cmd.CommandType = CommandType.StoredProcedure;
+
+            cmd.Parameters.AddWithValue("@TipoOrden", orden);
 
             try
             {
                 conx.Open();
                 SqlDataReader reader = cmd.ExecuteReader();
+
+                if (!reader.Read())
+                {
+                    respuestaAPI.Resultado = false;
+                    respuestaAPI.Mensaje = "No se encontraron clientes";
+                    respuestaAPI.Datos = null;
+                    return respuestaAPI;
+                }
+
                 List<Cliente> clientes = new List<Cliente>();
+
                 while (reader.Read())
                 {
                     clientes.Add(new Cliente
@@ -159,51 +185,59 @@ namespace EcomTrackAPI.Services
                         Estado = reader.GetBoolean(reader.GetOrdinal("Estado")) ? "Activo" : "Inactivo"
                     });
                 }
-                return clientes;
+
+                respuestaAPI.Resultado = true;
+                respuestaAPI.Mensaje = "Clientes obtenidos correctamente";
+                respuestaAPI.Datos = clientes;
             }
-            catch (SqlException ex)
+            catch (Exception ex)
             {
-                throw new Exception($"Error en base de datos: {ex.Message}");
+                respuestaAPI.Resultado = false;
+                respuestaAPI.Mensaje = $"Error inesperado: {ex.Message}";
             }
             finally
             {
                 conx.Close();
             }
+            return respuestaAPI;
         }
-        public static ResultadoPeticion EliminarCliente(int id)
+        public static RespuestaAPI EliminarCliente(int id)
         {
-            var resultado = new ResultadoPeticion();
+            var respuestaAPI = new RespuestaAPI();
+
             SqlConnection conx = Datos.conectar();
             SqlCommand cmd = new SqlCommand("EliminarCliente", conx);
             cmd.CommandType = CommandType.StoredProcedure;
+
             cmd.Parameters.AddWithValue("@Id", id);
-            var resultadoParam = new SqlParameter("@Resultado", SqlDbType.Bit) { Direction = ParameterDirection.Output };
-            cmd.Parameters.Add(resultadoParam);
-            var mensajeErrorParam = new SqlParameter("@MensajeError", SqlDbType.VarChar, 500) { Direction = ParameterDirection.Output };
-            cmd.Parameters.Add(mensajeErrorParam);
+
+            var resultado = new SqlParameter("@Resultado", SqlDbType.Bit) { Direction = ParameterDirection.Output };
+            var mensaje = new SqlParameter("@MensajeError", SqlDbType.VarChar, 500) { Direction = ParameterDirection.Output };
+
+            cmd.Parameters.Add(resultado);
+            cmd.Parameters.Add(mensaje);
 
             try
             {
                 conx.Open();
                 cmd.ExecuteNonQuery();
-                resultado.Resultado = (bool)resultadoParam.Value;
-                resultado.Mensaje = mensajeErrorParam.Value?.ToString();
-            }
-            catch (SqlException ex)
-            {
-                resultado.Resultado = false;
-                resultado.Mensaje = $"Error en base de datos: {ex.Message}";
+
+                respuestaAPI.Resultado = (bool)resultado.Value;
+                respuestaAPI.Mensaje = mensaje.Value?.ToString();
+                respuestaAPI.Datos = null;
             }
             catch (Exception ex)
             {
-                resultado.Resultado = false;
-                resultado.Mensaje = $"Error inesperado: {ex.Message}";
+                respuestaAPI.Resultado = false;
+                respuestaAPI.Mensaje = $"Error inesperado: {ex.Message}";
+                respuestaAPI.Datos = null;
             }
             finally
             {
                 conx.Close();
             }
-            return resultado;
+
+            return respuestaAPI;
         }
     }
 }

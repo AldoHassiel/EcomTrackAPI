@@ -1,4 +1,5 @@
 ﻿using EcomTrackAPI.Models;
+using EcomTrackAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EcomTrackAPI.Controllers
@@ -10,71 +11,152 @@ namespace EcomTrackAPI.Controllers
         [HttpPost("RegistrarCliente")]
         public IActionResult RegistrarCliente([FromBody] ClienteRegistro cliente)
         {
-            if (cliente == null) return BadRequest("El cliente no puede ser nulo.");
-
-            var resultado = Services.ClienteService.RegistrarCliente(cliente);
-
-            if (resultado.Resultado)
+            if (cliente == null)
             {
-                return Ok(new { Resultado = true, Mensaje = "Cliente registrado correctamente", IdCliente = resultado.IdUsuario });
+                return BadRequest(new RespuestaAPI
+                {
+                    Resultado = false,
+                    Mensaje = "El cliente no puede ser nulo",
+                    Datos = null
+                });
             }
 
-            return BadRequest(new { Resultado = false, Mensaje = resultado.Mensaje });
+            if (string.IsNullOrWhiteSpace(cliente.Correo))
+            {
+                return BadRequest(new RespuestaAPI
+                {
+                    Resultado = false,
+                    Mensaje = "El correo es obligatorio",
+                    Datos = null
+                });
+            }
+
+            if (string.IsNullOrWhiteSpace(cliente.Pwd))
+            {
+                return BadRequest(new RespuestaAPI
+                {
+                    Resultado = false,
+                    Mensaje = "La contraseña es obligatoria",
+                    Datos = null
+                });
+            }
+
+            if (string.IsNullOrWhiteSpace(cliente.Nombre))
+            {
+                return BadRequest(new RespuestaAPI
+                {
+                    Resultado = false,
+                    Mensaje = "El nombre es obligatorio",
+                    Datos = null
+                });
+            }
+
+            if (string.IsNullOrWhiteSpace(cliente.Telefono))
+            {
+                return BadRequest(new RespuestaAPI
+                {
+                    Resultado = false,
+                    Mensaje = "El teléfono es obligatorio",
+                    Datos = null
+                });
+            }
+
+            var respuesta = ClienteService.RegistrarCliente(cliente);
+
+            return Ok(respuesta);
         }
 
         [HttpPut("ActualizarCliente")]
         public IActionResult ActualizarCliente([FromBody] ClienteActualizar cliente)
         {
-            if (cliente == null) return BadRequest("El cliente no puede ser nulo.");
-
-            var resultado = Services.ClienteService.ActualizarCliente(cliente);
-
-            if (resultado.Resultado)
+            if (cliente == null)
             {
-                return Ok(new { Resultado = true, Mensaje = "Cliente actualizado correctamente" });
+                return BadRequest(new RespuestaAPI
+                {
+                    Resultado = false,
+                    Mensaje = "El cliente no puede ser nulo",
+                    Datos = null
+                });
             }
-            return BadRequest(new { Resultado = false, Mensaje = resultado.Mensaje });
+            if (string.IsNullOrWhiteSpace(cliente.Correo))
+            {
+                return BadRequest(new RespuestaAPI
+                {
+                    Resultado = false,
+                    Mensaje = "El correo es obligatorio",
+                    Datos = null
+                });
+            }
+            if (string.IsNullOrWhiteSpace(cliente.Pwd))
+            {
+                return BadRequest(new RespuestaAPI
+                {
+                    Resultado = false,
+                    Mensaje = "La contraseña es obligatoria",
+                    Datos = null
+                });
+            }
+            if (string.IsNullOrWhiteSpace(cliente.Nombre))
+            {
+                return BadRequest(new RespuestaAPI
+                {
+                    Resultado = false,
+                    Mensaje = "El nombre es obligatorio",
+                    Datos = null
+                });
+            }
+            if (string.IsNullOrWhiteSpace(cliente.Telefono))
+            {
+                return BadRequest(new RespuestaAPI
+                {
+                    Resultado = false,
+                    Mensaje = "El teléfono es obligatorio",
+                    Datos = null
+                });
+            }
+
+            var respuesta = ClienteService.ActualizarCliente(cliente);
+
+            return Ok(respuesta);
         }
 
         [HttpDelete("EliminarCliente")]
         public IActionResult EliminarCliente(int id)
         {
-            if (id <= 0) return BadRequest("El ID del cliente no es válido.");
-
-            var resultado = Services.ClienteService.EliminarCliente(id);
-
-            if (resultado.Resultado)
+            if (id <= 0)
             {
-                return Ok(new { Resultado = true, Mensaje = "Cliente eliminado correctamente" });
+                return BadRequest(new RespuestaAPI
+                {
+                    Resultado = false,
+                    Mensaje = "El ID del cliente es inválido",
+                    Datos = null
+                });
             }
-            return BadRequest(new { Resultado = false, Mensaje = resultado.Mensaje });
+            var respuesta = ClienteService.EliminarCliente(id);
+            return Ok(respuesta);
         }
 
         [HttpGet("ObtenerClientePorId")]
-        public IActionResult ObtenerClientePorId(int id)
+        public IActionResult ObtenerUnCliente(int id)
         {
-            if (id <= 0) return BadRequest("El ID del cliente no es válido.");
-
-            var cliente = Services.ClienteService.ObtenerClientePorId(id);
-
-            if (cliente == null)
+            if (id <= 0)
             {
-                return NotFound(new { Mensaje = "Cliente no encontrado" });
+                return BadRequest(new RespuestaAPI
+                {
+                    Resultado = false,
+                    Mensaje = "El ID del cliente es inválido",
+                    Datos = null
+                });
             }
-
-            return Ok(new { Resultado = true, cliente });
+            var respuesta = ClienteService.ObtenerUnCliente(id);
+            return Ok(respuesta);
         }
 
         [HttpGet("ObtenerClientes")]
-        public IActionResult ObtenerClientes([FromQuery] int orden = 0)
+        public IActionResult ObtenerClientes(int orden)
         {
-            var clientes = Services.ClienteService.ObtenerClientes(orden);
-
-            if (clientes == null || clientes.Count == 0)
-            {
-                return NotFound(new { Resultado = false, Mensaje = "No se encontraron clientes" });
-            }
-            return Ok( new { Resultado = true , clientes });
+            var respuesta = ClienteService.ObtenerClientes(orden);
+            return Ok(respuesta);
         }
     }
 }
