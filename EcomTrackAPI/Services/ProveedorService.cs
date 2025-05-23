@@ -142,7 +142,7 @@ namespace EcomTrackAPI.Services
                 conx.Open();
                 SqlDataReader reader = cmd.ExecuteReader();
 
-                if (!reader.Read())
+                if (!reader.HasRows)
                 {
                     respuestaAPI.Resultado = false;
                     respuestaAPI.Mensaje = "No se encontraron proveedores";

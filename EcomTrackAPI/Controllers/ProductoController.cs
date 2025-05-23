@@ -8,79 +8,84 @@ namespace EcomTrackAPI.Controllers
     [ApiController]
     public class ProductoController : ControllerBase
     {
-        [HttpGet]
-        [Route("[action]")]
-        public ActionResult<List<Producto>> ObtenerProductos()
+        [HttpGet("ObtenerProductos")]
+        public IActionResult ObtenerProductos()
         {
-            try
+            var respuestaAPI = ProductoService.ObtenerProductos();
+
+            if (!respuestaAPI.Resultado)
             {
-                List<Producto> productos = ProductoService.ObtenerProductos();
-                if (productos == null || productos.Count == 0)
+                return BadRequest(respuestaAPI);
+            }
+
+            return Ok(respuestaAPI);
+        }
+        [HttpPost("GuardarProducto")]
+        public IActionResult GuardarProducto([FromBody] Producto producto)
+        {
+            if (producto == null)
+            {
+                return BadRequest(new RespuestaAPI
                 {
-                    return NotFound("No se encontraron productos.");
-                }
-                return Ok(productos);
+                    Resultado = false,
+                    Mensaje = "El producto no puede ser nulo",
+                    Datos = null
+                });
             }
-            catch (Exception ex)
+
+            var respuestaAPI = ProductoService.GuardarProducto(producto);
+
+            if (!respuestaAPI.Resultado)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error al obtener los productos: " + ex.Message);
+                return BadRequest(respuestaAPI);
             }
+
+            return Ok(respuestaAPI);
+        }
+        [HttpPut("ActualizarProducto")]
+        public IActionResult ActualizarProducto([FromBody] Producto producto)
+        {
+            if (producto == null)
+            {
+                return BadRequest(new RespuestaAPI
+                {
+                    Resultado = false,
+                    Mensaje = "El producto no puede ser nulo",
+                    Datos = null
+                });
+            }
+
+            var respuestaAPI = ProductoService.ActualizarProducto(producto);
+
+            if (!respuestaAPI.Resultado)
+            {
+                return BadRequest(respuestaAPI);
+            }
+
+            return Ok(respuestaAPI);
         }
 
-        [HttpGet]
-        [Route("[action]")]
-        public ActionResult<Producto> ObtenerProductoPorId(int id)
+        [HttpDelete("EliminarProducto")]
+        public IActionResult EliminarProducto(int id)
         {
-            try
+            if (id <= 0)
             {
-                Producto producto = ProductoService.ObtenerProductoPorId(id);
-                if (producto == null)
+                return BadRequest(new RespuestaAPI
                 {
-                    return NotFound("Producto no encontrado.");
-                }
-                return Ok(producto);
+                    Resultado = false,
+                    Mensaje = "El ID del producto no puede ser menor o igual a cero",
+                    Datos = null
+                });
             }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error al obtener el producto: " + ex.Message);
-            }
-        }
 
-        [HttpPost]
-        [Route("[action]")]
-        public ActionResult<string> GuardarProducto([FromBody] Producto producto)
-        {
-            try
-            {
-                string mensaje = ProductoService.GuardarProducto(producto);
-                if (mensaje != "Ok")
-                {
-                    return BadRequest(mensaje);
-                }
-                return Ok("Producto guardado correctamente.");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error al guardar el producto: " + ex.Message);
-            }
-        }
+            var respuestaAPI = ProductoService.EliminarProducto(id);
 
-        [HttpDelete("{id}")]
-        public ActionResult<string> EliminarProducto(int id)
-        {
-            try
+            if (!respuestaAPI.Resultado)
             {
-                string mensaje = ProductoService.EliminarProducto(id);
-                if (mensaje != "Ok")
-                {
-                    return BadRequest(mensaje);
-                }
-                return Ok("Producto eliminado correctamente.");
+                return BadRequest(respuestaAPI);
             }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error al eliminar el producto: " + ex.Message);
-            }
+
+            return Ok(respuestaAPI);
         }
     }
 }
