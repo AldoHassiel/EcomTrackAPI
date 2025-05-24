@@ -153,7 +153,7 @@ BEGIN
 	END CATCH
 END
 
-CREATE PROCEDURE ObtenerProductosFiltro
+ALTER PROCEDURE ObtenerProductosFiltro
     @IdCategoria INT = 0,
     @IdProveedor INT = 0,
 	@Resultado BIT OUTPUT,
