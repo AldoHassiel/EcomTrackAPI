@@ -14,7 +14,7 @@ CREATE TABLE Pedido(
     Numero VARCHAR(10),
     Colonia VARCHAR(100),
     Ciudad VARCHAR(100),
-    Estado VARCHAR(100),
+    EstadoD VARCHAR(100),
     CodigoPostal VARCHAR(10),
     Pais VARCHAR(100),
 	FOREIGN KEY (Cliente) REFERENCES Cliente(Id),
@@ -32,15 +32,15 @@ CREATE PROCEDURE RegistrarPedido(
 	@Numero VARCHAR(20), 
 	@Colonia VARCHAR(100), 
 	@Ciudad VARCHAR(100), 
-	@Estado VARCHAR(100), 
+	@EstadoD VARCHAR(100), 
 	@CodigoPostal VARCHAR(10),
 	@Pais VARCHAR(100)
 )
 AS
 BEGIN
 		BEGIN
-			INSERT INTO Pedido(Id, Cliente, FechaPedido, Importe, Estado, Calle, EntreCalles, Numero, Colonia, Ciudad, Estado, CodigoPostal, Pais)
-			VALUES (@Id, @Cliente, GETDATE(), @Importe, @Estado, @Calle, @EntreCalles, @Numero, @Colonia, @Ciudad, @Estado, @CodigoPostal, @Pais);
+			INSERT INTO Pedido(Id, Cliente, FechaPedido, Importe, Estado, Calle, EntreCalles, Numero, Colonia, Ciudad, EstadoD, CodigoPostal, Pais)
+			VALUES (@Id, @Cliente, GETDATE(), @Importe, @Estado, @Calle, @EntreCalles, @Numero, @Colonia, @Ciudad, @EstadoD, @CodigoPostal, @Pais);
 		END
 
 END
