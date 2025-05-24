@@ -178,6 +178,7 @@ namespace EcomTrackAPI.Services
                         Id = reader.GetInt32(reader.GetOrdinal("Id")),
                         Nombre = reader.GetString(reader.GetOrdinal("Nombre")),
                         Correo = reader.GetString(reader.GetOrdinal("Correo")),
+                        Pwd = reader.GetString(reader.GetOrdinal("Pwd")),
                         Telefono = reader.GetString(reader.GetOrdinal("Telefono")),
                         FechaRegistro = reader.GetDateTime(reader.GetOrdinal("FechaRegistro")),
                         TotalCompras = reader.GetInt32(reader.GetOrdinal("TotalCompras")),

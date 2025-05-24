@@ -1,6 +1,8 @@
-CREATE PROCEDURE ObtenerAdministradores
+EXEC ObtenerAdministradores
+
+ALTER PROCEDURE ObtenerAdministradores
 AS
 BEGIN
-	SELECT u.Id, a.Nombre, u.Correo, a.Telefono, u.FechaRegistro,  u.Estado
+	SELECT u.Id, a.Nombre, u.Correo, u.Pwd, a.Telefono, u.FechaRegistro,  u.Estado
 	FROM Usuario u INNER JOIN Administrador a ON u.Id = a.Id WHERE u.Rol = 2
 END;

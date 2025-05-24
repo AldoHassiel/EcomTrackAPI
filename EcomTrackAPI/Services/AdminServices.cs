@@ -164,6 +164,7 @@ namespace EcomTrackAPI.Services
                         Id = reader.GetInt32(reader.GetOrdinal("Id")),
                         Nombre = reader.GetString(reader.GetOrdinal("Nombre")),
                         Correo = reader.GetString(reader.GetOrdinal("Correo")),
+                        Pwd = reader.GetString(reader.GetOrdinal("Pwd")),
                         Telefono = reader.GetString(reader.GetOrdinal("Telefono")),
                         Estado = reader.GetBoolean(reader.GetOrdinal("Estado")) ? "Activo" : "Inactivo",
                         FechaRegistro = reader.GetDateTime(reader.GetOrdinal("FechaRegistro"))
@@ -214,6 +215,7 @@ namespace EcomTrackAPI.Services
                     Id = reader.GetInt32(reader.GetOrdinal("Id")),
                     Nombre = reader.GetString(reader.GetOrdinal("Nombre")),
                     Correo = reader.GetString(reader.GetOrdinal("Correo")),
+                    Pwd = reader.GetString(reader.GetOrdinal("Pwd")),
                     Telefono = reader.GetString(reader.GetOrdinal("Telefono")),
                     Estado = reader.GetBoolean(reader.GetOrdinal("Estado")) ? "Activo" : "Inactivo",
                     FechaRegistro = reader.GetDateTime(reader.GetOrdinal("FechaRegistro"))

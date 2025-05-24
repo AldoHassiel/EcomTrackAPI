@@ -1,6 +1,6 @@
 EXEC ObtenerClientes 5
 
-CREATE PROCEDURE ObtenerClientes(
+ALTER PROCEDURE ObtenerClientes(
 	@TipoOrden INT = 0
 	/*
     Valores para @TipoOrden:
@@ -15,7 +15,7 @@ CREATE PROCEDURE ObtenerClientes(
 )
 AS
 BEGIN
-	SELECT u.Id, c.Nombre, u.Correo, c.Telefono, u.FechaRegistro, c.TotalCompras, c.TotalGastado, u.Estado
+	SELECT u.Id, c.Nombre, u.Correo, u.Pwd, c.Telefono, u.FechaRegistro, c.TotalCompras, c.TotalGastado, u.Estado
 	FROM Usuario u INNER JOIN Cliente c ON u.Id = c.Id WHERE u.Rol = 1
 	ORDER BY 
         CASE @TipoOrden
