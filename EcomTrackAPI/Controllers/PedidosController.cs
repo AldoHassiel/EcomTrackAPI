@@ -8,8 +8,30 @@ namespace EcomTrackAPI.Controllers
     [ApiController]
     public class PedidosController : ControllerBase
     {
-        //[HttpPost]
-        //[Route("[action]")]
+        [HttpGet]
+        [Route("[action]")]
+        public List<Pedidos> ObtenerPedidos()
+        {
+            List<Pedidos> pedidos = PedidosService.ObtenerPedidos();
+            return pedidos;
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+
+        public IActionResult RegistrarPedido(Pedidos pedido)
+        {
+            IActionResult guardar = PedidosService.RegistrarPedido(pedido);
+            return guardar;
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        public IActionResult ActualizarEstadoPedido(Pedidos pedido)
+        {
+            IActionResult guardar = PedidosService.ActualizarEstadoPedido(pedido);
+            return guardar;
+        }
 
     }
 }
