@@ -17,10 +17,10 @@ namespace EcomTrackAPI.Services
 
             cmd.Parameters.AddWithValue("@Nombre", producto.Nombre.Trim());
             cmd.Parameters.AddWithValue("@Descripcion", producto.Descripcion.Trim());
-            cmd.Parameters.AddWithValue("@Categoria", producto.Categoria);
+            cmd.Parameters.AddWithValue("@Categoria", producto.IdCategoria);
             cmd.Parameters.AddWithValue("@Precio", producto.Precio);
             cmd.Parameters.AddWithValue("@Stock", producto.Stock);
-            cmd.Parameters.AddWithValue("@Proveedor", producto.Proveedor);
+            cmd.Parameters.AddWithValue("@Proveedor", producto.IdProveedor);
             cmd.Parameters.AddWithValue("@UrlImagen", producto.UrlImagen.Trim());
             cmd.Parameters.AddWithValue("@Estado", producto.Estado);
 
@@ -64,10 +64,10 @@ namespace EcomTrackAPI.Services
             cmd.Parameters.AddWithValue("@Id", producto.Id);
             cmd.Parameters.AddWithValue("@Nombre", producto.Nombre.Trim());
             cmd.Parameters.AddWithValue("@Descripcion", producto.Descripcion.Trim());
-            cmd.Parameters.AddWithValue("@Categoria", producto.Categoria);
+            cmd.Parameters.AddWithValue("@Categoria", producto.IdCategoria);
             cmd.Parameters.AddWithValue("@Precio", producto.Precio);
             cmd.Parameters.AddWithValue("@Stock", producto.Stock);
-            cmd.Parameters.AddWithValue("@Proveedor", producto.Proveedor);
+            cmd.Parameters.AddWithValue("@Proveedor", producto.IdProveedor);
             cmd.Parameters.AddWithValue("@UrlImagen", producto.UrlImagen.Trim());
             cmd.Parameters.AddWithValue("@Estado", producto.Estado);
 
@@ -139,18 +139,27 @@ namespace EcomTrackAPI.Services
 
             return respuestaAPI;
         }
-        public static RespuestaAPI ObtenerProductos()
+        public static RespuestaAPI ObtenerProductos(int idCategoria, int idProveedor)
         {
             var respuestaAPI = new RespuestaAPI();
 
             SqlConnection conx = Datos.conectar();
+            SqlCommand cmd = new SqlCommand("ObtenerProductos", conx);
+            cmd.CommandType = CommandType.StoredProcedure;
 
-            string query = "select Id, Nombre, Descripcion, Categoria, Precio, Stock, Proveedor, UrlImagen, FechaRegistro, Estado from Producto";
-            SqlCommand cmd = new SqlCommand(query, conx);
+            cmd.Parameters.AddWithValue("@IdCategoria", idCategoria);
+            cmd.Parameters.AddWithValue("@IdProveedor", idProveedor);
+
+            SqlParameter resultado = new SqlParameter("@Resultado", SqlDbType.Bit) { Direction = ParameterDirection.Output };
+            SqlParameter mensaje = new SqlParameter("@Mensaje", SqlDbType.VarChar, 500) { Direction = ParameterDirection.Output };
+
+            cmd.Parameters.Add(resultado);
+            cmd.Parameters.Add(mensaje);
 
             try
             {
                 conx.Open();
+
                 SqlDataReader reader = cmd.ExecuteReader();
 
                 if (!reader.HasRows)
@@ -162,27 +171,27 @@ namespace EcomTrackAPI.Services
                 }
 
                 List<Producto> productos = new List<Producto>();
-
                 while (reader.Read())
                 {
-                    Producto producto = new Producto
+                    productos.Add(new Producto
                     {
-                        Id = reader.GetInt32(0),
-                        Nombre = reader.GetString(1),
-                        Descripcion = reader.GetString(2),
-                        Categoria = reader.GetInt32(3),
-                        Precio = reader.GetDecimal(4),
-                        Stock = reader.GetInt32(5),
-                        Proveedor = reader.GetInt32(6),
-                        UrlImagen = reader.GetString(7),
-                        FechaRegistro = reader.GetDateTime(8),
-                        Estado = reader.GetBoolean(9)
-                    };
-                    productos.Add(producto);
+                        Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                        Nombre = reader.GetString(reader.GetOrdinal("Nombre")),
+                        Descripcion = reader.GetString(reader.GetOrdinal("Descripcion")),
+                        IdCategoria = reader.GetInt32(reader.GetOrdinal("IdCategoria")),
+                        CategoriaNombre = reader.GetString(reader.GetOrdinal("CategoriaNombre")),
+                        Precio = reader.GetDecimal(reader.GetOrdinal("Precio")),
+                        Stock = reader.GetInt32(reader.GetOrdinal("Stock")),
+                        IdProveedor = reader.GetInt32(reader.GetOrdinal("IdProveedor")),
+                        ProveedorNombre = reader.GetString(reader.GetOrdinal("ProveedorNombre")),
+                        UrlImagen = reader.GetString(reader.GetOrdinal("UrlImagen")),
+                        FechaRegistro = reader.GetDateTime(reader.GetOrdinal("FechaRegistro")),
+                        Estado = reader.GetBoolean(reader.GetOrdinal("Estado"))
+                    });
                 }
 
-                respuestaAPI.Resultado = true;
-                respuestaAPI.Mensaje = "Productos obtenidos correctamente";
+                respuestaAPI.Resultado = (bool)resultado.Value;
+                respuestaAPI.Mensaje = mensaje.Value?.ToString();
                 respuestaAPI.Datos = productos;
             }
             catch (Exception ex)

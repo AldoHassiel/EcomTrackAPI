@@ -9,9 +9,9 @@ namespace EcomTrackAPI.Controllers
     public class ProductoController : ControllerBase
     {
         [HttpGet("ObtenerProductos")]
-        public IActionResult ObtenerProductos()
+        public IActionResult ObtenerProductos(int idCategoria, int idProveedor)
         {
-            var respuestaAPI = ProductoService.ObtenerProductos();
+            var respuestaAPI = ProductoService.ObtenerProductos(idCategoria, idProveedor);
 
             if (!respuestaAPI.Resultado)
             {

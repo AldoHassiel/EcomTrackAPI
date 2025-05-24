@@ -153,3 +153,39 @@ BEGIN
 	END CATCH
 END
 
+CREATE PROCEDURE ObtenerProductosFiltro
+    @IdCategoria INT = 0,
+    @IdProveedor INT = 0,
+	@Resultado BIT OUTPUT,
+    @Mensaje VARCHAR(500) OUTPUT
+AS
+BEGIN
+	BEGIN TRY
+		SELECT 
+			P.Id,
+			P.Nombre,
+			P.Descripcion,
+			P.Categoria AS IdCategoria,
+			C.Nombre AS CategoriaNombre,
+			P.Precio,
+			P.Stock,
+			P.Proveedor AS IdProveedor,
+			PR.Nombre AS ProveedorNombre,
+			P.UrlImagen,
+			P.FechaRegistro,
+			P.Estado
+		FROM Producto P
+		INNER JOIN Categoria C ON C.Id = P.Categoria
+		INNER JOIN Proveedor PR ON PR.Id = P.Proveedor
+		WHERE 
+			(@IdCategoria = 0 OR P.Categoria = @IdCategoria) AND
+			(@IdCategoria = 0 OR P.Proveedor = @IdCategoria)
+
+		SET @Resultado = 1
+		SET @Mensaje = 'Productos obtenidos correctamente'
+	END TRY
+	BEGIN CATCH
+		SET @Resultado = 0
+        SET @Mensaje = ERROR_MESSAGE()
+	END CATCH
+END
