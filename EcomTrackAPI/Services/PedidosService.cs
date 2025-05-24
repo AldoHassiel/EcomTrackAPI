@@ -25,16 +25,17 @@ namespace EcomTrackAPI.Services
                 {
                     Id = reader.GetInt32(0),
                     Cliente = reader.GetInt32(1),
-                    Importe = reader.GetDecimal(2),
-                    Estado = reader.GetInt32(3),
-                    Calle = reader.GetString(4),
-                    EntreCalles = reader.GetString(5),
-                    Numero = reader.GetString(6),
-                    Colonia = reader.GetString(7),
-                    Ciudad = reader.GetString(8),
-                    EstadoD = reader.GetString(9),
-                    CodigoPostal = reader.GetString(10),
-                    Pais = reader.GetString(11),
+                    FechaPedido = reader.GetDateTime(2),
+                    Importe = reader.GetDecimal(3),
+                    Estado = reader.GetInt32(4),
+                    Calle = reader.GetString(5),
+                    EntreCalles = reader.GetString(6),
+                    Numero = reader.GetString(7),
+                    Colonia = reader.GetString(8),
+                    Ciudad = reader.GetString(9),
+                    EstadoD = reader.GetString(10),
+                    CodigoPostal = reader.GetString(11),
+                    Pais = reader.GetString(12),
 
                 };
                 pedidos.Add(pedido);

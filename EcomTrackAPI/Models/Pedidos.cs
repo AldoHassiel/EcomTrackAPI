@@ -5,6 +5,7 @@
         public int Id { get; set; }
         public int Cliente { get; set; }
         public decimal Importe {  get; set; }
+        public DateTime FechaPedido { get; set; }
         public int Estado { get; set; }
         public string Calle { get; set; }
         public string EntreCalles { get; set; }
