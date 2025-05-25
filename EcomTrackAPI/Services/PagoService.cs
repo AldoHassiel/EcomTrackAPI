@@ -1,43 +1,64 @@
 ﻿using Microsoft.Data.SqlClient;
 using EcomTrackAPI.Models;
 using System.Data;
-using Microsoft.AspNetCore.Mvc;
 
 namespace EcomTrackAPI.Services
 {
     public class PagoService
     {
-        public static List<Pago> ListaDePagos()
+        public static RespuestaAPI ListaDePagos()
         {
+            var respuestaAPI = new RespuestaAPI();
+
             List<Pago> pagos = new List<Pago>();
             SqlConnection conx = Datos.conectar();
 
             string query = "select Id, Pedido, MetodoPago, ImporteAbonado, FechaPago from Pago";
             SqlCommand command = new SqlCommand(query, conx);
 
-            conx.Open();
-            SqlDataReader reader = command.ExecuteReader();
-            while (reader.Read())
-            {
-                Pago pago = new Pago()
+            try { 
+                conx.Open();
+
+                SqlDataReader reader = command.ExecuteReader();
+                while (reader.Read())
                 {
-                    Id = reader.GetInt32(0),
-                    Pedido = reader.GetInt32(1),
-                    MetodoPago = reader.GetInt32(2),
-                    ImporteAbonado = reader.GetDecimal(3),
-                    FechaPago = reader.GetDateTime(4)
-                };
-                pagos.Add(pago);
+                    Pago pago = new Pago()
+                    {
+                        Id = reader.GetInt32(0),
+                        Pedido = reader.GetInt32(1),
+                        MetodoPago = reader.GetInt32(2),
+                        ImporteAbonado = reader.GetDecimal(3),
+                        FechaPago = reader.GetDateTime(4)
+                    };
+                    pagos.Add(pago);
+                }
+
+                respuestaAPI.Resultado = true;
+                respuestaAPI.Mensaje = "Pagos obtenidos correctamente";
+                respuestaAPI.Datos = pagos;
+
+                reader.Close();
+                command.Dispose();
+                
+
+            }
+            catch (Exception ex)
+            {
+                respuestaAPI.Resultado = false;
+                respuestaAPI.Mensaje = ex.Message;
+                respuestaAPI.Datos = null;
+            }
+            finally
+            {
+                conx.Close();
             }
 
-            reader.Close();
-            command.Dispose();
-            conx.Close();
-
-            return pagos;
+            return respuestaAPI;
         }
-        public static IActionResult RealizarPago(Pago pago)
+        public static RespuestaAPI RealizarPago(Pago pago)
         {
+            var respuestaAPI = new RespuestaAPI();
+
             SqlConnection conx = Datos.conectar();
             SqlCommand cmd = new SqlCommand("RegistrarPago", conx);
 
@@ -47,17 +68,32 @@ namespace EcomTrackAPI.Services
             cmd.Parameters.AddWithValue("@MetodoPago", pago.MetodoPago);
             cmd.Parameters.AddWithValue("@ImporteAbonado", pago.ImporteAbonado);
 
-            conx.Open();
+            SqlParameter resultado = new SqlParameter("@Resultado", SqlDbType.Bit) { Direction = ParameterDirection.Output };
+            SqlParameter mensaje = new SqlParameter("@Mensaje", SqlDbType.VarChar, 500) { Direction = ParameterDirection.Output };
+
+            cmd.Parameters.Add(resultado);
+            cmd.Parameters.Add(mensaje);
+
+
+            
             try
             {
+                conx.Open();
                 cmd.ExecuteNonQuery();
-                return new OkObjectResult("Pago exitoso");
+
+                respuestaAPI.Resultado = (bool)resultado.Value;
+                respuestaAPI.Mensaje = mensaje.Value.ToString();
+                respuestaAPI.Datos = null;
             }
             catch (Exception ex)
             {
-                return new BadRequestObjectResult($"Error al procesar pago: {ex.Message}");
+                respuestaAPI.Resultado = false;
+                respuestaAPI.Mensaje = ex.Message;
+                respuestaAPI.Datos = null;
             }
             finally { conx.Close(); }
+
+            return respuestaAPI;
         }
     }
 }

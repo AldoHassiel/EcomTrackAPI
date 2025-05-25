@@ -9,21 +9,31 @@ namespace EcomTrackAPI.Controllers
 
     public class PagoController : ControllerBase
     {
-        [HttpGet]
-        [Route("[action]")]
-        public List<Pago> ListaDePagos()
+        [HttpGet("ListaDePagos")]
+        public IActionResult ListaDePagos()
         {
-            List<Pago> pagos = PagoService.ListaDePagos();
-            return pagos;
+            var respuesta = PagoService.ListaDePagos();
+
+            if (!respuesta.Resultado)
+            {
+                return BadRequest(respuesta);
+            }
+
+            return Ok(respuesta);
         }
 
-        [HttpPost]
-        [Route("[action]")]
+        [HttpPost("RealizarPago")]
 
         public IActionResult RealizarPago(Pago pago)
         {
-            IActionResult guardar = PagoService.RealizarPago(pago);
-            return guardar;
+            var respuesta = PagoService.RealizarPago(pago);
+
+            if (!respuesta.Resultado)
+            {
+                return BadRequest(respuesta);
+            }
+
+            return Ok(respuesta);
         }
     }
 }
