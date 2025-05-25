@@ -65,6 +65,43 @@ CREATE TABLE Pago(
 */
 
 /* Seccion Aldo */
+CREATE TABLE Rol(
+	Id INT PRIMARY KEY NOT NULL,
+	Nombre VARCHAR(50)
+)
+
+INSERT INTO Rol(Id, Nombre) VALUES (1, 'Cliente')
+INSERT INTO Rol(Id, Nombre) VALUES (2, 'Administrador')
+
+CREATE TABLE Usuario(
+	Id INT IDENTITY PRIMARY KEY NOT NULL,
+	Correo VARCHAR(100),
+	Pwd VARCHAR(100),
+	Rol INT,
+	Estado BIT
+	FOREIGN KEY(Rol) REFERENCES Rol(Id)
+)
+
+CREATE TABLE Cliente(
+	Id INT,
+	Usuario INT,
+	Nombre VARCHAR(100),
+	Telefono VARCHAR(15),
+	TotalCompras INT,
+	TotalGastado DECIMAL(10, 2),
+	FechaRegistro DATETIME DEFAULT GETDATE()
+	FOREIGN KEY(Usuario) REFERENCES Usuario(Id)
+)
+
+CREATE TABLE Administrador(
+	Id INT ,
+	Usuario INT,
+	Nombre VARCHAR(100),
+	Telefono VARCHAR(15),
+	FechaRegistro DATETIME DEFAULT GETDATE()
+	FOREIGN KEY(Usuario) REFERENCES Usuario(Id)
+)
+
 CREATE TABLE Cliente(
 	Id INT PRIMARY KEY NOT NULL,
 	Nombre VARCHAR(100),
@@ -78,15 +115,6 @@ INSERT INTO Cliente(Id, Nombre) values (1, 'Aldo');
 SELECT * FROM Cliente
 SELECT ISNULL(MAX(Id),0) + 1 FROM Cliente
 
-CREATE TABLE Envio(
-	ID INT PRIMARY KEY NOT NULL,
-	IdPedido INT,
-	Estado VARCHAR(20) CHECK (Estado IN ('Pendiente','En camino','Entregado')),
-	FechaEnvio DATETIME DEFAULT GETDATE(),
-	IdTransportista INT,
-	FOREIGN KEY (IdPedido) REFERENCES Pedido(ID),
-	FOREIGN KEY (IdTransportista) REFERENCES Transportista(ID)
-);
 SELECT * FROM Cliente
 EXECUTE GuardarCliente @Id = 0, @Nombre = 'Aldo Hassiel', @Correo = 'aldo@gmail.com', @Pwd = '1421', @Telefono ='6681461721'
 
@@ -118,7 +146,74 @@ BEGIN
 	END
 END
 
+CREATE TABLE Producto(
+	Id INT PRIMARY KEY NOT NULL,
+	Nombre VARCHAR(50),
+	Descripcion VARCHAR(100),
+	Categoria INT,
+	Precio DECIMAL(10, 2),
+	Stock INT,
+	Proveedor INT
+	FOREIGN KEY(Categoria) REFERENCES Categoria(Id),
+	FOREIGN KEY(Proveedor) REFERENCES Proveedor(Id),
+)
+CREATE PROCEDURE GuardarProducto(
+	@Id INT,
+	@Nombre VARCHAR(50),
+	@Descripcion VARCHAR(100),
+	@Categoria INT,
+	@Precio DECIMAL(10, 2),
+	@Stock INT,
+	@Proveedor INT
+)
+AS
+BEGIN
+	IF @Id = 0
+	BEGIN
+		DECLARE @NuevoId INT
+		SELECT @NuevoId = ISNULL(MAX(Id),0) + 1 FROM Producto
 
+		INSERT INTO Producto(Id, Nombre, Descripcion, Categoria, Precio, Stock, Proveedor)
+		VALUES (@NuevoId, @Nombre, @Descripcion, @Categoria, @Precio, @Stock, @Proveedor)
+	END
+	ELSE
+	BEGIN
+		UPDATE Producto
+		SET 
+		Nombre = @Nombre, 
+		Descripcion = @Descripcion, 
+		Categoria = @Categoria,
+		Precio = @Precio,
+		Stock = @Stock,
+		Proveedor = @Proveedor
+		WHERE Id = @Id
+	END
+END
+
+CREATE TABLE DetallePedido(
+	Id INT PRIMARY KEY NOT NULL,
+	Pedido INT,
+	Producto INT,
+	Cantidad INT,
+	Subtotal DECIMAL(10, 2),
+	FOREIGN KEY(Pedido) REFERENCES Pedidos(Id),
+	FOREIGN KEY(Producto) REFERENCES Producto(Id),
+)
+
+CREATE PROCEDURE RegistrarPedidoDetalle(
+	@Pedido INT,
+	@Producto INT,
+	@Cantidad INT,
+	@Subtotal DECIMAL(10,2)
+)
+AS
+BEGIN
+	DECLARE @NuevoId INT
+	SELECT @NuevoId = ISNULL(MAX(Id),0) + 1 FROM DetallePedido
+
+	INSERT INTO DetallePedido(Id, Pedido, Producto, Cantidad, Subtotal)
+	VALUES (@NuevoId, @Pedido, @Producto, @Cantidad, @Subtotal)
+END
 
 
 /* Seccion Yuriana */
@@ -292,10 +387,34 @@ begin
 	end
 end
 
+go
+
+create trigger ActualizarCantidadProducto
+	on Producto
+	after insert
+	as
+	begin
+		update Categoria
+		set CantidadProducto = (
+			select count(*) 
+			from Producto 
+			where Categoria = i.Categoria
+		)
+		from Categoria c
+		join inserted i on c.Id = i.Categoria;
+end;
+
+
+select * from proveedor
+
+execute GuardarProducto @Id = 0, @Nombre = 'earpods', @Descripcion = 'earpods', @Categoria = 2, @Precio = 5, @Stock = 0, @Proveedor = 1
+
+select * from producto
+
 select * from Categoria
+
 Execute GuardarCategoria @Id = 0, @Nombre = 'audfinos', @Descripcion = 'Telefonos', @CantidadProducto = 0, @Estado = 1
 
-/*falta borrar*/
 create table Proveedor (
 	Id int primary key not null,
 	Nombre varchar(50),
@@ -336,6 +455,210 @@ end
 execute GuardarProveedor @Id = 0, @Nombre = 'Apple', @Correo = '@gmail.com', @Telefono = '666666666', @Estado = 1
 
 select * from proveedor
+
+create table Envio (
+	Id int primary key not null,
+	FechaEnvio datetime default getdate(),
+	IdPedido int,
+	IdTransportista int, 
+	IdEstado int,
+	foreign key (IdPedido) references Pedido(Id),
+	foreign key (IdTransportista) references Transportista(Id),
+	foreign key (IdEstado) references Estado(Id)
+)
+
+create procedure GuardarEnvio (
+	@Id int, 
+	@IdPedido int,
+	@IdTransportista int,
+	@IdEstado int
+)
+as
+begin
+	if @Id = 0
+	begin
+		declare @NuevoId INT
+		select @NuevoId = ISNULL(MAX(Id),0) + 1 FROM Envio
+
+		INSERT INTO Envio(Id, IdPedido, IdTransportista, IdEstado)
+		VALUES (@NuevoId, @IdPedido, @IdTransportista, @IdEstado)
+	end
+	else
+	begin
+		UPDATE Envio
+		SET 
+		IdEstado = @IdEstado
+		where Id = @Id
+	end
+end
+
+
+/*Sección Eve actualizado */
+
+create table Categoria (
+	Id int identity primary key not null,
+	Nombre varchar(50),
+	Descripcion varchar(100),
+	CantidadProducto int,
+	Estado bit
+)
+go
+create procedure GuardarCategoria (
+	@Id int, 
+	@Nombre varchar(50), 
+	@Descripcion varchar(100),
+	@CantidadProducto int,
+	@Estado bit
+)
+as
+begin
+	begin
+		INSERT INTO Categoria(Nombre, Descripcion, CantidadProducto, Estado)
+		VALUES (@Nombre, @Descripcion, @CantidadProducto, @Estado)
+	end
+end
+
+go
+
+create procedure ActualizarCategoría (
+	@Id int, 
+	@Nombre varchar(50), 
+	@Descripcion varchar(100),
+	@CantidadProducto int,
+	@Estado bit
+)
+as
+	begin
+		UPDATE Categoria
+		SET 
+		Nombre = @Nombre, 
+		Descripcion = @Descripcion,
+		CantidadProducto = @CantidadProducto,
+		Estado = @Estado
+		where Id = @Id
+	end
+
+go
+
+create trigger ActualizarCantidadProducto
+	on Producto
+	after insert
+	as
+	begin
+		update Categoria
+		set CantidadProducto = (
+			select count(*) 
+			from Producto 
+			where Categoria = i.Categoria
+		)
+		from Categoria c
+		join inserted i on c.Id = i.Categoria;
+end;
+
+
+select * from proveedor
+
+execute GuardarProducto @Id = 0, @Nombre = 'earpods', @Descripcion = 'earpods', @Categoria = 2, @Precio = 5, @Stock = 0, @Proveedor = 1
+
+select * from producto
+
+select * from Categoria
+
+Execute GuardarCategoria @Id = 0, @Nombre = 'audfinos', @Descripcion = 'Telefonos', @CantidadProducto = 0, @Estado = 1
+
+
+create table Proveedor (
+	Id int identity primary key not null,
+	Nombre varchar(50),
+	Correo varchar(100),
+	Telefono varchar(15),
+	Estado bit
+)
+
+create procedure GuardarProveedor (
+	@Id int, 
+	@Nombre varchar(50), 
+	@Correo varchar(100),
+	@Telefono varchar(15),
+	@Estado bit
+)
+as
+begin
+	begin
+		INSERT INTO Proveedor(Nombre, Correo, Telefono, Estado)
+		VALUES (@Nombre, @Correo, @Telefono, @Estado)
+	end
+end
+
+create procedure ActualizarProveedor(
+	@Id int,
+	@Nombre varchar(50),
+	@Correo varchar(100),
+	@Telefono varchar(15),
+	@Estado bit
+)
+as
+	begin
+		UPDATE Proveedor
+		SET 
+		Nombre = @Nombre, 
+		Correo = @Correo,
+		Telefono = @Telefono,
+		Estado = @Estado
+		where Id = @Id
+	end
+
+execute GuardarProveedor @Id = 0, @Nombre = 'Apple', @Correo = '@gmail.com', @Telefono = '666666666', @Estado = 1
+
+select * from Proveedor
+
+create table Envio (
+	Id int identity primary key not null,
+	FechaEnvio datetime default getdate(),
+	IdPedido int,
+	IdTransportista int, 
+	IdEstado int,
+	foreign key (IdPedido) references Pedido(Id),
+	foreign key (IdTransportista) references Transportista(Id),
+	foreign key (IdEstado) references Estado(Id)
+)
+
+create procedure GuardarEnvio (
+	@Id int, 
+	@IdPedido int,
+	@IdTransportista int,
+	@IdEstado int
+)
+as
+begin
+	begin
+		INSERT INTO Envio(IdPedido, IdTransportista, IdEstado)
+		VALUES (@IdPedido, @IdTransportista, @IdEstado)
+	end
+end
+
+
+create procedure ActualizarEnvio(
+	@Id int, 
+	@IdEstado int
+)
+as
+	begin
+		UPDATE Envio
+		SET 
+		IdEstado = @IdEstado
+		where Id = @Id
+end
+
+
+
+
+
+
+
+
+
+
 
 
 

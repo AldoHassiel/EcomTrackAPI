@@ -1,0 +1,41 @@
+SELECT * FROM Usuario
+SELECT * FROM Cliente
+SELECT * FROM Administrador
+
+SELECT U.Id, C.Nombre, U.Correo, C.Telefono, U.FechaRegistro
+FROM Usuario U INNER JOIN Administrador C ON U.Id = C.Id
+
+
+CREATE TABLE Rol(
+    Id INT PRIMARY KEY NOT NULL,
+    Nombre VARCHAR(50) NOT NULL
+);
+
+INSERT INTO Rol(Id, Nombre) VALUES (1, 'Cliente');
+INSERT INTO Rol(Id, Nombre) VALUES (2, 'Administrador');
+
+CREATE TABLE Usuario(
+    Id INT IDENTITY PRIMARY KEY NOT NULL,
+    Correo VARCHAR(100) NOT NULL UNIQUE,
+    Pwd VARCHAR(50) NOT NULL,
+    Rol INT NOT NULL,
+    Estado BIT NOT NULL DEFAULT 1,
+    FechaRegistro DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY(Rol) REFERENCES Rol(Id)
+);
+
+CREATE TABLE Cliente(
+    Id INT PRIMARY KEY NOT NULL,
+    Nombre VARCHAR(100) NOT NULL,
+    Telefono VARCHAR(15),
+    TotalCompras INT DEFAULT 0,
+    TotalGastado DECIMAL(10, 2) DEFAULT 0,
+    FOREIGN KEY(Id) REFERENCES Usuario(Id) ON DELETE CASCADE
+);
+
+CREATE TABLE Administrador(
+    Id INT PRIMARY KEY NOT NULL,
+    Nombre VARCHAR(100) NOT NULL,
+    Telefono VARCHAR(15) NOT NULL,
+    FOREIGN KEY(Id) REFERENCES Usuario(Id) ON DELETE CASCADE
+);

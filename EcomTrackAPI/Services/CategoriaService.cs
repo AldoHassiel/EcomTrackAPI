@@ -1,58 +1,70 @@
 ﻿using Microsoft.Data.SqlClient;
 using EcomTrackAPI.Models;
 using System.Data;
-using Microsoft.AspNetCore.Mvc;
 
 namespace EcomTrackAPI.Services
 {
     public class CategoriaService
     {
-        public static List<Categoria> ObtenerCategorias()
+        public static RespuestaAPI ObtenerCategorias()
         {
+            var respuestaAPI = new RespuestaAPI();
+
             List<Categoria> categorias = new List<Categoria>();
+
             SqlConnection conx = Datos.conectar();
-
             string query = "select Id, Nombre, Descripcion, CantidadProducto, Estado from Categoria";
-            SqlCommand command = new SqlCommand(query, conx);
+            SqlCommand cmd = new SqlCommand(query, conx);
 
-            conx.Open();
-            SqlDataReader reader = command.ExecuteReader();
-            while (reader.Read())
+            try
             {
-                Categoria categoria = new Categoria()
+                conx.Open();
+
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
                 {
-                    Id = reader.GetInt32(0),
-                    Nombre = reader.GetString(1),
-                    Descripcion = reader.GetString(2),
-                    CantidadProducto = reader.GetInt32(3),
-                    Estado = reader.GetBoolean(4)
-                };
-                categorias.Add(categoria);
+                    Categoria categoria = new Categoria()
+                    {
+                        Id = reader.GetInt32(0),
+                        Nombre = reader.GetString(1),
+                        Descripcion = reader.GetString(2),
+                        CantidadProducto = reader.GetInt32(3),
+                        Estado = reader.GetBoolean(4)
+                    };
+                    categorias.Add(categoria);
+                }
+
+                if(categorias.Count == 0)
+                {
+                    respuestaAPI.Resultado = false;
+                    respuestaAPI.Mensaje = "No se encontraron categorias";
+                    respuestaAPI.Datos = null;
+                    return respuestaAPI;
+                }
+
+                respuestaAPI.Resultado = true;
+                respuestaAPI.Mensaje = "Categorias obtenidas correctamente";
+                respuestaAPI.Datos = categorias;
+
+            }
+            catch (Exception ex)
+            {
+                respuestaAPI.Resultado = false;
+                respuestaAPI.Mensaje = ex.Message;
+                respuestaAPI.Datos = null;
+            }
+            finally
+            {
+                conx.Close();
             }
 
-            reader.Close();
-            command.Dispose();
-            conx.Close();
-
-            return categorias;
+            return respuestaAPI;
         }
-        public static bool EliminarCategoria(int id)
+        public static RespuestaAPI GuardarCategoria(Categoria categoria)
         {
-            SqlConnection conx = Datos.conectar();
-            string query = "delete from Categoria where Id = @Id";
+            var respuestaAPI = new RespuestaAPI();
 
-            SqlCommand command = new SqlCommand(query, conx);
-            command.Parameters.AddWithValue("@Id", id);
-
-            conx.Open();
-            int filasAfectadas = command.ExecuteNonQuery();
-            conx.Close();
-
-            return filasAfectadas > 0;
-        }
-
-        public static IActionResult GuardarCategoria(Categoria categoria)
-        {
             SqlConnection conx = Datos.conectar();
             SqlCommand cmd = new SqlCommand("GuardarCategoria", conx);
 
@@ -63,17 +75,101 @@ namespace EcomTrackAPI.Services
             cmd.Parameters.AddWithValue("@CantidadProducto", categoria.CantidadProducto);
             cmd.Parameters.AddWithValue("@Estado", categoria.Estado);
 
-            conx.Open();
+            SqlParameter resultado = new SqlParameter("@Resultado", SqlDbType.Bit) { Direction = ParameterDirection.Output };
+            SqlParameter mensaje = new SqlParameter("@Mensaje", SqlDbType.VarChar, 500) { Direction = ParameterDirection.Output };
+
+            cmd.Parameters.Add(resultado);
+            cmd.Parameters.Add(mensaje);
+
             try
             {
+                conx.Open();
                 cmd.ExecuteNonQuery();
-                return new OkObjectResult("Categoría guardada");
+
+                respuestaAPI.Resultado = (bool)resultado.Value;
+                respuestaAPI.Mensaje = mensaje.Value.ToString();
+                respuestaAPI.Datos = null;
             }
             catch (Exception ex)
             {
-                return new BadRequestObjectResult($"Error al guardar: {ex.Message}");
+                respuestaAPI.Resultado = false;
+                respuestaAPI.Mensaje = ex.Message;
+                respuestaAPI.Datos = null;
             }
             finally { conx.Close(); }
+
+            return respuestaAPI;
+        }
+        public static RespuestaAPI ActualizarCategoria(Categoria categoria)
+        {
+            var respuestaAPI = new RespuestaAPI();
+
+            SqlConnection conx = Datos.conectar();
+            SqlCommand cmd = new SqlCommand("ActualizarCategoria", conx);
+
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@Id", categoria.Id);
+            cmd.Parameters.AddWithValue("@Nombre", categoria.Nombre);
+            cmd.Parameters.AddWithValue("@Descripcion", categoria.Descripcion);
+            cmd.Parameters.AddWithValue("@CantidadProducto", categoria.CantidadProducto);
+            cmd.Parameters.AddWithValue("@Estado", categoria.Estado);
+
+            SqlParameter resultado = new SqlParameter("@Resultado", SqlDbType.Bit) { Direction = ParameterDirection.Output };
+            SqlParameter mensaje = new SqlParameter("@Mensaje", SqlDbType.VarChar, 500) { Direction = ParameterDirection.Output };
+
+            cmd.Parameters.Add(resultado);
+            cmd.Parameters.Add(mensaje);
+
+            try
+            {
+                conx.Open();
+                cmd.ExecuteNonQuery();
+
+                respuestaAPI.Resultado = (bool)resultado.Value;
+                respuestaAPI.Mensaje = mensaje.Value.ToString();
+                respuestaAPI.Datos = null;
+            }
+            catch (Exception ex)
+            {
+                respuestaAPI.Resultado = false;
+                respuestaAPI.Mensaje = ex.Message;
+                respuestaAPI.Datos = null;
+            }
+            finally { conx.Close(); }
+
+            return respuestaAPI;
+        }
+        public static RespuestaAPI EliminarCategoria(int id)
+        {
+            var respuestaAPI = new RespuestaAPI();
+
+            SqlConnection conx = Datos.conectar();
+            SqlCommand cmd = new SqlCommand("EliminarCategoria", conx);
+
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@Id", id);
+
+            SqlParameter resultado = new SqlParameter("@Resultado", SqlDbType.Bit) { Direction = ParameterDirection.Output };
+            SqlParameter mensaje = new SqlParameter("@Mensaje", SqlDbType.VarChar, 500) { Direction = ParameterDirection.Output };
+
+            try
+            {
+                conx.Open();
+                cmd.ExecuteNonQuery();
+
+                respuestaAPI.Resultado = (bool)resultado.Value;
+                respuestaAPI.Mensaje = mensaje.Value.ToString();
+                respuestaAPI.Datos = null;
+            }
+            catch (Exception ex)
+            {
+                respuestaAPI.Resultado = false;
+                respuestaAPI.Mensaje = ex.Message;
+                respuestaAPI.Datos = null;
+            }
+            finally { conx.Close(); }
+
+            return respuestaAPI;
         }
     }
 }

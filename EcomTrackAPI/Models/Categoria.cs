@@ -7,6 +7,5 @@
         public string Descripcion {  get; set; }
         public int CantidadProducto { get; set; }
         public bool Estado { get; set; }
-
     }
 }

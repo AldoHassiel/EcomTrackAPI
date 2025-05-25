@@ -7,74 +7,180 @@ namespace EcomTrackAPI.Services
 {
     public class ProveedorService
     {
-        public static List<Proveedor> ObtenerProveedores()
+        public static RespuestaAPI GuardarProveedor(Proveedor proveedor)
         {
-            List<Proveedor> proveedores = new List<Proveedor>();
-            SqlConnection conx = Datos.conectar();
+            var respuestaAPI = new RespuestaAPI();
 
-            string query = "select Id, Nombre, Correo, Telefono, Estado from Proveedor";
-            SqlCommand command = new SqlCommand(query, conx);
-
-            conx.Open();
-            SqlDataReader reader = command.ExecuteReader();
-            while (reader.Read())
-            {
-                Proveedor proveedor = new Proveedor()
-                {
-                    Id = reader.GetInt32(0),
-                    Nombre = reader.GetString(1),
-                    Correo = reader.GetString(2),
-                    Telefono = reader.GetString(3),
-                    Estado = reader.GetBoolean(4)
-                };
-                proveedores.Add(proveedor);
-            }
-
-            reader.Close();
-            command.Dispose();
-            conx.Close();
-
-            return proveedores;
-        }
-
-        public static bool EliminarProveedor(int id)
-        {
-            SqlConnection conx = Datos.conectar();
-            string query = "delete from Proveedor where Id = @Id";
-
-            SqlCommand command = new SqlCommand(query, conx);
-            command.Parameters.AddWithValue("@Id", id);
-
-            conx.Open();
-            int filasAfectadas = command.ExecuteNonQuery();
-            conx.Close();
-
-            return filasAfectadas > 0;
-        }
-
-        public static IActionResult GuardarProveedor(Proveedor proveedor)
-        {
             SqlConnection conx = Datos.conectar();
             SqlCommand cmd = new SqlCommand("GuardarProveedor", conx);
-
             cmd.CommandType = CommandType.StoredProcedure;
-            cmd.Parameters.AddWithValue("@Id", proveedor.Id);
-            cmd.Parameters.AddWithValue("@Nombre", proveedor.Nombre);
-            cmd.Parameters.AddWithValue("@Descripcion", proveedor.Correo);
-            cmd.Parameters.AddWithValue("@CantidadProducto", proveedor.Telefono);
+
+            cmd.Parameters.AddWithValue("@Nombre", proveedor.Nombre.Trim());
+            cmd.Parameters.AddWithValue("@Correo", proveedor.Correo.Trim());
+            cmd.Parameters.AddWithValue("@Telefono", proveedor.Telefono.Trim());
             cmd.Parameters.AddWithValue("@Estado", proveedor.Estado);
 
-            conx.Open();
+            var mensaje = new SqlParameter("@Mensaje", SqlDbType.VarChar, 500) { Direction = ParameterDirection.Output };
+            var resultado = new SqlParameter("@Resultado", SqlDbType.Bit) { Direction = ParameterDirection.Output };
+
+            cmd.Parameters.Add(mensaje);
+            cmd.Parameters.Add(resultado);
+
             try
             {
+                conx.Open();
                 cmd.ExecuteNonQuery();
-                return new OkObjectResult("Proveedor guardado");
+                respuestaAPI.Resultado = (bool)resultado.Value;
+                respuestaAPI.Mensaje = mensaje.Value?.ToString();
+                respuestaAPI.Datos = null;
             }
             catch (Exception ex)
             {
-                return new BadRequestObjectResult($"Error al guardar: {ex.Message}");
+                respuestaAPI.Resultado = false;
+                respuestaAPI.Mensaje = $"Error inesperado: {ex.Message}";
+                respuestaAPI.Datos = null;
             }
-            finally { conx.Close(); }
+            finally
+            {
+                conx.Close();
+            }
+
+            return respuestaAPI;
+        }
+        public static RespuestaAPI ActualizarProveedor(Proveedor proveedor)
+        {
+            var respuestaAPI = new RespuestaAPI();
+
+            SqlConnection conx = Datos.conectar();
+            SqlCommand cmd = new SqlCommand("ActualizarProveedor", conx);
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            cmd.Parameters.AddWithValue("@Id", proveedor.Id);
+            cmd.Parameters.AddWithValue("@Nombre", proveedor.Nombre.Trim());
+            cmd.Parameters.AddWithValue("@Correo", proveedor.Correo.Trim());
+            cmd.Parameters.AddWithValue("@Telefono", proveedor.Telefono.Trim());
+            cmd.Parameters.AddWithValue("@Estado", proveedor.Estado);
+
+            var mensaje = new SqlParameter("@Mensaje", SqlDbType.VarChar, 500) { Direction = ParameterDirection.Output };
+            var resultado = new SqlParameter("@Resultado", SqlDbType.Bit) { Direction = ParameterDirection.Output };
+
+            cmd.Parameters.Add(mensaje);
+            cmd.Parameters.Add(resultado);
+
+            try
+            {
+                conx.Open();
+
+                cmd.ExecuteNonQuery();
+
+                respuestaAPI.Resultado = (bool)resultado.Value;
+                respuestaAPI.Mensaje = mensaje.Value?.ToString();
+                respuestaAPI.Datos = null;
+            }
+            catch (Exception ex)
+            {
+                respuestaAPI.Resultado = false;
+                respuestaAPI.Mensaje = $"Error inesperado: {ex.Message}";
+                respuestaAPI.Datos = null;
+            }
+            finally
+            {
+                conx.Close();
+            }
+
+            return respuestaAPI;
+        }
+        public static RespuestaAPI EliminarProveedor(int id)
+        {
+            var respuestaAPI = new RespuestaAPI();
+
+            SqlConnection conx = Datos.conectar();
+            SqlCommand cmd = new SqlCommand("EliminarProveedor", conx);
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            cmd.Parameters.AddWithValue("@Id", id);
+
+            var mensaje = new SqlParameter("@Mensaje", SqlDbType.VarChar, 500) { Direction = ParameterDirection.Output };
+            var resultado = new SqlParameter("@Resultado", SqlDbType.Bit) { Direction = ParameterDirection.Output };
+
+            cmd.Parameters.Add(mensaje);
+            cmd.Parameters.Add(resultado);
+
+            try
+            {
+                conx.Open();
+
+                cmd.ExecuteNonQuery();
+
+                respuestaAPI.Resultado = (bool)resultado.Value;
+                respuestaAPI.Mensaje = mensaje.Value?.ToString();
+                respuestaAPI.Datos = null;
+            }
+            catch (Exception ex)
+            {
+                respuestaAPI.Resultado = false;
+                respuestaAPI.Mensaje = $"Error inesperado: {ex.Message}";
+                respuestaAPI.Datos = null;
+            }
+            finally
+            {
+                conx.Close();
+            }
+
+            return respuestaAPI;
+        }
+        public static RespuestaAPI ObtenerProveedores()
+        {
+            var respuestaAPI = new RespuestaAPI();
+
+            SqlConnection conx = Datos.conectar();
+            string query = "select Id, Nombre, Correo, Telefono, Estado from Proveedor";
+            SqlCommand cmd = new SqlCommand(query, conx);
+
+            try
+            {
+                conx.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                if (!reader.HasRows)
+                {
+                    respuestaAPI.Resultado = false;
+                    respuestaAPI.Mensaje = "No se encontraron proveedores";
+                    respuestaAPI.Datos = null;
+                    return respuestaAPI;
+                }
+
+                List<Proveedor> proveedores = new List<Proveedor>();
+
+                while (reader.Read())
+                {
+                    Proveedor proveedor = new Proveedor
+                    {
+                        Id = reader.GetInt32(0),
+                        Nombre = reader.GetString(1),
+                        Correo = reader.GetString(2),
+                        Telefono = reader.GetString(3),
+                        Estado = reader.GetBoolean(4)
+                    };
+                    proveedores.Add(proveedor);
+                }
+
+                respuestaAPI.Resultado = true;
+                respuestaAPI.Mensaje = "Proveedores obtenidos correctamente";
+                respuestaAPI.Datos = proveedores;
+            }
+            catch (Exception ex)
+            {
+                respuestaAPI.Resultado = false;
+                respuestaAPI.Mensaje = ex.Message;
+                respuestaAPI.Datos = null;
+            }
+            finally
+            {
+                conx.Close();
+            }
+
+            return respuestaAPI;
         }
     }
 }

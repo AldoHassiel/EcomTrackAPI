@@ -8,30 +8,105 @@ namespace EcomTrackAPI.Controllers
     [ApiController]
     public class CategoriaController : ControllerBase
     {
-        [HttpGet]
-        [Route("[action]")]
-        public List<Categoria> ObtenerCategorias()
+        [HttpGet("ObtenerCategorias")]
+        public IActionResult ObtenerCategorias()
         {
-            List<Categoria> categorias = CategoriaService.ObtenerCategorias();
-            return categorias;
+            var respuesta = CategoriaService.ObtenerCategorias();
+
+            if (!respuesta.Resultado)
+            {
+                return BadRequest(respuesta);
+            }
+
+            return Ok(respuesta);
         }
 
-        [HttpDelete("{id}")]
-        public bool EliminarCategoria(int id) 
-        {
-            bool eliminado = CategoriaService.EliminarCategoria(id);
-            return eliminado;
-        }
-
-        [HttpPost]
-        [Route("[action]")]
-
+        [HttpPost("GuardarCategoria")]
         public IActionResult GuardarCategoria(Categoria categoria)
         {
-            IActionResult guardado = CategoriaService.GuardarCategoria(categoria);
-            return guardado;
+            if (string.IsNullOrWhiteSpace(categoria.Nombre))
+            {
+                return BadRequest(new RespuestaAPI
+                {
+                    Resultado = false,
+                    Mensaje = "El nombre es obligatorio",
+                    Datos = null
+                });
+            }
+
+            if (string.IsNullOrWhiteSpace(categoria.Descripcion))
+            {
+                return BadRequest(new RespuestaAPI
+                {
+                    Resultado = false,
+                    Mensaje = "La descripción es obligatoria",
+                    Datos = null
+                });
+            }
+            var respuesta = CategoriaService.GuardarCategoria(categoria);
+
+            if (!respuesta.Resultado)
+            {
+                return BadRequest(respuesta);
+            }
+
+            return Ok(respuesta);
         }
 
+        [HttpPut("ActualizarCategoria")]
+        public IActionResult ActualizarCategoria(Categoria categoria)
+        {
+            if (string.IsNullOrWhiteSpace(categoria.Nombre))
+            {
+                return BadRequest(new RespuestaAPI
+                {
+                    Resultado = false,
+                    Mensaje = "El nombre es obligatorio",
+                    Datos = null
+                });
+            }
 
+            if (string.IsNullOrWhiteSpace(categoria.Descripcion))
+            {
+                return BadRequest(new RespuestaAPI
+                {
+                    Resultado = false,
+                    Mensaje = "La descripción es obligatoria",
+                    Datos = null
+                });
+            }
+
+            var respuesta = CategoriaService.ActualizarCategoria(categoria);
+
+            if (!respuesta.Resultado)
+            {
+                return BadRequest(respuesta);
+            }
+
+            return Ok(respuesta);
+        }
+
+        [HttpDelete("EliminarCategoria")]
+        public IActionResult EliminarCategoria(int id)
+        {
+            if (id <= 0)
+            {
+                return BadRequest(new RespuestaAPI
+                {
+                    Resultado = false,
+                    Mensaje = "El ID de la categoría no es válido",
+                    Datos = null
+                });
+            }
+
+            var respuesta = CategoriaService.EliminarCategoria(id);
+
+            if (!respuesta.Resultado)
+            {
+                return BadRequest(respuesta);
+            }
+
+            return Ok(respuesta);
+        }
     }
 }

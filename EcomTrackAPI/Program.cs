@@ -1,5 +1,16 @@
 var builder = WebApplication.CreateBuilder(args);
 
+//Cosas de las COORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowNextJS",
+        builder => builder
+            .WithOrigins("http://localhost:5173") // URL de tu frontend Next.js
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials()); // Solo si usas cookies o autenticación
+});
+
 // Add services to the container.
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -16,6 +27,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowNextJS");
 
 app.UseAuthorization();
 
