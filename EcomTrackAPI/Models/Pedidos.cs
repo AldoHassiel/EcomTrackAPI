@@ -15,5 +15,7 @@
         public string EstadoD { get; set; }
         public string CodigoPostal { get; set; }
         public string Pais { get; set; }
+
+
     }
 }
