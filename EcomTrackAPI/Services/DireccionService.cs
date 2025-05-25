@@ -1,50 +1,79 @@
 ﻿using Microsoft.Data.SqlClient;
 using EcomTrackAPI.Models;
 using System.Data;
-using Microsoft.AspNetCore.Mvc;
 
 namespace EcomTrackAPI.Services
 {
     public class DireccionService
     {
-        public static List<Direccion> ListaDirecciones()
+        public static RespuestaAPI ListaDirecciones()
         {
+            var respuestaAPI = new RespuestaAPI();
+
             List<Direccion> direcciones = new List<Direccion>();
+
             SqlConnection conx = Datos.conectar();
 
             string query = "select Id, Cliente, Tipo, Calle, EntreCalles, Numero, Colonia, " +
                 "Ciudad, Estado, CodigoPostal, Pais from Direccion";
             SqlCommand command = new SqlCommand(query, conx);
 
-            conx.Open();
-            SqlDataReader reader = command.ExecuteReader();
-            while (reader.Read())
+            try
             {
-                Direccion direccion = new Direccion()
+                conx.Open();
+                SqlDataReader reader = command.ExecuteReader();
+                while (reader.Read())
                 {
-                    Id = reader.GetInt32(0),
-                    Cliente = reader.GetInt32(1),
-                    Tipo = reader.GetInt32(2),
-                    Calle = reader.GetString(3),
-                    EntreCalles = reader.GetString(4),
-                    Numero = reader.GetString(5),
-                    Colonia = reader.GetString(6),
-                    Ciudad = reader.GetString(7),
-                    Estado = reader.GetString(8),
-                    CodigoPostal = reader.GetString(9),
-                    Pais = reader.GetString(10),
-                };
-                direcciones.Add(direccion);
+                    Direccion direccion = new Direccion()
+                    {
+                        Id = reader.GetInt32(0),
+                        Cliente = reader.GetInt32(1),
+                        Tipo = reader.GetInt32(2),
+                        Calle = reader.GetString(3),
+                        EntreCalles = reader.GetString(4),
+                        Numero = reader.GetString(5),
+                        Colonia = reader.GetString(6),
+                        Ciudad = reader.GetString(7),
+                        Estado = reader.GetString(8),
+                        CodigoPostal = reader.GetString(9),
+                        Pais = reader.GetString(10),
+                    };
+                    direcciones.Add(direccion);
+                }
+
+                reader.Close();
+                command.Dispose();
+                conx.Close();
+
+                if (direcciones.Count == 0)
+                {
+                    respuestaAPI.Resultado = false;
+                    respuestaAPI.Mensaje = "No se encontraron direcciones";
+                    respuestaAPI.Datos = null;
+                    return respuestaAPI;
+                }
+
+                respuestaAPI.Resultado = true;
+                respuestaAPI.Mensaje = "Direcciones obtenidas correctamente";
+                respuestaAPI.Datos = direcciones;
+            }
+            catch (Exception ex)
+            {
+                respuestaAPI.Resultado = false;
+                respuestaAPI.Mensaje = ex.Message;
+                respuestaAPI.Datos = null;
+            }
+            finally
+            {
+                conx.Close();
             }
 
-            reader.Close();
-            command.Dispose();
-            conx.Close();
-
-            return direcciones;
+            return respuestaAPI;
         }
-        public static IActionResult EditarDireccion(Direccion direccion)
+        public static RespuestaAPI EditarDireccion(Direccion direccion)
         {
+            var respuestaAPI = new RespuestaAPI();
+
             SqlConnection conx = Datos.conectar();
             SqlCommand cmd = new SqlCommand("ActualizarDireccion", conx);
 
@@ -62,21 +91,38 @@ namespace EcomTrackAPI.Services
             cmd.Parameters.AddWithValue("@CodigoPostal", direccion.CodigoPostal);
             cmd.Parameters.AddWithValue("@Pais", direccion.Pais);
 
+            SqlParameter resultado = new SqlParameter("@Resultado", SqlDbType.Bit) { Direction = ParameterDirection.Output };
+            SqlParameter mensaje = new SqlParameter("@Mensaje", SqlDbType.VarChar, 500) { Direction = ParameterDirection.Output };
 
-            conx.Open();
+            cmd.Parameters.Add(resultado);
+            cmd.Parameters.Add(mensaje);
+
+
+            
             try
             {
+                conx.Open();
                 cmd.ExecuteNonQuery();
-                return new OkObjectResult("Direccion actualizada");
+
+                respuestaAPI.Resultado = (bool)resultado.Value;
+                respuestaAPI.Mensaje = mensaje.Value.ToString();
+                respuestaAPI.Datos = null;
             }
             catch (Exception ex)
             {
-                return new BadRequestObjectResult($"Error al actualizar la direccion: {ex.Message}");
+                respuestaAPI.Resultado = false;
+                respuestaAPI.Mensaje = ex.Message;
+                respuestaAPI.Datos = null;
             }
             finally { conx.Close(); }
+
+            return respuestaAPI;
         }
-        public static IActionResult GuardarDireccion(Direccion direccion)
+        public static RespuestaAPI GuardarDireccion(Direccion direccion)
         {
+
+            var respuestaAPI = new RespuestaAPI();
+
             SqlConnection conx = Datos.conectar();
             SqlCommand cmd = new SqlCommand("GuardarDireccion", conx);
 
@@ -95,31 +141,61 @@ namespace EcomTrackAPI.Services
             cmd.Parameters.AddWithValue("@Pais", direccion.Pais);
 
 
-            conx.Open();
+            SqlParameter resultado = new SqlParameter("@Resultado", SqlDbType.Bit) { Direction = ParameterDirection.Output };
+            SqlParameter mensaje = new SqlParameter("@Mensaje", SqlDbType.VarChar, 500) { Direction = ParameterDirection.Output };
+
+            cmd.Parameters.Add(resultado);
+            cmd.Parameters.Add(mensaje);
+
             try
             {
+                conx.Open();
                 cmd.ExecuteNonQuery();
-                return new OkObjectResult("Direccion guardada");
+
+                respuestaAPI.Resultado = (bool)resultado.Value;
+                respuestaAPI.Mensaje = mensaje.Value.ToString();
+                respuestaAPI.Datos = null;
             }
             catch (Exception ex)
             {
-                return new BadRequestObjectResult($"Error al guardar la direccion: {ex.Message}");
+                respuestaAPI.Resultado = false;
+                respuestaAPI.Mensaje = ex.Message;
+                respuestaAPI.Datos = null;
             }
             finally { conx.Close(); }
+
+            return respuestaAPI;
         }
-        public static bool EliminarDireccion(int id)
+        public static RespuestaAPI EliminarDireccion(int id)
         {
+            var respuestaAPI = new RespuestaAPI();
             SqlConnection conx = Datos.conectar();
-            string query = "delete from Direccion where Id = @Id";
+            SqlCommand cmd = new SqlCommand("EliminarDireccion", conx);
 
-            SqlCommand command = new SqlCommand(query, conx);
-            command.Parameters.AddWithValue("@Id", id);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@Id", id);
 
-            conx.Open();
-            int filasAfectadas = command.ExecuteNonQuery();
-            conx.Close();
+            SqlParameter resultado = new SqlParameter("@Resultado", SqlDbType.Bit) { Direction = ParameterDirection.Output };
+            SqlParameter mensaje = new SqlParameter("@Mensaje", SqlDbType.VarChar, 500) { Direction = ParameterDirection.Output };
 
-            return filasAfectadas > 0;
+            try
+            {
+                conx.Open();
+                cmd.ExecuteNonQuery();
+
+                respuestaAPI.Resultado = (bool)resultado.Value;
+                respuestaAPI.Mensaje = mensaje.Value.ToString();
+                respuestaAPI.Datos = null;
+            }
+            catch (Exception ex)
+            {
+                respuestaAPI.Resultado = false;
+                respuestaAPI.Mensaje = ex.Message;
+                respuestaAPI.Datos = null;
+            }
+            finally { conx.Close(); }
+
+            return respuestaAPI;
         }
     }
 }
