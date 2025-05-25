@@ -50,7 +50,7 @@ namespace EcomTrackAPI.Services
         public static IActionResult ActualizarEstadoPedido(Pedidos pedido)
         {
             SqlConnection conx = Datos.conectar();
-            SqlCommand cmd = new SqlCommand("RegistrarPedido", conx);
+            SqlCommand cmd = new SqlCommand("ActualizarPedido", conx);
             cmd.CommandType = CommandType.StoredProcedure;
 
             cmd.Parameters.AddWithValue("@Id", pedido.Id);
@@ -79,7 +79,14 @@ namespace EcomTrackAPI.Services
             cmd.Parameters.AddWithValue("@Cliente", pedido.Cliente);
             cmd.Parameters.AddWithValue("@Importe", pedido.Importe);
             cmd.Parameters.AddWithValue("@Estado", pedido.Estado);
-
+            cmd.Parameters.AddWithValue("@Calle", pedido.Calle);
+            cmd.Parameters.AddWithValue("@EntreCalles", pedido.EntreCalles);
+            cmd.Parameters.AddWithValue("@Numero", pedido.Numero);
+            cmd.Parameters.AddWithValue("@Colonia", pedido.Colonia);
+            cmd.Parameters.AddWithValue("@Ciudad", pedido.Ciudad);
+            cmd.Parameters.AddWithValue("@EstadoD", pedido.EstadoD);
+            cmd.Parameters.AddWithValue("@CodigoPostal", pedido.CodigoPostal);
+            cmd.Parameters.AddWithValue("@Pais", pedido.Pais);
 
             conx.Open();
             try
