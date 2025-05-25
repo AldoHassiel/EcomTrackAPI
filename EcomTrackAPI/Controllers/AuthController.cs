@@ -15,9 +15,9 @@ namespace EcomTrackAPI.Controllers
 
             var sesion = AuthService.Login(login);
 
-            if (!sesion.Autenticado)
+            if (!sesion.Resultado)
             {
-                return Unauthorized(sesion.Mensaje);
+                return Unauthorized(sesion);
             }
 
             return Ok(sesion);

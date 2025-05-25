@@ -6,9 +6,9 @@ namespace EcomTrackAPI.Services
 {
     public class AuthService
     {
-        public static Sesion Login(Login login)
+        public static RespuestaAPI Login(Login login)
         {
-            var sesion = new Sesion();
+            var sesion = new RespuestaAPI();
 
             SqlConnection conx = Datos.conectar();
             SqlCommand cmd = new SqlCommand("IniciarSesion", conx);
@@ -24,20 +24,41 @@ namespace EcomTrackAPI.Services
 
                 if(reader.Read())
                 {
-                    sesion.Autenticado = reader.GetBoolean(reader.GetOrdinal("Autenticado"));
+                    sesion.Resultado = reader.GetBoolean(reader.GetOrdinal("Autenticado"));
                     sesion.Mensaje = reader.GetString(reader.GetOrdinal("Mensaje"));
-                    sesion.IdUsuario = reader.GetInt32(reader.GetOrdinal("IdUsuario"));
-                    sesion.EsAdmin = reader.GetBoolean(reader.GetOrdinal("EsAdmin"));
+                    int IdUsuario = reader.GetInt32(reader.GetOrdinal("IdUsuario"));
+                    bool EsAdmin = reader.GetBoolean(reader.GetOrdinal("EsAdmin"));
+
+                    if (sesion.Resultado)
+                    {
+                        if (EsAdmin)
+                        {
+                            var admin = AdminServices.ObtenerUnAdmin(IdUsuario).Datos;
+                            sesion.Datos = new Sesion() { EsAdmin = true, Usuario = admin };
+                           
+                        }
+                        else
+                        {
+                            var cliente = ClienteService.ObtenerUnCliente(IdUsuario).Datos;
+                            sesion.Datos = new Sesion() { EsAdmin = false, Usuario = cliente };
+                        }
+                    }
+
+                    return sesion;
                 }
+
+                sesion.Resultado = false;
+                sesion.Mensaje = "No se encontró el usuario o la contraseña es incorrecta";
+                sesion.Datos = null;
             }
             catch (SqlException ex)
             {
-                sesion.Autenticado = false;
+                sesion.Resultado = false;
                 sesion.Mensaje = $"Error en base de datos: {ex.Message}";
             }
             catch (Exception ex)
             {
-                sesion.Autenticado = false;
+                sesion.Resultado = false;
                 sesion.Mensaje = $"Error inesperado: {ex.Message}";
             }
             finally

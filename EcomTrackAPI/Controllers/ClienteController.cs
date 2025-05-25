@@ -63,6 +63,11 @@ namespace EcomTrackAPI.Controllers
 
             var respuesta = ClienteService.RegistrarCliente(cliente);
 
+            if (!respuesta.Resultado)
+            {
+                return BadRequest(respuesta);
+            }
+
             return Ok(respuesta);
         }
 
@@ -136,7 +141,7 @@ namespace EcomTrackAPI.Controllers
             return Ok(respuesta);
         }
 
-        [HttpGet("ObtenerClientePorId")]
+        [HttpGet("ObtenerUnCliente")]
         public IActionResult ObtenerUnCliente(int id)
         {
             if (id <= 0)

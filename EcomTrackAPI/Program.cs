@@ -5,7 +5,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowNextJS",
         builder => builder
-            .WithOrigins("http://localhost:3000") // URL de tu frontend Next.js
+            .WithOrigins("http://localhost:5173") // URL de tu frontend Next.js
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials()); // Solo si usas cookies o autenticación
