@@ -8,71 +8,123 @@ namespace EcomTrackAPI.Services
 {
     public class PedidosService
     {
-        public static List<Pedidos> ObtenerPedidos()
+        public static RespuestaAPI ObtenerPedidos()
         {
+
+            var respuestaAPI = new RespuestaAPI();
+
             List<Pedidos> pedidos = new List<Pedidos>();
+
             SqlConnection conx = Datos.conectar();
 
             string query = "select Id, Cliente, FechaPedido, Importe, Estado, Calle," +
                 " EntreCalles, Numero, Colonia, Ciudad, EstadoD, CodigoPostal, Pais from Pedido";
             SqlCommand command = new SqlCommand(query, conx);
 
-            conx.Open();
-            SqlDataReader reader = command.ExecuteReader();
-            while (reader.Read())
-            {
-                Pedidos pedido = new Pedidos()
-                {
-                    Id = reader.GetInt32(0),
-                    Cliente = reader.GetInt32(1),
-                    FechaPedido = reader.GetDateTime(2),
-                    Importe = reader.GetDecimal(3),
-                    Estado = reader.GetInt32(4),
-                    Calle = reader.GetString(5),
-                    EntreCalles = reader.GetString(6),
-                    Numero = reader.GetString(7),
-                    Colonia = reader.GetString(8),
-                    Ciudad = reader.GetString(9),
-                    EstadoD = reader.GetString(10),
-                    CodigoPostal = reader.GetString(11),
-                    Pais = reader.GetString(12),
-
-                };
-                pedidos.Add(pedido);
-            }
-
-            reader.Close();
-            command.Dispose();
-            conx.Close();
-
-            return pedidos;
-        }
-        public static IActionResult ActualizarEstadoPedido(Pedidos pedido)
-        {
-            SqlConnection conx = Datos.conectar();
-            SqlCommand cmd = new SqlCommand("ActualizarPedido", conx);
-            cmd.CommandType = CommandType.StoredProcedure;
-
-            cmd.Parameters.AddWithValue("@Id", pedido.Id);
-            cmd.Parameters.AddWithValue("@Estado", pedido.Estado);
-
-            conx.Open();
             try
             {
-                cmd.ExecuteNonQuery();
-                return new OkObjectResult("Pedido actualizado");
+
+                conx.Open();
+
+                SqlDataReader reader = command.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    Pedidos pedido = new Pedidos()
+                    {
+                        Id = reader.GetInt32(0),
+                        Cliente = reader.GetInt32(1),
+                        FechaPedido = reader.GetDateTime(2),
+                        Importe = reader.GetDecimal(3),
+                        Estado = reader.GetInt32(4),
+                        Calle = reader.GetString(5),
+                        EntreCalles = reader.GetString(6),
+                        Numero = reader.GetString(7),
+                        Colonia = reader.GetString(8),
+                        Ciudad = reader.GetString(9),
+                        EstadoD = reader.GetString(10),
+                        CodigoPostal = reader.GetString(11),
+                        Pais = reader.GetString(12),
+
+                    };
+                    pedidos.Add(pedido);
+                }
+
+                reader.Close();
+                command.Dispose();
+                conx.Close();
+
+                if (pedidos.Count == 0)
+                {
+                    respuestaAPI.Resultado = false;
+                    respuestaAPI.Mensaje = "No se encontraron pedidos";
+                    respuestaAPI.Datos = null;
+                    return respuestaAPI;
+                }
+
+                respuestaAPI.Resultado = true;
+                respuestaAPI.Mensaje = "Pedidos obtenidas correctamente";
+                respuestaAPI.Datos = pedidos;
+
+
             }
             catch (Exception ex)
             {
-                return new BadRequestObjectResult($"Error al actualizar pedido: {ex.Message}");
+                respuestaAPI.Resultado = false;
+                respuestaAPI.Mensaje = ex.Message;
+                respuestaAPI.Datos = null;
+            }
+            finally
+            {
+                conx.Close();
+            }
+
+            return respuestaAPI;
+        }
+        public static RespuestaAPI ActualizarEstadoPedido(Pedidos pedido)
+        {
+            var respuestaAPI = new RespuestaAPI();
+
+            SqlConnection conx = Datos.conectar();
+            SqlCommand cmd = new SqlCommand("ActualizarPedido", conx);
+
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@Id", pedido.Id);
+            cmd.Parameters.AddWithValue("@Estado", pedido.Estado);
+
+            SqlParameter resultado = new SqlParameter("@Resultado", SqlDbType.Bit) { Direction = ParameterDirection.Output };
+            SqlParameter mensaje = new SqlParameter("@Mensaje", SqlDbType.VarChar, 500) { Direction = ParameterDirection.Output };
+
+            cmd.Parameters.Add(resultado);
+            cmd.Parameters.Add(mensaje);
+
+
+            try
+            {
+                conx.Open();
+                cmd.ExecuteNonQuery();
+
+                respuestaAPI.Resultado = (bool)resultado.Value;
+                respuestaAPI.Mensaje = mensaje.Value.ToString();
+                respuestaAPI.Datos = null;
+            }
+            catch (Exception ex)
+            {
+                respuestaAPI.Resultado = false;
+                respuestaAPI.Mensaje = ex.Message;
+                respuestaAPI.Datos = null;
             }
             finally { conx.Close(); }
+
+            return respuestaAPI;
         }
-        public static IActionResult RegistrarPedido(Pedidos pedido)
+        public static RespuestaAPI RegistrarPedido(Pedidos pedido)
         {
+            var respuestaAPI = new RespuestaAPI();
+
             SqlConnection conx = Datos.conectar();
 
-            SqlCommand cmd = new SqlCommand("RegistrarPedidos", conx);
+            SqlCommand cmd = new SqlCommand("RegistrarPedido", conx);
 
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@Id", pedido.Id);
@@ -88,17 +140,30 @@ namespace EcomTrackAPI.Services
             cmd.Parameters.AddWithValue("@CodigoPostal", pedido.CodigoPostal);
             cmd.Parameters.AddWithValue("@Pais", pedido.Pais);
 
-            conx.Open();
+            SqlParameter resultado = new SqlParameter("@Resultado", SqlDbType.Bit) { Direction = ParameterDirection.Output };
+            SqlParameter mensaje = new SqlParameter("@Mensaje", SqlDbType.VarChar, 500) { Direction = ParameterDirection.Output };
+
+            cmd.Parameters.Add(resultado);
+            cmd.Parameters.Add(mensaje);
+
             try
             {
+                conx.Open();
                 cmd.ExecuteNonQuery();
-                return new OkObjectResult("Pedido realizado");
+
+                respuestaAPI.Resultado = (bool)resultado.Value;
+                respuestaAPI.Mensaje = mensaje.Value.ToString();
+                respuestaAPI.Datos = null;
             }
             catch (Exception ex)
             {
-                return new BadRequestObjectResult($"Error al realizar pedido: {ex.Message}");
+                respuestaAPI.Resultado = false;
+                respuestaAPI.Mensaje = ex.Message;
+                respuestaAPI.Datos = null;
             }
             finally { conx.Close(); }
+
+            return respuestaAPI;
         }
     }
 }
