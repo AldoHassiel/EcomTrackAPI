@@ -61,6 +61,7 @@ BEGIN
         
         COMMIT TRANSACTION;
         SET @Resultado = 1;
+		SET @MensajeError = 'Actualizado correctamente'
     END TRY
     BEGIN CATCH
         IF @@TRANCOUNT > 0
