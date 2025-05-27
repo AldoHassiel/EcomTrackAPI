@@ -1,3 +1,5 @@
+SELECT * FROM Categoria
+
 CREATE TABLE Categoria (
 	Id INT IDENTITY PRIMARY KEY NOT NULL,
 	Nombre VARCHAR(50) NOT NULL,
@@ -10,7 +12,6 @@ ALTER PROCEDURE GuardarCategoria (
     @Id INT, 
     @Nombre VARCHAR(50), 
     @Descripcion VARCHAR(100),
-    @CantidadProducto INT,
     @Estado BIT,
     @Resultado BIT OUTPUT,
     @Mensaje VARCHAR(500) OUTPUT
@@ -25,8 +26,8 @@ BEGIN
             RETURN
         END
 
-        INSERT INTO Categoria (Nombre, Descripcion, CantidadProducto, Estado)
-        VALUES (@Nombre, @Descripcion, @CantidadProducto, @Estado)
+        INSERT INTO Categoria (Nombre, Descripcion, Estado)
+        VALUES (@Nombre, @Descripcion, @Estado)
 
         SET @Resultado = 1
         SET @Mensaje = 'Registro exitoso.'
@@ -42,7 +43,6 @@ ALTER PROCEDURE ActualizarCategoria (
     @Id INT, 
     @Nombre VARCHAR(50), 
     @Descripcion VARCHAR(100),
-    @CantidadProducto INT,
     @Estado BIT,
     @Resultado BIT OUTPUT,
     @Mensaje VARCHAR(500) OUTPUT
@@ -59,7 +59,7 @@ BEGIN
 
         IF EXISTS (
             SELECT 1 FROM Categoria 
-            WHERE Nombre = @Nombre AND Id = @Id
+            WHERE Nombre = @Nombre AND Id <> @Id
         )
         BEGIN
             SET @Resultado = 0
@@ -71,7 +71,6 @@ BEGIN
         SET 
             Nombre = @Nombre, 
             Descripcion = @Descripcion,
-            CantidadProducto = @CantidadProducto,
             Estado = @Estado
         WHERE Id = @Id
 
