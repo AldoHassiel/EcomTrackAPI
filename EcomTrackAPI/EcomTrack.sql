@@ -653,7 +653,22 @@ end
 
 
 
+/*seccion eveDavid*/
 
+create procedure GuardarProveedor (
+	@Id int, 
+	@Nombre varchar(50), 
+	@Correo varchar(100),
+	@Telefono varchar(15),
+	@Estado bit
+)
+as
+begin
+	begin
+		INSERT INTO Proveedor(Nombre, Correo, Telefono, Estado)
+		VALUES (@Nombre, @Correo, @Telefono, @Estado)
+	end
+end
 
 
 
