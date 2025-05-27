@@ -13,11 +13,6 @@ namespace EcomTrackAPI.Controllers
         {
             var respuestaAPI = ProductoService.ObtenerProductos(idCategoria, idProveedor);
 
-            if (!respuestaAPI.Resultado)
-            {
-                return BadRequest(respuestaAPI);
-            }
-
             return Ok(respuestaAPI);
         }
         [HttpPost("GuardarProducto")]
@@ -25,7 +20,7 @@ namespace EcomTrackAPI.Controllers
         {
             if (producto == null)
             {
-                return BadRequest(new RespuestaAPI
+                return Ok(new RespuestaAPI
                 {
                     Resultado = false,
                     Mensaje = "El producto no puede ser nulo",
@@ -35,11 +30,6 @@ namespace EcomTrackAPI.Controllers
 
             var respuestaAPI = ProductoService.GuardarProducto(producto);
 
-            if (!respuestaAPI.Resultado)
-            {
-                return BadRequest(respuestaAPI);
-            }
-
             return Ok(respuestaAPI);
         }
         [HttpPut("ActualizarProducto")]
@@ -47,7 +37,7 @@ namespace EcomTrackAPI.Controllers
         {
             if (producto == null)
             {
-                return BadRequest(new RespuestaAPI
+                return Ok(new RespuestaAPI
                 {
                     Resultado = false,
                     Mensaje = "El producto no puede ser nulo",
@@ -57,11 +47,6 @@ namespace EcomTrackAPI.Controllers
 
             var respuestaAPI = ProductoService.ActualizarProducto(producto);
 
-            if (!respuestaAPI.Resultado)
-            {
-                return BadRequest(respuestaAPI);
-            }
-
             return Ok(respuestaAPI);
         }
 
@@ -70,7 +55,7 @@ namespace EcomTrackAPI.Controllers
         {
             if (id <= 0)
             {
-                return BadRequest(new RespuestaAPI
+                return Ok(new RespuestaAPI
                 {
                     Resultado = false,
                     Mensaje = "El ID del producto no puede ser menor o igual a cero",
@@ -79,11 +64,6 @@ namespace EcomTrackAPI.Controllers
             }
 
             var respuestaAPI = ProductoService.EliminarProducto(id);
-
-            if (!respuestaAPI.Resultado)
-            {
-                return BadRequest(respuestaAPI);
-            }
 
             return Ok(respuestaAPI);
         }
