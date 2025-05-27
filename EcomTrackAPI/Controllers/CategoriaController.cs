@@ -12,21 +12,15 @@ namespace EcomTrackAPI.Controllers
         public IActionResult ObtenerCategorias()
         {
             var respuesta = CategoriaService.ObtenerCategorias();
-
-            if (!respuesta.Resultado)
-            {
-                return BadRequest(respuesta);
-            }
-
             return Ok(respuesta);
         }
 
         [HttpPost("GuardarCategoria")]
-        public IActionResult GuardarCategoria(Categoria categoria)
+        public IActionResult GuardarCategoria([FromBody] Categoria categoria)
         {
             if (string.IsNullOrWhiteSpace(categoria.Nombre))
             {
-                return BadRequest(new RespuestaAPI
+                return Ok(new RespuestaAPI
                 {
                     Resultado = false,
                     Mensaje = "El nombre es obligatorio",
@@ -36,29 +30,25 @@ namespace EcomTrackAPI.Controllers
 
             if (string.IsNullOrWhiteSpace(categoria.Descripcion))
             {
-                return BadRequest(new RespuestaAPI
+                return Ok(new RespuestaAPI
                 {
                     Resultado = false,
                     Mensaje = "La descripción es obligatoria",
                     Datos = null
                 });
             }
-            var respuesta = CategoriaService.GuardarCategoria(categoria);
 
-            if (!respuesta.Resultado)
-            {
-                return BadRequest(respuesta);
-            }
+            var respuesta = CategoriaService.GuardarCategoria(categoria);
 
             return Ok(respuesta);
         }
 
         [HttpPut("ActualizarCategoria")]
-        public IActionResult ActualizarCategoria(Categoria categoria)
+        public IActionResult ActualizarCategoria([FromBody] Categoria categoria)
         {
             if (string.IsNullOrWhiteSpace(categoria.Nombre))
             {
-                return BadRequest(new RespuestaAPI
+                return Ok(new RespuestaAPI
                 {
                     Resultado = false,
                     Mensaje = "El nombre es obligatorio",
@@ -68,7 +58,7 @@ namespace EcomTrackAPI.Controllers
 
             if (string.IsNullOrWhiteSpace(categoria.Descripcion))
             {
-                return BadRequest(new RespuestaAPI
+                return Ok(new RespuestaAPI
                 {
                     Resultado = false,
                     Mensaje = "La descripción es obligatoria",
@@ -78,11 +68,6 @@ namespace EcomTrackAPI.Controllers
 
             var respuesta = CategoriaService.ActualizarCategoria(categoria);
 
-            if (!respuesta.Resultado)
-            {
-                return BadRequest(respuesta);
-            }
-
             return Ok(respuesta);
         }
 
@@ -91,7 +76,7 @@ namespace EcomTrackAPI.Controllers
         {
             if (id <= 0)
             {
-                return BadRequest(new RespuestaAPI
+                return Ok(new RespuestaAPI
                 {
                     Resultado = false,
                     Mensaje = "El ID de la categoría no es válido",
@@ -100,11 +85,6 @@ namespace EcomTrackAPI.Controllers
             }
 
             var respuesta = CategoriaService.EliminarCategoria(id);
-
-            if (!respuesta.Resultado)
-            {
-                return BadRequest(respuesta);
-            }
 
             return Ok(respuesta);
         }

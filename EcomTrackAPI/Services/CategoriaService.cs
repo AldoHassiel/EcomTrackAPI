@@ -30,7 +30,7 @@ namespace EcomTrackAPI.Services
                         Nombre = reader.GetString(1),
                         Descripcion = reader.GetString(2),
                         CantidadProducto = reader.GetInt32(3),
-                        Estado = reader.GetBoolean(4)
+                        Estado = reader.GetBoolean(4) ? "Activa" : "Inactiva"
                     };
                     categorias.Add(categoria);
                 }
@@ -38,13 +38,13 @@ namespace EcomTrackAPI.Services
                 if(categorias.Count == 0)
                 {
                     respuestaAPI.Resultado = false;
-                    respuestaAPI.Mensaje = "No se encontraron categorias";
+                    respuestaAPI.Mensaje = "No se encontraron categorías";
                     respuestaAPI.Datos = null;
                     return respuestaAPI;
                 }
 
                 respuestaAPI.Resultado = true;
-                respuestaAPI.Mensaje = "Categorias obtenidas correctamente";
+                respuestaAPI.Mensaje = "Categorías obtenidas correctamente";
                 respuestaAPI.Datos = categorias;
 
             }
@@ -69,11 +69,9 @@ namespace EcomTrackAPI.Services
             SqlCommand cmd = new SqlCommand("GuardarCategoria", conx);
 
             cmd.CommandType = CommandType.StoredProcedure;
-            cmd.Parameters.AddWithValue("@Id", categoria.Id);
             cmd.Parameters.AddWithValue("@Nombre", categoria.Nombre);
             cmd.Parameters.AddWithValue("@Descripcion", categoria.Descripcion);
-            cmd.Parameters.AddWithValue("@CantidadProducto", categoria.CantidadProducto);
-            cmd.Parameters.AddWithValue("@Estado", categoria.Estado);
+            cmd.Parameters.AddWithValue("@Estado", categoria.Estado == "Activa" ? 1 : 0);
 
             SqlParameter resultado = new SqlParameter("@Resultado", SqlDbType.Bit) { Direction = ParameterDirection.Output };
             SqlParameter mensaje = new SqlParameter("@Mensaje", SqlDbType.VarChar, 500) { Direction = ParameterDirection.Output };
@@ -111,8 +109,7 @@ namespace EcomTrackAPI.Services
             cmd.Parameters.AddWithValue("@Id", categoria.Id);
             cmd.Parameters.AddWithValue("@Nombre", categoria.Nombre);
             cmd.Parameters.AddWithValue("@Descripcion", categoria.Descripcion);
-            cmd.Parameters.AddWithValue("@CantidadProducto", categoria.CantidadProducto);
-            cmd.Parameters.AddWithValue("@Estado", categoria.Estado);
+            cmd.Parameters.AddWithValue("@Estado", categoria.Estado == "Activa" ? 1 : 0);
 
             SqlParameter resultado = new SqlParameter("@Resultado", SqlDbType.Bit) { Direction = ParameterDirection.Output };
             SqlParameter mensaje = new SqlParameter("@Mensaje", SqlDbType.VarChar, 500) { Direction = ParameterDirection.Output };
@@ -151,6 +148,9 @@ namespace EcomTrackAPI.Services
 
             SqlParameter resultado = new SqlParameter("@Resultado", SqlDbType.Bit) { Direction = ParameterDirection.Output };
             SqlParameter mensaje = new SqlParameter("@Mensaje", SqlDbType.VarChar, 500) { Direction = ParameterDirection.Output };
+
+            cmd.Parameters.Add(mensaje);
+            cmd.Parameters.Add(resultado);
 
             try
             {

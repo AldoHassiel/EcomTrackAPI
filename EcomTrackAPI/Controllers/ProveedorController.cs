@@ -14,11 +14,6 @@ namespace EcomTrackAPI.Controllers
         {
             var respuestaAPI = ProveedorService.ObtenerProveedores();
 
-            if (!respuestaAPI.Resultado)
-            {
-                return BadRequest(respuestaAPI);
-            }
-
             return Ok(respuestaAPI);
         }
 
@@ -27,7 +22,7 @@ namespace EcomTrackAPI.Controllers
         {
             if (proveedor == null)
             {
-                return BadRequest(new RespuestaAPI
+                return Ok(new RespuestaAPI
                 {
                     Resultado = false,
                     Mensaje = "El proveedor no puede ser nulo",
@@ -37,7 +32,7 @@ namespace EcomTrackAPI.Controllers
 
             if (string.IsNullOrEmpty(proveedor.Nombre) || string.IsNullOrEmpty(proveedor.Correo) || string.IsNullOrEmpty(proveedor.Telefono))
             {
-                return BadRequest(new RespuestaAPI
+                return Ok(new RespuestaAPI
                 {
                     Resultado = false,
                     Mensaje = "Los campos Nombre, Correo y Telefono son obligatorios",
@@ -47,11 +42,6 @@ namespace EcomTrackAPI.Controllers
 
             var respuestaAPI = ProveedorService.GuardarProveedor(proveedor);
 
-            if (!respuestaAPI.Resultado)
-            {
-                return BadRequest(respuestaAPI);
-            }
-
             return Ok(respuestaAPI);
         }
 
@@ -60,7 +50,7 @@ namespace EcomTrackAPI.Controllers
         {
             if (proveedor == null)
             {
-                return BadRequest(new RespuestaAPI
+                return Ok(new RespuestaAPI
                 {
                     Resultado = false,
                     Mensaje = "El proveedor no puede ser nulo",
@@ -70,7 +60,7 @@ namespace EcomTrackAPI.Controllers
             
             if (proveedor.Id <= 0)
             {
-                return BadRequest(new RespuestaAPI
+                return Ok(new RespuestaAPI
                 {
                     Resultado = false,
                     Mensaje = "El Id del proveedor es invalido",
@@ -80,7 +70,7 @@ namespace EcomTrackAPI.Controllers
 
             if (string.IsNullOrEmpty(proveedor.Nombre) || string.IsNullOrEmpty(proveedor.Correo) || string.IsNullOrEmpty(proveedor.Telefono))
             {
-                return BadRequest(new RespuestaAPI
+                return Ok(new RespuestaAPI
                 {
                     Resultado = false,
                     Mensaje = "Los campos Nombre, Correo y Telefono son obligatorios",
@@ -90,20 +80,15 @@ namespace EcomTrackAPI.Controllers
 
             var respuestaAPI = ProveedorService.ActualizarProveedor(proveedor);
 
-            if (!respuestaAPI.Resultado)
-            {
-                return BadRequest(respuestaAPI);
-            }
-
             return Ok(respuestaAPI);
         }
 
-        [HttpDelete("EliminarProveedor/")]
+        [HttpDelete("EliminarProveedor")]
         public IActionResult EliminarProveedor(int id)
         {
             if (id <= 0)
             {
-                return BadRequest(new RespuestaAPI
+                return Ok(new RespuestaAPI
                 {
                     Resultado = false,
                     Mensaje = "El Id del proveedor es invalido",
@@ -112,11 +97,6 @@ namespace EcomTrackAPI.Controllers
             }
 
             var respuestaAPI = ProveedorService.EliminarProveedor(id);
-
-            if (!respuestaAPI.Resultado)
-            {
-                return BadRequest(respuestaAPI);
-            }
 
             return Ok(respuestaAPI);
         }
