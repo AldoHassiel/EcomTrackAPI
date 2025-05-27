@@ -6,8 +6,7 @@ create table Proveedor (
 	Estado bit default 1
 )
 
-CREATE PROCEDURE GuardarProveedor( 
-	@Id INT,
+ALTER PROCEDURE GuardarProveedor( 
 	@Nombre VARCHAR(50), 
 	@Correo VARCHAR(100),
 	@Telefono VARCHAR(15),
@@ -37,7 +36,7 @@ BEGIN
 	END CATCH
 END
 
-CREATE PROCEDURE ActualizarProveedor ( 
+ALTER PROCEDURE ActualizarProveedor ( 
 	@Id INT,
 	@Nombre VARCHAR(50), 
 	@Correo VARCHAR(100),
@@ -58,7 +57,7 @@ BEGIN
 
 		IF EXISTS (
             SELECT 1 FROM Proveedor 
-            WHERE @Correo = @Correo
+            WHERE @Correo = @Correo AND Id <> @Id
         )
         BEGIN
             SET @Resultado = 0

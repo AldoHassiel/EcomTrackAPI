@@ -18,7 +18,7 @@ namespace EcomTrackAPI.Services
             cmd.Parameters.AddWithValue("@Nombre", proveedor.Nombre.Trim());
             cmd.Parameters.AddWithValue("@Correo", proveedor.Correo.Trim());
             cmd.Parameters.AddWithValue("@Telefono", proveedor.Telefono.Trim());
-            cmd.Parameters.AddWithValue("@Estado", proveedor.Estado);
+            cmd.Parameters.AddWithValue("@Estado", proveedor.Estado == "Activo" ? 1 : 0);
 
             var mensaje = new SqlParameter("@Mensaje", SqlDbType.VarChar, 500) { Direction = ParameterDirection.Output };
             var resultado = new SqlParameter("@Resultado", SqlDbType.Bit) { Direction = ParameterDirection.Output };
@@ -59,7 +59,7 @@ namespace EcomTrackAPI.Services
             cmd.Parameters.AddWithValue("@Nombre", proveedor.Nombre.Trim());
             cmd.Parameters.AddWithValue("@Correo", proveedor.Correo.Trim());
             cmd.Parameters.AddWithValue("@Telefono", proveedor.Telefono.Trim());
-            cmd.Parameters.AddWithValue("@Estado", proveedor.Estado);
+            cmd.Parameters.AddWithValue("@Estado", proveedor.Estado == "Activo" ? 1 : 0);
 
             var mensaje = new SqlParameter("@Mensaje", SqlDbType.VarChar, 500) { Direction = ParameterDirection.Output };
             var resultado = new SqlParameter("@Resultado", SqlDbType.Bit) { Direction = ParameterDirection.Output };
@@ -160,7 +160,7 @@ namespace EcomTrackAPI.Services
                         Nombre = reader.GetString(1),
                         Correo = reader.GetString(2),
                         Telefono = reader.GetString(3),
-                        Estado = reader.GetBoolean(4)
+                        Estado = reader.GetBoolean(4) ? "Activo" : "Inactivo"
                     };
                     proveedores.Add(proveedor);
                 }
