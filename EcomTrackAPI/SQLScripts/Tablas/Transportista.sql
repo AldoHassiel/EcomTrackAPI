@@ -6,8 +6,7 @@ create table Transportista (
 	Estado bit default 1
 )
 go
-CREATE PROCEDURE GuardarTransportista( 
-	@Id INT,
+ALTER PROCEDURE GuardarTransportista( 
 	@Nombre VARCHAR(50), 
 	@Correo VARCHAR(100),
 	@Telefono VARCHAR(15),
