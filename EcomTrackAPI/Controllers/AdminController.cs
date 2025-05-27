@@ -13,7 +13,7 @@ namespace EcomTrackAPI.Controllers
         {
             if (string.IsNullOrWhiteSpace(admin.Correo))
             {
-                return BadRequest(new RespuestaAPI
+                return Ok(new RespuestaAPI
                 {
                     Resultado = false,
                     Mensaje = "El correo es obligatorio",
@@ -23,7 +23,7 @@ namespace EcomTrackAPI.Controllers
 
             if (string.IsNullOrWhiteSpace(admin.Pwd))
             {
-                return BadRequest(new RespuestaAPI
+                return Ok(new RespuestaAPI
                 {
                     Resultado = false,
                     Mensaje = "La contraseña es obligatoria",
@@ -33,7 +33,7 @@ namespace EcomTrackAPI.Controllers
 
             if (string.IsNullOrWhiteSpace(admin.Nombre))
             {
-                return BadRequest(new RespuestaAPI
+                return Ok(new RespuestaAPI
                 {
                     Resultado = false,
                     Mensaje = "El nombre es obligatorio",
@@ -43,7 +43,7 @@ namespace EcomTrackAPI.Controllers
 
             if (string.IsNullOrWhiteSpace(admin.Telefono))
             {
-                return BadRequest(new RespuestaAPI
+                return Ok(new RespuestaAPI
                 {
                     Resultado = false,
                     Mensaje = "El teléfono es obligatorio",
@@ -53,11 +53,6 @@ namespace EcomTrackAPI.Controllers
 
             var respuesta = AdminServices.RegistrarAdmin(admin);
 
-            if (!respuesta.Resultado)
-            {
-                return BadRequest(respuesta);
-            }
-
             return Ok(respuesta);
         }
 
@@ -66,7 +61,7 @@ namespace EcomTrackAPI.Controllers
         {
             if (admin == null)
             {
-                return BadRequest(new RespuestaAPI
+                return Ok(new RespuestaAPI
                 {
                     Resultado = false,
                     Mensaje = "El administrador no puede ser nulo",
@@ -76,7 +71,7 @@ namespace EcomTrackAPI.Controllers
 
             if (string.IsNullOrWhiteSpace(admin.Correo))
             {
-                return BadRequest(new RespuestaAPI
+                return Ok(new RespuestaAPI
                 {
                     Resultado = false,
                     Mensaje = "El correo es obligatorio",
@@ -86,7 +81,7 @@ namespace EcomTrackAPI.Controllers
 
             if (string.IsNullOrWhiteSpace(admin.Pwd))
             {
-                return BadRequest(new RespuestaAPI
+                return Ok(new RespuestaAPI
                 {
                     Resultado = false,
                     Mensaje = "La contraseña es obligatoria",
@@ -96,7 +91,7 @@ namespace EcomTrackAPI.Controllers
 
             if (string.IsNullOrWhiteSpace(admin.Nombre))
             {
-                return BadRequest(new RespuestaAPI
+                return Ok(new RespuestaAPI
                 {
                     Resultado = false,
                     Mensaje = "El nombre es obligatorio",
@@ -106,7 +101,7 @@ namespace EcomTrackAPI.Controllers
 
             if (string.IsNullOrWhiteSpace(admin.Telefono))
             {
-                return BadRequest(new RespuestaAPI
+                return Ok(new RespuestaAPI
                 {
                     Resultado = false,
                     Mensaje = "El teléfono es obligatorio",
@@ -116,7 +111,7 @@ namespace EcomTrackAPI.Controllers
 
             if (admin.Id <= 0)
             {
-                return BadRequest(new RespuestaAPI
+                return Ok(new RespuestaAPI
                 {
                     Resultado = false,
                     Mensaje = "El ID del administrador es obligatorio",
@@ -126,10 +121,6 @@ namespace EcomTrackAPI.Controllers
 
             var respuesta = AdminServices.ActualizarAdmin(admin);
 
-            if (!respuesta.Resultado)
-            {
-                return BadRequest(respuesta);
-            }
             return Ok(respuesta);
         }
 
@@ -138,7 +129,7 @@ namespace EcomTrackAPI.Controllers
         {
             if (id <= 0)
             {
-                return BadRequest(new RespuestaAPI
+                return Ok(new RespuestaAPI
                 {
                     Resultado = false,
                     Mensaje = "El ID del administrador es invalido",
@@ -148,11 +139,6 @@ namespace EcomTrackAPI.Controllers
 
             var respuesta = AdminServices.EliminarAdmin(id);
 
-            if (!respuesta.Resultado)
-            {
-                return BadRequest(respuesta);
-            }
-
             return Ok(respuesta);
         }
 
@@ -161,7 +147,7 @@ namespace EcomTrackAPI.Controllers
         {
             if (id <= 0)
             {
-                return BadRequest(new RespuestaAPI
+                return Ok(new RespuestaAPI
                 {
                     Resultado = false,
                     Mensaje = "El ID del administrador es obligatorio",
@@ -170,11 +156,6 @@ namespace EcomTrackAPI.Controllers
             }
             var respuesta = AdminServices.ObtenerUnAdmin(id);
 
-            if (!respuesta.Resultado)
-            {
-                return BadRequest(respuesta);
-            }
-
             return Ok(respuesta);
         }
 
@@ -182,11 +163,6 @@ namespace EcomTrackAPI.Controllers
         public IActionResult ObtenerAdmins()
         {
             var respuesta = AdminServices.ObtenerAdmins();
-
-            if (!respuesta.Resultado)
-            {
-                return BadRequest(respuesta);
-            }
 
             return Ok(respuesta);
         }

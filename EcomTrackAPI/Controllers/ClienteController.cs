@@ -13,7 +13,7 @@ namespace EcomTrackAPI.Controllers
         {
             if (cliente == null)
             {
-                return BadRequest(new RespuestaAPI
+                return Ok(new RespuestaAPI
                 {
                     Resultado = false,
                     Mensaje = "El cliente no puede ser nulo",
@@ -23,7 +23,7 @@ namespace EcomTrackAPI.Controllers
 
             if (string.IsNullOrWhiteSpace(cliente.Correo))
             {
-                return BadRequest(new RespuestaAPI
+                return Ok(new RespuestaAPI
                 {
                     Resultado = false,
                     Mensaje = "El correo es obligatorio",
@@ -33,7 +33,7 @@ namespace EcomTrackAPI.Controllers
 
             if (string.IsNullOrWhiteSpace(cliente.Pwd))
             {
-                return BadRequest(new RespuestaAPI
+                return Ok(new RespuestaAPI
                 {
                     Resultado = false,
                     Mensaje = "La contraseña es obligatoria",
@@ -43,7 +43,7 @@ namespace EcomTrackAPI.Controllers
 
             if (string.IsNullOrWhiteSpace(cliente.Nombre))
             {
-                return BadRequest(new RespuestaAPI
+                return Ok(new RespuestaAPI
                 {
                     Resultado = false,
                     Mensaje = "El nombre es obligatorio",
@@ -53,7 +53,7 @@ namespace EcomTrackAPI.Controllers
 
             if (string.IsNullOrWhiteSpace(cliente.Telefono))
             {
-                return BadRequest(new RespuestaAPI
+                return Ok(new RespuestaAPI
                 {
                     Resultado = false,
                     Mensaje = "El teléfono es obligatorio",
@@ -63,10 +63,6 @@ namespace EcomTrackAPI.Controllers
 
             var respuesta = ClienteService.RegistrarCliente(cliente);
 
-            if (!respuesta.Resultado)
-            {
-                return BadRequest(respuesta);
-            }
 
             return Ok(respuesta);
         }
@@ -76,7 +72,7 @@ namespace EcomTrackAPI.Controllers
         {
             if (cliente == null)
             {
-                return BadRequest(new RespuestaAPI
+                return Ok(new RespuestaAPI
                 {
                     Resultado = false,
                     Mensaje = "El cliente no puede ser nulo",
@@ -85,7 +81,7 @@ namespace EcomTrackAPI.Controllers
             }
             if (string.IsNullOrWhiteSpace(cliente.Correo))
             {
-                return BadRequest(new RespuestaAPI
+                return Ok(new RespuestaAPI
                 {
                     Resultado = false,
                     Mensaje = "El correo es obligatorio",
@@ -94,7 +90,7 @@ namespace EcomTrackAPI.Controllers
             }
             if (string.IsNullOrWhiteSpace(cliente.Pwd))
             {
-                return BadRequest(new RespuestaAPI
+                return Ok(new RespuestaAPI
                 {
                     Resultado = false,
                     Mensaje = "La contraseña es obligatoria",
@@ -103,7 +99,7 @@ namespace EcomTrackAPI.Controllers
             }
             if (string.IsNullOrWhiteSpace(cliente.Nombre))
             {
-                return BadRequest(new RespuestaAPI
+                return Ok(new RespuestaAPI
                 {
                     Resultado = false,
                     Mensaje = "El nombre es obligatorio",
@@ -112,7 +108,7 @@ namespace EcomTrackAPI.Controllers
             }
             if (string.IsNullOrWhiteSpace(cliente.Telefono))
             {
-                return BadRequest(new RespuestaAPI
+                return Ok(new RespuestaAPI
                 {
                     Resultado = false,
                     Mensaje = "El teléfono es obligatorio",
@@ -130,7 +126,7 @@ namespace EcomTrackAPI.Controllers
         {
             if (id <= 0)
             {
-                return BadRequest(new RespuestaAPI
+                return Ok(new RespuestaAPI
                 {
                     Resultado = false,
                     Mensaje = "El ID del cliente es inválido",
@@ -146,7 +142,7 @@ namespace EcomTrackAPI.Controllers
         {
             if (id <= 0)
             {
-                return BadRequest(new RespuestaAPI
+                return Ok(new RespuestaAPI
                 {
                     Resultado = false,
                     Mensaje = "El ID del cliente es inválido",

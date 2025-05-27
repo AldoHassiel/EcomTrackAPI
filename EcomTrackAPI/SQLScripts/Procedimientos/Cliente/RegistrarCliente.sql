@@ -3,7 +3,7 @@ DECLARE @NuevoId INT
 DECLARE @MensajeError VARCHAR(500)
 DECLARE @Resultado BIT
 
-EXECUTE RegistrarCliente @Correo = 'laura.torres@ejemplo.com', @Pwd = 'qwerty', @Nombre = 'Laura Torres', 
+EXECUTE GuardarCliente @Correo = 'laura.torres@ejemplo.com', @Pwd = 'qwerty', @Nombre = 'Laura Torres', 
 @Telefono = '6681457812', @NuevoId = @NuevoId OUTPUT, @MensajeError = @MensajeError OUTPUT, 
 @Resultado = @Resultado OUTPUT
 
@@ -16,7 +16,7 @@ SELECT * FROM Usuario
 SELECT * FROM Cliente
 
 
-CREATE PROCEDURE RegistrarCliente(
+CREATE PROCEDURE GuardarCliente(
     @Correo VARCHAR(100),
     @Pwd VARCHAR(50),
     @Nombre VARCHAR(100),
@@ -53,6 +53,7 @@ BEGIN
         
         COMMIT TRANSACTION;
         SET @Resultado = 1;
+		SET @MensajeError = 'Registrado correctamente'
     END TRY
     BEGIN CATCH
         IF @@TRANCOUNT > 0
