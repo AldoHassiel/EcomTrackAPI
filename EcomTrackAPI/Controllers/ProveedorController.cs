@@ -100,5 +100,13 @@ namespace EcomTrackAPI.Controllers
 
             return Ok(respuestaAPI);
         }
+
+        [HttpGet("ObtenerIDyNombre")]
+        public IActionResult ObtenerIDyNombre()
+        {
+            var respuestaAPI = ProveedorService.ObtenerIDyNombre();
+
+            return Ok(respuestaAPI);
+        }
     }
 }

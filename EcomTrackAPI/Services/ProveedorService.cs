@@ -182,5 +182,56 @@ namespace EcomTrackAPI.Services
 
             return respuestaAPI;
         }
+
+        public static RespuestaAPI ObtenerIDyNombre()
+        {
+            var respuestaAPI = new RespuestaAPI();
+
+            SqlConnection conx = Datos.conectar();
+            string query = "select Id, Nombre from Proveedor where Estado = 1";
+            SqlCommand cmd = new SqlCommand(query, conx);
+
+            try
+            {
+                conx.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                if (!reader.HasRows)
+                {
+                    respuestaAPI.Resultado = false;
+                    respuestaAPI.Mensaje = "No se encontraron proveedores";
+                    respuestaAPI.Datos = null;
+                    return respuestaAPI;
+                }
+
+                List<Proveedor> proveedores = new List<Proveedor>();
+
+                while (reader.Read())
+                {
+                    Proveedor proveedor = new Proveedor
+                    {
+                        Id = reader.GetInt32(0),
+                        Nombre = reader.GetString(1)
+                    };
+                    proveedores.Add(proveedor);
+                }
+
+                respuestaAPI.Resultado = true;
+                respuestaAPI.Mensaje = "Proveedores obtenidos correctamente";
+                respuestaAPI.Datos = proveedores;
+            }
+            catch (Exception ex)
+            {
+                respuestaAPI.Resultado = false;
+                respuestaAPI.Mensaje = ex.Message;
+                respuestaAPI.Datos = null;
+            }
+            finally
+            {
+                conx.Close();
+            }
+
+            return respuestaAPI;
+        }
     }
 }
