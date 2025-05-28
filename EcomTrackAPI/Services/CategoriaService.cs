@@ -171,5 +171,58 @@ namespace EcomTrackAPI.Services
 
             return respuestaAPI;
         }
+
+        public static RespuestaAPI ObtenerIDyNombre()
+        {
+            var respuestaAPI = new RespuestaAPI();
+
+            List<Categoria> categorias = new List<Categoria>();
+
+            SqlConnection conx = Datos.conectar();
+            string query = "select Id, Nombre from Categoria where Estado = 1";
+            SqlCommand cmd = new SqlCommand(query, conx);
+
+            try
+            {
+                conx.Open();
+
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    Categoria categoria = new Categoria()
+                    {
+                        Id = reader.GetInt32(0),
+                        Nombre = reader.GetString(1),
+                    };
+                    categorias.Add(categoria);
+                }
+
+                if (categorias.Count == 0)
+                {
+                    respuestaAPI.Resultado = false;
+                    respuestaAPI.Mensaje = "No se encontraron categorías";
+                    respuestaAPI.Datos = null;
+                    return respuestaAPI;
+                }
+
+                respuestaAPI.Resultado = true;
+                respuestaAPI.Mensaje = "Categorías obtenidas correctamente";
+                respuestaAPI.Datos = categorias;
+
+            }
+            catch (Exception ex)
+            {
+                respuestaAPI.Resultado = false;
+                respuestaAPI.Mensaje = ex.Message;
+                respuestaAPI.Datos = null;
+            }
+            finally
+            {
+                conx.Close();
+            }
+
+            return respuestaAPI;
+        }
     }
 }
