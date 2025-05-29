@@ -7,7 +7,7 @@ namespace EcomTrackAPI.Services
 {
     public static class ProductoService
     {
-        public static RespuestaAPI GuardarProducto(Producto producto)
+        public static RespuestaAPI GuardarProducto(ProductoNuevo producto)
         {
             var respuestaAPI = new RespuestaAPI();
 
@@ -22,7 +22,7 @@ namespace EcomTrackAPI.Services
             cmd.Parameters.AddWithValue("@Stock", producto.Stock);
             cmd.Parameters.AddWithValue("@Proveedor", producto.IdProveedor);
             cmd.Parameters.AddWithValue("@UrlImagen", producto.UrlImagen.Trim());
-            cmd.Parameters.AddWithValue("@Estado", producto.Estado);
+            cmd.Parameters.AddWithValue("@Estado", producto.Estado == "Activo" ? 1 : 0);
 
             var mensaje = new SqlParameter("@Mensaje", SqlDbType.VarChar, 500) { Direction = ParameterDirection.Output };
             var resultado = new SqlParameter("@Resultado", SqlDbType.Bit) { Direction = ParameterDirection.Output };
@@ -53,7 +53,7 @@ namespace EcomTrackAPI.Services
 
             return respuestaAPI;
         }
-        public static RespuestaAPI ActualizarProducto(Producto producto)
+        public static RespuestaAPI ActualizarProducto(ProductoNuevo producto)
         {
             var respuestaAPI = new RespuestaAPI();
 
@@ -69,7 +69,7 @@ namespace EcomTrackAPI.Services
             cmd.Parameters.AddWithValue("@Stock", producto.Stock);
             cmd.Parameters.AddWithValue("@Proveedor", producto.IdProveedor);
             cmd.Parameters.AddWithValue("@UrlImagen", producto.UrlImagen.Trim());
-            cmd.Parameters.AddWithValue("@Estado", producto.Estado);
+            cmd.Parameters.AddWithValue("@Estado", producto.Estado == "Activo" ? 1 : 0);
 
             var mensaje = new SqlParameter("@Mensaje", SqlDbType.VarChar, 500) { Direction = ParameterDirection.Output };
             var resultado = new SqlParameter("@Resultado", SqlDbType.Bit) { Direction = ParameterDirection.Output };
@@ -147,9 +147,6 @@ namespace EcomTrackAPI.Services
             SqlCommand cmd = new SqlCommand("ObtenerProductos", conx);
             cmd.CommandType = CommandType.StoredProcedure;
 
-            cmd.Parameters.AddWithValue("@IdCategoria", idCategoria);
-            cmd.Parameters.AddWithValue("@IdProveedor", idProveedor);
-
             SqlParameter resultado = new SqlParameter("@Resultado", SqlDbType.Bit) { Direction = ParameterDirection.Output };
             SqlParameter mensaje = new SqlParameter("@Mensaje", SqlDbType.VarChar, 500) { Direction = ParameterDirection.Output };
 
@@ -186,10 +183,11 @@ namespace EcomTrackAPI.Services
                         ProveedorNombre = reader.GetString(reader.GetOrdinal("ProveedorNombre")),
                         UrlImagen = reader.GetString(reader.GetOrdinal("UrlImagen")),
                         FechaRegistro = reader.GetDateTime(reader.GetOrdinal("FechaRegistro")),
-                        Estado = reader.GetBoolean(reader.GetOrdinal("Estado"))
+                        Estado = reader.GetBoolean(reader.GetOrdinal("Estado")) ? "Activo" : "Inactivo"
                     });
                 }
 
+                reader.Close();
                 respuestaAPI.Resultado = (bool)resultado.Value;
                 respuestaAPI.Mensaje = mensaje.Value?.ToString();
                 respuestaAPI.Datos = productos;

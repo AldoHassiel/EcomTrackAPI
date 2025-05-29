@@ -6,8 +6,7 @@ create table Transportista (
 	Estado bit default 1
 )
 go
-CREATE PROCEDURE GuardarTransportista( 
-	@Id INT,
+ALTER PROCEDURE GuardarTransportista( 
 	@Nombre VARCHAR(50), 
 	@Correo VARCHAR(100),
 	@Telefono VARCHAR(15),
@@ -37,7 +36,7 @@ BEGIN
 	END CATCH
 END
 go
-CREATE PROCEDURE ActualizarTransportista ( 
+ALTER PROCEDURE ActualizarTransportista ( 
 	@Id INT,
 	@Nombre VARCHAR(50), 
 	@Correo VARCHAR(100),
@@ -58,7 +57,7 @@ BEGIN
 
 		IF EXISTS (
             SELECT 1 FROM Transportista
-            WHERE @Correo = @Correo
+            WHERE @Correo = @Correo AND Id <> @Id
         )
         BEGIN
             SET @Resultado = 0
