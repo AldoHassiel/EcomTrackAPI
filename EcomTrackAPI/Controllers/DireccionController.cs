@@ -8,35 +8,66 @@ namespace EcomTrackAPI.Controllers
     [ApiController]
     public class DireccionController : ControllerBase
     {
-        [HttpGet]
-        [Route("[action]")]
-        public List<Direccion> ListaDirecciones()
+        [HttpGet("ListaDirecciones")]
+        public IActionResult ListaDirecciones()
         {
-            List<Direccion> direcciones = DireccionService.ListaDirecciones();
-            return direcciones;
+            var respuesta = DireccionService.ListaDirecciones();
+
+            if (!respuesta.Resultado)
+            {
+                return BadRequest(respuesta);
+            }
+
+            return Ok(respuesta);
         }
 
-        [HttpDelete("{id}")]
-        public bool Eliminardireccion(int id)
+        [HttpDelete("EliminarDireccion")]
+        public IActionResult EliminarDireccion(int id)
         {
-            bool eliminado = DireccionService.EliminarDireccion(id);
-            return eliminado;
+            if (id <= 0)
+            {
+                return BadRequest(new RespuestaAPI
+                {
+                    Resultado = false,
+                    Mensaje = "El ID de la direccion no es válido",
+                    Datos = null
+                });
+            }
+
+            var respuesta = DireccionService.EliminarDireccion(id);
+
+            if (!respuesta.Resultado)
+            {
+                return BadRequest(respuesta);
+            }
+
+            return Ok(respuesta);
         }
 
-        [HttpPost]
-        [Route("[action]")]
+        [HttpPost("GuardarDireccion")]
         public IActionResult GuardarDireccion(Direccion direccion)
         {
-            IActionResult guardado = DireccionService.GuardarDireccion(direccion);
-            return guardado;
+            var respuesta = DireccionService.GuardarDireccion(direccion);
+
+            if (!respuesta.Resultado)
+            {
+                return BadRequest(respuesta);
+            }
+
+            return Ok(respuesta);
         }
 
-        [HttpPost]
-        [Route("[action]")]
+        [HttpPost("EditarDireccion")]
         public IActionResult EditarDireccion(Direccion direccion)
         {
-            IActionResult guardado = DireccionService.EditarDireccion(direccion);
-            return guardado;
+            var respuesta = DireccionService.EditarDireccion(direccion);
+
+            if (!respuesta.Resultado)
+            {
+                return BadRequest(respuesta);
+            }
+
+            return Ok(respuesta);
         }
     }
 }

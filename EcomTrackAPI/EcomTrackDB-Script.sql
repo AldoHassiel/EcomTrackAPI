@@ -285,6 +285,16 @@ BEGIN
 END
 
 
+GO
+CREATE PROCEDURE EliminarDireccion(
+	@Id INT
+)
+AS
+BEGIN
+	delete from Direccion where Id = @Id
+
+END
+
 
 
 /*Evelyn*/
