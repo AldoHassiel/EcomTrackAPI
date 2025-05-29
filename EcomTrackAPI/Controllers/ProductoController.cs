@@ -16,7 +16,7 @@ namespace EcomTrackAPI.Controllers
             return Ok(respuestaAPI);
         }
         [HttpPost("GuardarProducto")]
-        public IActionResult GuardarProducto([FromBody] Producto producto)
+        public IActionResult GuardarProducto([FromBody] ProductoNuevo producto)
         {
             if (producto == null)
             {
@@ -33,7 +33,7 @@ namespace EcomTrackAPI.Controllers
             return Ok(respuestaAPI);
         }
         [HttpPut("ActualizarProducto")]
-        public IActionResult ActualizarProducto([FromBody] Producto producto)
+        public IActionResult ActualizarProducto([FromBody] ProductoNuevo producto)
         {
             if (producto == null)
             {

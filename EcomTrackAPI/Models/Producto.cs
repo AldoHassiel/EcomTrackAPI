@@ -13,6 +13,6 @@
         public string ProveedorNombre { get; set; }
         public string UrlImagen { get; set; }
         public DateTime FechaRegistro { get; set; }
-        public bool Estado { get; set; }
+        public string Estado { get; set; }
     }
 }
