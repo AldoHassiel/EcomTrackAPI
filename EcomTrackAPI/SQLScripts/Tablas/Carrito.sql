@@ -11,8 +11,8 @@ CREATE TABLE DetalleCarrito(
 	Producto INT NOT NULL,
 	Cantidad INT NOT NULL,
 	Precio DECIMAL(10, 2) NOT NULL,
-	Subtotal AS (Cantidad * Precio) PERSISTED
-	FOREIGN KEY (Carrito) REFERENCES Carrito(Id)
+	Subtotal AS (Cantidad * Precio) PERSISTED,
+	FOREIGN KEY (Carrito) REFERENCES Carrito(Id),
 	FOREIGN KEY (Producto) REFERENCES Producto(Id)
 )
 
