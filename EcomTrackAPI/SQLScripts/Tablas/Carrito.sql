@@ -16,7 +16,7 @@ CREATE TABLE DetalleCarrito(
 	FOREIGN KEY (Producto) REFERENCES Producto(Id)
 )
 
-CREATE PROCEDURE AgregarProductoAlCarrito
+ALTER PROCEDURE AgregarProductoAlCarrito
     @IdCliente INT,
     @IdProducto INT,
     @Cantidad INT,
@@ -26,7 +26,7 @@ AS
 BEGIN
     SET NOCOUNT ON;
     BEGIN TRY
-        -- Valida que el producto exista y tenga stock suficiente
+
         DECLARE @StockDisponible INT;
         DECLARE @PrecioProducto DECIMAL(10, 2);
         DECLARE @ProductoNombre VARCHAR(100);
@@ -49,7 +49,7 @@ BEGIN
             RETURN;
         END
         
-        -- Busca si el cliente ya tiene un carrito (activo o inactivo)
+
         DECLARE @IdCarrito INT;
         DECLARE @CarritoActivo BIT;
         
@@ -57,7 +57,6 @@ BEGIN
         FROM Carrito
         WHERE Cliente = @IdCliente;
         
-        -- ESCENARIO 1: No tiene carrito, crear uno nuevo
         IF @IdCarrito IS NULL
         BEGIN
             INSERT INTO Carrito (Cliente, Activo)
@@ -65,16 +64,14 @@ BEGIN
             
             SET @IdCarrito = SCOPE_IDENTITY();
         END
-        -- ESCENARIO 3: Tiene carrito inactivo, activarlo
+
         ELSE IF @CarritoActivo = 0
         BEGIN
             UPDATE Carrito
             SET Activo = 1
             WHERE Id = @IdCarrito;
         END
-        -- ESCENARIO 2: Tiene carrito activo
         
-        -- Verifica si el producto ya está en el carrito
         DECLARE @IdDetalle INT;
         DECLARE @CantidadActual INT;
         
@@ -82,7 +79,7 @@ BEGIN
         FROM DetalleCarrito
         WHERE Carrito = @IdCarrito AND Producto = @IdProducto;
         
-        -- Si el producto ya está en el carrito, actualizar cantidad
+        
         IF @IdDetalle IS NOT NULL
         BEGIN
             UPDATE DetalleCarrito
@@ -91,7 +88,7 @@ BEGIN
             
             SET @Mensaje = 'Se agregaron ' + CAST(@Cantidad AS VARCHAR) + ' unidades más del producto "' + @ProductoNombre + '" al carrito.';
         END
-        ELSE -- Si no, agregar nuevo detalle
+        ELSE
         BEGIN
             INSERT INTO DetalleCarrito (Carrito, Producto, Cantidad, Precio)
             VALUES (@IdCarrito, @IdProducto, @Cantidad, @PrecioProducto);
@@ -117,7 +114,7 @@ AS
 BEGIN
     SET NOCOUNT ON;
     BEGIN TRY
-        -- Valida que la cantidad sea mayor a 0
+       
         IF @Cantidad <= 0
         BEGIN
             SET @Resultado = 0;
@@ -125,7 +122,6 @@ BEGIN
             RETURN;
         END
         
-        -- Valida que el producto exista y tenga stock suficiente
         DECLARE @StockDisponible INT;
         DECLARE @ProductoNombre VARCHAR(100);
         
@@ -147,7 +143,6 @@ BEGIN
             RETURN;
         END
         
-        -- Buscar el carrito del cliente
         DECLARE @IdCarrito INT;
         DECLARE @CarritoActivo BIT;
         
@@ -162,7 +157,6 @@ BEGIN
             RETURN;
         END
         
-        -- Verificar si el producto está en el carrito
         DECLARE @IdDetalle INT;
         DECLARE @CantidadActual INT;
         
@@ -177,7 +171,6 @@ BEGIN
             RETURN;
         END
         
-        -- Actualizar la cantidad solo si es diferente a la actual
         IF @Cantidad = @CantidadActual
         BEGIN
             SET @Resultado = 1;
@@ -185,7 +178,6 @@ BEGIN
             RETURN;
         END
         
-        -- Actualizar la cantidad
         UPDATE DetalleCarrito
         SET Cantidad = @Cantidad
         WHERE Id = @IdDetalle;
@@ -211,7 +203,7 @@ AS
 BEGIN
     SET NOCOUNT ON;
     BEGIN TRY
-        -- Busca el carrito del cliente
+
         DECLARE @IdCarrito INT;
         
         SELECT @IdCarrito = Id
@@ -225,7 +217,6 @@ BEGIN
             RETURN;
         END
         
-        -- Verifica si el producto está en el carrito
         DECLARE @IdDetalle INT;
         DECLARE @ProductoNombre VARCHAR(100);
         
@@ -241,14 +232,12 @@ BEGIN
             RETURN;
         END
         
-        -- Elimina el producto del carrito
         DELETE FROM DetalleCarrito
         WHERE Id = @IdDetalle;
         
-        -- Verifica si el carrito quedó vacío
         IF NOT EXISTS (SELECT 1 FROM DetalleCarrito WHERE Carrito = @IdCarrito)
         BEGIN
-            -- Marcar el carrito como inactivo cuando queda vacío
+
             UPDATE Carrito
             SET Activo = 0
             WHERE Id = @IdCarrito;
@@ -276,7 +265,7 @@ AS
 BEGIN
     SET NOCOUNT ON;
     BEGIN TRY
-        -- Busca el carrito del cliente
+
         DECLARE @IdCarrito INT;
         DECLARE @CarritoActivo BIT;
         
@@ -284,13 +273,12 @@ BEGIN
         FROM Carrito
         WHERE Cliente = @IdCliente;
         
-        -- Caso 1: No existe carrito o está inactivo
+
         IF @IdCarrito IS NULL OR @CarritoActivo = 0
         BEGIN
             SET @Resultado = 1;
             SET @Mensaje = 'El carrito de compra actualmente está vacío.';
             
-            -- Devolver estructura de carrito vacío
             SELECT 
                 ISNULL(@IdCarrito, 0) AS IdCarrito,
                 @IdCliente AS IdCliente,
@@ -298,7 +286,6 @@ BEGIN
                 0 AS CantidadProductos,
                 1 AS EstaVacio;
             
-            -- Lista vacía de productos
             SELECT 
                 0 AS IdDetalle,
                 0 AS IdProducto,
@@ -312,8 +299,6 @@ BEGIN
             RETURN;
         END
         
-        -- Caso 2: Carrito activo
-        -- Calcular totales
         DECLARE @Total DECIMAL(10, 2) = 0;
         DECLARE @CantidadProductos INT = 0;
         
@@ -326,7 +311,6 @@ BEGIN
         SET @Resultado = 1;
         SET @Mensaje = 'Carrito obtenido correctamente.';
         
-        -- Devolver información del carrito
         SELECT 
             @IdCarrito AS IdCarrito,
             @IdCliente AS IdCliente,
@@ -334,7 +318,6 @@ BEGIN
             @CantidadProductos AS CantidadProductos,
             CASE WHEN @CantidadProductos = 0 THEN 1 ELSE 0 END AS EstaVacio;
         
-        -- Devolver los productos del carrito
         SELECT 
             d.Id AS IdDetalle,
             p.Id AS IdProducto,
