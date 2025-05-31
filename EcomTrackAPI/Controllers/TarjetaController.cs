@@ -9,9 +9,9 @@ namespace EcomTrackAPI.Controllers
     public class TarjetaController : ControllerBase
     {
         [HttpGet("ObtenerTarjetas")]
-        public IActionResult ObtenerTarjetas()
+        public IActionResult ObtenerTarjetas(int id)
         {
-            var respuesta = TarjetaService.ObtenerTarjetas();
+            var respuesta = TarjetaService.ObtenerTarjetas(id);
             return Ok(respuesta);
         }
 
