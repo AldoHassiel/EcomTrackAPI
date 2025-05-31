@@ -8,20 +8,60 @@ namespace EcomTrackAPI.Controllers
     [ApiController]
     public class EnvioController : ControllerBase
     {
-        [HttpGet]
-        [Route("[action]")]
-        public List<Envio> ObtenerEnvio()
+        [HttpGet("ObtenerEnvios")]
+        public IActionResult ObtenerEnvios()
         {
-            List<Envio> envios = EnvioService.ObtenerEnvios();
-            return envios;
+            var respuestaAPI = EnvioService.ObtenerEnvios();
+
+            return Ok(respuestaAPI);
         }
 
-        [HttpPost]
-        [Route("[action]")]
-        public IActionResult GuardarEnvio(Envio envio)
+        [HttpPost("GuardarEnvio")]
+        public IActionResult GuardarEnvio([FromBody] Envio envio)
         {
-            IActionResult guardado = EnvioService.GuardarEnvio(envio);
-            return guardado;
+            if (envio == null)
+            {
+                return Ok(new RespuestaAPI
+                {
+                    Resultado = false,
+                    Mensaje = "El envio no puede ser nulo",
+                    Datos = null
+                });
+            }
+
+            var respuestaAPI = EnvioService.GuardarEnvio(envio);
+
+            return Ok(respuestaAPI);
         }
+
+        [HttpPut("ActualizarEnvio")]
+        public IActionResult ActualizarEnvio([FromBody] Envio envio)
+        {
+            if (envio == null)
+            {
+                return Ok(new RespuestaAPI
+                {
+                    Resultado = false,
+                    Mensaje = "El envio no puede ser nulo",
+                    Datos = null
+                });
+            }
+
+            if (envio.Id <= 0)
+            {
+                return Ok(new RespuestaAPI
+                {
+                    Resultado = false,
+                    Mensaje = "El Id del envio es inválido",
+                    Datos = null
+                });
+            }
+
+            var respuestaAPI = EnvioService.ActualizarEnvio(envio);
+
+            return Ok(respuestaAPI);
+        }
+
+
     }
 }
