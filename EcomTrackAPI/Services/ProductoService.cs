@@ -139,7 +139,7 @@ namespace EcomTrackAPI.Services
 
             return respuestaAPI;
         }
-        public static RespuestaAPI ObtenerProductos(int idCategoria, int idProveedor)
+        public static RespuestaAPI ObtenerProductos()
         {
             var respuestaAPI = new RespuestaAPI();
 
