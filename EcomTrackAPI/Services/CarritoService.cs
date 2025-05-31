@@ -170,7 +170,8 @@ namespace EcomTrackAPI.Services
                         Producto = reader["IdProducto"] != DBNull.Value ? Convert.ToInt32(reader["IdProducto"]) : 0,
                         ProductoNombre = reader["ProductoNombre"] != DBNull.Value ? reader["ProductoNombre"].ToString() : string.Empty,
                         Cantidad = reader["Cantidad"] != DBNull.Value ? Convert.ToInt32(reader["Cantidad"]) : 0,
-                        Precio = reader["PrecioUnitario"] != DBNull.Value ? Convert.ToDecimal(reader["PrecioUnitario"]) : 0,
+                        Stock = reader["Stock"] != DBNull.Value ? Convert.ToInt32(reader["Stock"]) : 0,
+                        Precio = reader["Precio"] != DBNull.Value ? Convert.ToDecimal(reader["Precio"]) : 0,
                         Subtotal = reader["Subtotal"] != DBNull.Value ? Convert.ToDecimal(reader["Subtotal"]) : 0,
                         UrlImagen = reader["UrlImagen"] != DBNull.Value ? reader["UrlImagen"].ToString() : string.Empty
                     };

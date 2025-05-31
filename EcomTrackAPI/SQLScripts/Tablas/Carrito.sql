@@ -293,6 +293,7 @@ BEGIN
                 0 AS IdProducto,
                 '' AS ProductoNombre,
                 0 AS Cantidad,
+				0 AS Stock,
                 0 AS PrecioUnitario,
                 0 AS Subtotal,
                 '' AS UrlImagen
@@ -323,7 +324,8 @@ BEGIN
             p.Id AS IdProducto,
             p.Nombre AS ProductoNombre,
             d.Cantidad,
-            d.Precio AS PrecioUnitario,
+			p.stock AS Stock,
+            d.Precio AS Precio,
             d.Subtotal,
             p.UrlImagen
         FROM DetalleCarrito d
