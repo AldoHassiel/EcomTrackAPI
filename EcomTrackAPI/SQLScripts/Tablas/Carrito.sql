@@ -1,3 +1,7 @@
+SELECT * FROM Carrito
+SELECT * FROM DetalleCarrito
+
+
 CREATE TABLE Carrito (
 	Id INT IDENTITY PRIMARY KEY,
 	Cliente INT NOT NULL,
@@ -93,7 +97,7 @@ BEGIN
             INSERT INTO DetalleCarrito (Carrito, Producto, Cantidad, Precio)
             VALUES (@IdCarrito, @IdProducto, @Cantidad, @PrecioProducto);
             
-            SET @Mensaje = 'Producto "' + @ProductoNombre + '" agregado al carrito correctamente.';
+            SET @Mensaje = 'Producto ''' + @ProductoNombre + ''' agregado al carrito correctamente.';
         END
         
         SET @Resultado = 1;
@@ -104,7 +108,7 @@ BEGIN
     END CATCH
 END
 
-CREATE PROCEDURE ActualizarCantidadProductoDelCarrito
+ALTER PROCEDURE ActualizarCantidadProductoDelCarrito
     @IdCliente INT,
     @IdProducto INT,
     @Cantidad INT,
@@ -167,14 +171,14 @@ BEGIN
         IF @IdDetalle IS NULL
         BEGIN
             SET @Resultado = 0;
-            SET @Mensaje = 'El producto "' + @ProductoNombre + '" no se encuentra en el carrito.';
+            SET @Mensaje = 'El producto ''' + @ProductoNombre + ''' no se encuentra en el carrito.';
             RETURN;
         END
         
         IF @Cantidad = @CantidadActual
         BEGIN
             SET @Resultado = 1;
-            SET @Mensaje = 'La cantidad del producto "' + @ProductoNombre + '" ya es ' + CAST(@Cantidad AS VARCHAR) + '.';
+            SET @Mensaje = 'La cantidad del producto ''' + @ProductoNombre + ''' ya es ' + CAST(@Cantidad AS VARCHAR) + '.';
             RETURN;
         END
         
@@ -184,9 +188,9 @@ BEGIN
         
         SET @Resultado = 1;
         IF @Cantidad > @CantidadActual
-            SET @Mensaje = 'Cantidad del producto "' + @ProductoNombre + '" aumentada de ' + CAST(@CantidadActual AS VARCHAR) + ' a ' + CAST(@Cantidad AS VARCHAR) + '.';
+            SET @Mensaje = 'Cantidad del producto ''' + @ProductoNombre + ''' aumentada de ' + CAST(@CantidadActual AS VARCHAR) + ' a ' + CAST(@Cantidad AS VARCHAR) + '.';
         ELSE
-            SET @Mensaje = 'Cantidad del producto "' + @ProductoNombre + '" reducida de ' + CAST(@CantidadActual AS VARCHAR) + ' a ' + CAST(@Cantidad AS VARCHAR) + '.';
+            SET @Mensaje = 'Cantidad del producto ''' + @ProductoNombre + ''' reducida de ' + CAST(@CantidadActual AS VARCHAR) + ' a ' + CAST(@Cantidad AS VARCHAR) + '.';
     END TRY
     BEGIN CATCH
         SET @Resultado = 0;
@@ -194,7 +198,7 @@ BEGIN
     END CATCH
 END
 
-CREATE PROCEDURE EliminarProductoDelCarrito
+ALTER PROCEDURE EliminarProductoDelCarrito
     @IdCliente INT,
     @IdProducto INT,
     @Resultado BIT OUTPUT,
@@ -242,11 +246,11 @@ BEGIN
             SET Activo = 0
             WHERE Id = @IdCarrito;
             
-            SET @Mensaje = 'Producto "' + @ProductoNombre + '" eliminado del carrito. El carrito ahora está vacío.';
+            SET @Mensaje = 'Producto ''' + @ProductoNombre + ''' eliminado del carrito. El carrito ahora está vacío.';
         END
         ELSE
         BEGIN
-            SET @Mensaje = 'Producto "' + @ProductoNombre + '" eliminado del carrito correctamente.';
+            SET @Mensaje = 'Producto ''' + @ProductoNombre + ''' eliminado del carrito correctamente.';
         END
         
         SET @Resultado = 1;
@@ -257,7 +261,7 @@ BEGIN
     END CATCH
 END
 
-CREATE PROCEDURE ObtenerCarrito
+ALTER PROCEDURE ObtenerCarrito
     @IdCliente INT,
     @Resultado BIT OUTPUT,
     @Mensaje VARCHAR(500) OUTPUT
@@ -280,8 +284,6 @@ BEGIN
             SET @Mensaje = 'El carrito de compra actualmente está vacío.';
             
             SELECT 
-                ISNULL(@IdCarrito, 0) AS IdCarrito,
-                @IdCliente AS IdCliente,
                 0 AS Total,
                 0 AS CantidadProductos,
                 1 AS EstaVacio;
@@ -312,8 +314,6 @@ BEGIN
         SET @Mensaje = 'Carrito obtenido correctamente.';
         
         SELECT 
-            @IdCarrito AS IdCarrito,
-            @IdCliente AS IdCliente,
             @Total AS Total,
             @CantidadProductos AS CantidadProductos,
             CASE WHEN @CantidadProductos = 0 THEN 1 ELSE 0 END AS EstaVacio;
@@ -337,36 +337,21 @@ BEGIN
     END CATCH
 END
 
-CREATE TRIGGER TR_Producto_ActualizarPreciosCarrito
+ALTER TRIGGER ActualizarPreciosCarrito
 ON Producto
 AFTER UPDATE
 AS
 BEGIN
     SET NOCOUNT ON;
-
-    -- Verificar si se actualizó el precio
+    
     IF UPDATE(Precio)
     BEGIN
-        -- Obtener los productos que tuvieron cambio de precio
-        DECLARE @ProductosActualizados TABLE (
-            IdProducto INT,
-            PrecioNuevo DECIMAL(10, 2)
-        );
-        
-        INSERT INTO @ProductosActualizados (IdProducto, PrecioNuevo)
-        SELECT i.Id, i.Precio
-        FROM inserted i
-        INNER JOIN deleted d ON i.Id = d.Id
-        WHERE i.Precio <> d.Precio;
-        
-        -- Actualizar precios en el carrito para carritos activos
         UPDATE dc
-        SET Precio = pa.PrecioNuevo
+        SET Precio = i.Precio
         FROM DetalleCarrito dc
-        INNER JOIN @ProductosActualizados pa ON dc.Producto = pa.IdProducto
+        INNER JOIN inserted i ON dc.Producto = i.Id
         INNER JOIN Carrito c ON dc.Carrito = c.Id
         WHERE c.Activo = 1;
-      
     END
 END
 
