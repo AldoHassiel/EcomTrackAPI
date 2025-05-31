@@ -6,7 +6,6 @@
         public int Pedido { get; set; }
         public int MetodoPago { get; set; }
         public decimal ImporteAbonado { get; set; }
-        public string Tarjeta { get; set; }
         public DateTime FechaPago { get; set; }
     }
 }
