@@ -13,21 +13,21 @@ CREATE TABLE Tarjeta(
 
 GO 
 
-CREATE PROCEDURE GuardarTarjeta (
+ALTER PROCEDURE GuardarTarjeta (
     @Cliente INT, 
     @NumeroTarjeta VARCHAR(16),
     @MetodoDePago INT,
-	@MarcaTarjeta varchar(100),
-	@Activa bit,
-	@Predeterminada bit,
-    @Resultado BIT,
+    @MarcaTarjeta VARCHAR(100),
+    @Activa BIT,
+    @Predeterminada BIT,
+    @Resultado BIT OUTPUT,
     @Mensaje VARCHAR(500) OUTPUT
 )
 AS
 BEGIN
     BEGIN TRY
         INSERT INTO Tarjeta (Cliente, NumeroTarjeta, MetodoDePago, MarcaTarjeta, Activa, Predeterminada)
-        VALUES ( @Cliente, @NumeroTarjeta, @MetodoDePago, @MarcaTarjeta, @Activa, @Predeterminada)
+        VALUES (@Cliente, @NumeroTarjeta, @MetodoDePago, @MarcaTarjeta, @Activa, @Predeterminada)
 
         SET @Resultado = 1
         SET @Mensaje = 'Tarjeta guardada.'
@@ -103,3 +103,8 @@ BEGIN
         SET @Mensaje = ERROR_MESSAGE()
     END CATCH
 END
+
+insert Into MetodoPago(Descripcion)
+values('Debito')
+
+select * from MetodoPago

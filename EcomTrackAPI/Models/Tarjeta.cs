@@ -12,7 +12,6 @@
         public string MarcaTarjeta { get; set; }
         public bool Activa { get; set; }
         public bool Predeterminada { get; set; }
-        public DateTime FechaVencimiento { get; set; }
 
     }
 }
