@@ -130,3 +130,11 @@ CREATE TABLE TipoDireccion (
 	Id int identity PRIMARY KEY NOT NULL,
 	Descripcion varchar(20)
 )
+
+
+insert into TipoDireccion(Descripcion) values ('Casa')
+insert into TipoDireccion(Descripcion) values ('Edificio')
+insert into TipoDireccion(Descripcion) values ('Departamento')
+
+
+select Id, Descripcion from TipoDireccion
