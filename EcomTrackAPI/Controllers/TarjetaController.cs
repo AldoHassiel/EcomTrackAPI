@@ -34,19 +34,11 @@ namespace EcomTrackAPI.Controllers
         }
 
         [HttpPut("ActualizarTarjeta")]
-        public IActionResult ActualizarTarjeta([FromBody] Tarjeta tarjeta)
+        public IActionResult ActualizarTarjeta([FromBody] int id)
         {
-            if (string.IsNullOrWhiteSpace(tarjeta.NumeroTarjeta))
-            {
-                return Ok(new RespuestaAPI
-                {
-                    Resultado = false,
-                    Mensaje = "El numero de la tarjeta es obligatorio",
-                    Datos = null
-                });
-            }
+            
 
-            var respuesta = TarjetaService.ActualizarTarjeta(tarjeta);
+            var respuesta = TarjetaService.ActualizarTarjeta(id);
 
             return Ok(respuesta);
         }
