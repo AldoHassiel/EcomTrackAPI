@@ -1,6 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
 using EcomTrackAPI.Models;
 using System.Data;
+using System;
 
 namespace EcomTrackAPI.Services
 {
@@ -13,9 +14,9 @@ namespace EcomTrackAPI.Services
             List<Tarjeta> tarjetas = new List<Tarjeta>();
 
             SqlConnection conx = Datos.conectar();
-            string query = "SELECT t.NumeroTarjeta, mp.Descripcion AS TipoTarjeta " +
-                "FROM Tarjeta t INNER JOIN MetodoPago mp ON " +
-                "t.MetodoDePago = mp.Id WHERE t.Cliente = "+id+" AND t.Activa = 1";
+            string query = "SELECT t.NumeroTarjeta, mp.Descripcion AS TipoTarjeta, t.MarcaTarjeta," +
+                "t.Predeterminada FROM Tarjeta t INNER JOIN MetodoPago mp ON t.MetodoDePago = mp.Id" +
+                "WHERE t.Cliente = " + id + @" AND t.Activa = 1";
 
             SqlCommand cmd = new SqlCommand(query, conx);
 
@@ -30,7 +31,9 @@ namespace EcomTrackAPI.Services
                     Tarjeta tarjeta = new Tarjeta()
                     {
                         NumeroTarjeta = reader.GetString(0),
-                        TipoTarjeta = reader.GetString(1)
+                        TipoTarjeta = reader.GetString(1),
+                        MarcaTarjeta = reader.GetString(2),
+                        Predeterminada = reader.GetBoolean(3)
                     };
                     tarjetas.Add(tarjeta);
                 }
@@ -63,16 +66,20 @@ namespace EcomTrackAPI.Services
         }
         public static RespuestaAPI GuardarTarjeta(Tarjeta tarjeta)
         {
+            tarjeta.Activa = true;
+            
             var respuestaAPI = new RespuestaAPI();
 
             SqlConnection conx = Datos.conectar();
             SqlCommand cmd = new SqlCommand("GuardarTarjeta", conx);
 
             cmd.CommandType = CommandType.StoredProcedure;
-            cmd.Parameters.AddWithValue("@Cliente", tarjeta.Cliente);
-            cmd.Parameters.AddWithValue("@NumeroTarjeta", tarjeta.NumeroTarjeta);
-            cmd.Parameters.AddWithValue("@MetodoDePago", tarjeta.MetodoDePago);
-            cmd.Parameters.AddWithValue("@Estado", tarjeta.Activa);
+            cmd.Parameters.Add("@Cliente", SqlDbType.Int).Value = tarjeta.Cliente;
+            cmd.Parameters.Add("@NumeroTarjeta", SqlDbType.VarChar, 16).Value = tarjeta.NumeroTarjeta;
+            cmd.Parameters.Add("@MetodoDePago", SqlDbType.Int).Value = tarjeta.MetodoDePago;
+            cmd.Parameters.Add("@MarcaTarjeta", SqlDbType.VarChar, 100).Value = tarjeta.MarcaTarjeta;
+            cmd.Parameters.Add("@Activa", SqlDbType.Bit).Value = tarjeta.Activa;
+            cmd.Parameters.Add("@Predeterminada", SqlDbType.Bit).Value = tarjeta.Predeterminada;
 
             SqlParameter resultado = new SqlParameter("@Resultado", SqlDbType.Bit) { Direction = ParameterDirection.Output };
             SqlParameter mensaje = new SqlParameter("@Mensaje", SqlDbType.VarChar, 500) { Direction = ParameterDirection.Output };
