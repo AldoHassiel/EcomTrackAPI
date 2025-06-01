@@ -219,14 +219,14 @@ END
 CREATE TABLE Direccion(
 	Id INT PRIMARY KEY NOT NULL,
 	Cliente INT,
-	Tipo INT,
+	EsPredeterminado BIT,
 	Calle VARCHAR(100) NOT NULL,
 	EntreCalles VARCHAR(200),
     Numero VARCHAR(10),
     Colonia VARCHAR(100),
     Ciudad VARCHAR(100),
     Estado VARCHAR(100),
-    CodigoPostal VARCHAR(10),
+    CodigoPostal VARCHAR(5),
     Pais VARCHAR(100),
     FOREIGN KEY (Cliente) REFERENCES Cliente(Id),
 	FOREIGN KEY (Tipo) REFERENCES Tipo(Id)
