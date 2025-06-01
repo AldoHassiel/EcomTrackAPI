@@ -134,7 +134,7 @@ namespace EcomTrackAPI.Services
 
             return respuestaAPI;
         }
-        public static RespuestaAPI ActualizarTarjeta(Tarjeta tarjeta)
+        public static RespuestaAPI ActualizarTarjeta(int id)
         {
             var respuestaAPI = new RespuestaAPI();
 
@@ -142,8 +142,7 @@ namespace EcomTrackAPI.Services
             SqlCommand cmd = new SqlCommand("ActualizarTarjeta", conx);
 
             cmd.CommandType = CommandType.StoredProcedure;
-            cmd.Parameters.AddWithValue("@Id", tarjeta.Id);
-            cmd.Parameters.AddWithValue("@NumeroTarjeta", tarjeta.NumeroTarjeta);
+            cmd.Parameters.AddWithValue("@Id", id);
 
             SqlParameter resultado = new SqlParameter("@Resultado", SqlDbType.Bit) { Direction = ParameterDirection.Output };
             SqlParameter mensaje = new SqlParameter("@Mensaje", SqlDbType.VarChar, 500) { Direction = ParameterDirection.Output };
