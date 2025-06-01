@@ -240,5 +240,66 @@ namespace EcomTrackAPI.Services
 
             return respuestaAPI;
         }
+
+        public static RespuestaAPI ObtenerTopClientes()
+        {
+            var respuestaAPI = new RespuestaAPI();
+
+            using (SqlConnection conx = Datos.conectar())
+            using (SqlCommand cmd = new SqlCommand())
+            {
+                cmd.Connection = conx;
+                cmd.CommandText = @"
+            SELECT TOP 5 
+                Nombre, 
+                TotalCompras, 
+                TotalGastado
+            FROM 
+                Cliente
+            ORDER BY 
+                TotalCompras DESC";
+                cmd.CommandType = CommandType.Text; 
+
+                try
+                {
+                    conx.Open();
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    if (!reader.HasRows)
+                    {
+                        respuestaAPI.Resultado = false;
+                        respuestaAPI.Mensaje = "No se encontraron clientes";
+                        respuestaAPI.Datos = null;
+                        return respuestaAPI;
+                    }
+
+                    List<Cliente> clientes = new List<Cliente>();
+
+                    while (reader.Read())
+                    {
+                        clientes.Add(new Cliente
+                        {
+                            Nombre = reader.GetString(reader.GetOrdinal("Nombre")),
+                            TotalCompras = reader.GetInt32(reader.GetOrdinal("TotalCompras")),
+                            TotalGastado = reader.GetDecimal(reader.GetOrdinal("TotalGastado"))
+                        });
+                    }
+
+
+                    respuestaAPI.Resultado = true;
+                    respuestaAPI.Mensaje = "Clientes obtenidos correctamente";
+                    respuestaAPI.Datos = clientes;
+                }
+                catch (Exception ex)
+                {
+                    respuestaAPI.Resultado = false;
+                    respuestaAPI.Mensaje = $"Error inesperado: {ex.Message}";
+                }
+            }
+
+            return respuestaAPI;
+        }
+
+
     }
 }

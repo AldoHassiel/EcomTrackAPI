@@ -159,5 +159,12 @@ namespace EcomTrackAPI.Controllers
             var respuesta = ClienteService.ObtenerClientes(orden);
             return Ok(respuesta);
         }
+
+        [HttpGet("top-clientes")]
+        public IActionResult ObtenerTopClientes()
+        {
+            var res = ClienteService.ObtenerTopClientes();
+            return Ok(res);
+        }
     }
 }
