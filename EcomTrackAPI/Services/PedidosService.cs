@@ -17,10 +17,14 @@ namespace EcomTrackAPI.Services
 
             SqlConnection conx = Datos.conectar();
 
-            string query = "SELECT p.Id, c.Nombre AS Cliente,p.FechaPedido,p.Importe,p.Estado," +
-                "p.Calle, p.EntreCalles, p.Numero, p.Colonia, p.Ciudad, p.EstadoD, " +
-                "p.CodigoPostal, p.Pais FROM Pedido p JOIN Cliente c ON p.Cliente = c.Id; ";
+            string query = "SELECT p.Id, p.IdCliente, p.FechaPedido, c.Nombre AS NombreCliente, " +
+                   "p.FechaPedidoINT, p.Importe, p.IdEstado, p.IdDireccion " +
+                   "FROM Pedido p " +
+                   "JOIN Cliente c ON p.IdCliente = c.Id " +
+                   "WHERE p.IdCliente = @ClienteId;";
+
             SqlCommand command = new SqlCommand(query, conx);
+            command.Parameters.AddWithValue("@ClienteId", id);
 
             try
             {
@@ -34,10 +38,12 @@ namespace EcomTrackAPI.Services
                     Pedidos pedido = new Pedidos()
                     {
                         Id = reader.GetInt32(0),
-                        NombreCliente = reader.GetString(1),
+                        Cliente = reader.GetInt32(1),
                         FechaPedido = reader.GetDateTime(2),
-                        Importe = reader.GetDecimal(3),
-                        Estado = reader.GetInt32(4),
+                        NombreCliente = reader.GetString(3),
+                        Importe = reader.GetDecimal(4),
+                        Estado = reader.GetInt32(5),
+                        Direccion = reader.GetInt32(6)
                     };
                     pedidos.Add(pedido);
                 }
