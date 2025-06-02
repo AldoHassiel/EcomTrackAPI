@@ -14,7 +14,7 @@ namespace EcomTrackAPI.Services
             List<Tarjeta> tarjetas = new List<Tarjeta>();
 
             SqlConnection conx = Datos.conectar();
-            string query = "SELECT t.Id, t.NumeroTarjeta, t.MetodoDePago, m.Descripcion AS TipoTarjeta, t.MarcaTarjeta, t.Activa, t.Predeterminada FROM Tarjeta t INNER JOIN MetodoPago m ON m.Id = t.MetodoDePago WHERE t.Cliente = 47 AND t.Activa = 1 ORDER BY t.Predeterminada DESC";
+            string query = "SELECT t.Id, t.NumeroTarjeta, t.MetodoDePago, m.Descripcion AS TipoTarjeta, t.MarcaTarjeta, t.Activa, t.Predeterminada FROM Tarjeta t INNER JOIN MetodoPago m ON m.Id = t.MetodoDePago WHERE t.Cliente = " +id +" AND t.Activa = 1 ORDER BY t.Predeterminada DESC";
 
             SqlCommand cmd = new SqlCommand(query, conx);
 

@@ -8,7 +8,7 @@ namespace EcomTrackAPI.Services
 {
     public class PedidosService
     {
-        public static RespuestaAPI ObtenerPedidos()
+        public static RespuestaAPI ObtenerPedidos(int id)
         {
 
             var respuestaAPI = new RespuestaAPI();

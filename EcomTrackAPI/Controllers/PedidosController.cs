@@ -10,9 +10,9 @@ namespace EcomTrackAPI.Controllers
     {
         [HttpGet("ObtenerPedidos")]
         
-        public IActionResult ObtenerPedidos()
+        public IActionResult ObtenerPedidos(int id)
         {
-            var respuesta = PedidosService.ObtenerPedidos();
+            var respuesta = PedidosService.ObtenerPedidos(id);
 
             if (!respuesta.Resultado)
             {
