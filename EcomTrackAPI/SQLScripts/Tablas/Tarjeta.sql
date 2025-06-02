@@ -25,6 +25,10 @@ ALTER PROCEDURE GuardarTarjeta (
 AS
 BEGIN
     BEGIN TRY
+		UPDATE Tarjeta
+			SET Predeterminada = 0
+		WHERE Cliente = @Cliente;
+
         INSERT INTO Tarjeta (Cliente, NumeroTarjeta, MetodoDePago, MarcaTarjeta, Activa, Predeterminada)
         VALUES (@Cliente, @NumeroTarjeta, @MetodoDePago, @MarcaTarjeta, @Activa, @Predeterminada)
 
@@ -47,7 +51,7 @@ AS
 BEGIN
     BEGIN TRY
         UPDATE Tarjeta
-        SET Activa = 0
+			SET Activa = 0
         WHERE Id = @Id
 
         SET @Resultado = 1
@@ -61,7 +65,7 @@ END
 
 
 GO
-CREATE PROCEDURE ActualizarTarjeta (
+ALTER PROCEDURE ActualizarTarjeta (
     @Id INT,
     @Resultado BIT OUTPUT,
     @Mensaje VARCHAR(500) OUTPUT
@@ -71,19 +75,12 @@ BEGIN
     BEGIN TRY
         DECLARE @ClienteId INT
 
-        -- Verificar si existe la tarjeta y obtener el Cliente
         SELECT @ClienteId = Cliente
         FROM Tarjeta
         WHERE Id = @Id
 
         IF @ClienteId IS NOT NULL
         BEGIN
-            -- Desactivar otras tarjetas predeterminadas del mismo cliente
-            UPDATE Tarjeta
-            SET Predeterminada = 0
-            WHERE Cliente = @ClienteId
-
-            -- Activar la nueva tarjeta como predeterminada
             UPDATE Tarjeta
             SET Predeterminada = 1
             WHERE Id = @Id
@@ -108,5 +105,3 @@ values('Debito')
 
 insert Into MetodoPago(Descripcion)
 values('Crédito')
-
-select * from MetodoPago

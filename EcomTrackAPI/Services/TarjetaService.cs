@@ -14,11 +14,7 @@ namespace EcomTrackAPI.Services
             List<Tarjeta> tarjetas = new List<Tarjeta>();
 
             SqlConnection conx = Datos.conectar();
-            string query = "SELECT t.Id, t.Cliente, t.NumeroTarjeta, t.MetodoDePago, mp.Descripcion AS TipoTarjeta, " +
-                   "t.MarcaTarjeta, t.Activa, t.Predeterminada " +
-                   "FROM Tarjeta t " +
-                   "INNER JOIN MetodoPago mp ON t.MetodoDePago = mp.Id " +
-                   "WHERE t.Cliente = " + id + " AND t.Activa = 1";
+            string query = "SELECT t.Id, t.NumeroTarjeta, t.MetodoDePago, m.Descripcion AS TipoTarjeta, t.MarcaTarjeta, t.Activa, t.Predeterminada FROM Tarjeta t INNER JOIN MetodoPago m ON m.Id = t.MetodoDePago WHERE t.Cliente = 47 AND t.Activa = 1 ORDER BY t.Predeterminada DESC";
 
             SqlCommand cmd = new SqlCommand(query, conx);
 
@@ -33,13 +29,12 @@ namespace EcomTrackAPI.Services
                     Tarjeta tarjeta = new Tarjeta()
                     {
                         Id = reader.GetInt32(0),
-                        Cliente = reader.GetInt32(1),
-                        NumeroTarjeta = reader.GetString(2),
-                        MetodoDePago = reader.GetInt32(3),
-                        TipoTarjeta = reader.GetString(4), 
-                        MarcaTarjeta = reader.GetString(5),
-                        Activa = reader.GetBoolean(6),
-                        Predeterminada = reader.GetBoolean(7)
+                        NumeroTarjeta = reader.GetString(1),
+                        MetodoDePago = reader.GetInt32(2),
+                        TipoTarjeta = reader.GetString(3), 
+                        MarcaTarjeta = reader.GetString(4),
+                        Activa = reader.GetBoolean(5),
+                        Predeterminada = reader.GetBoolean(6)
                     };
                     tarjetas.Add(tarjeta);
                 }
@@ -72,8 +67,6 @@ namespace EcomTrackAPI.Services
         }
         public static RespuestaAPI GuardarTarjeta(Tarjeta tarjeta)
         {
-            tarjeta.Activa = true;
-            tarjeta.Predeterminada = false;
 
             var respuestaAPI = new RespuestaAPI();
 
