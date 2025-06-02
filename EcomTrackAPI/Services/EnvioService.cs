@@ -12,7 +12,7 @@ namespace EcomTrackAPI.Services
             List<Envio> envios = new List<Envio>();
             SqlConnection conx = Datos.conectar();
 
-            string query = "select Id, FechaEnvio, IdPedido, IdTransportista, IdEstado from Envio";
+            string query = "select Id, FechaEnvio, FechaEntrega, IdPedido, IdTransportista, IdEstado from Envio";
             SqlCommand command = new SqlCommand(query, conx);
 
             conx.Open();
@@ -23,9 +23,10 @@ namespace EcomTrackAPI.Services
                 {
                     Id = reader.GetInt32(0),
                     FechaEnvio = reader.GetDateTime(1),
-                    IdPedido = reader.GetInt32(2),
-                    IdTransportista = reader.GetInt32(3),
-                    IdEstado = reader.GetInt32(4)
+                    FechaEntrega = reader.GetDateTime(2),
+                    IdPedido = reader.GetInt32(3),
+                    IdTransportista = reader.GetInt32(4),
+                    IdEstado = reader.GetInt32(5)
                 };
                 envios.Add(envio);
             }
@@ -44,6 +45,7 @@ namespace EcomTrackAPI.Services
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@Id", envio.Id);
             cmd.Parameters.AddWithValue("@FechaEnvio", envio.FechaEnvio);
+            cmd.Parameters.AddWithValue("@FechaEntrega", envio.FechaEnvio);
             cmd.Parameters.AddWithValue("@IdPedido", envio.IdPedido);
             cmd.Parameters.AddWithValue("@IdTransportista", envio.IdTransportista);
             cmd.Parameters.AddWithValue("@IdEstado", envio.IdEstado);

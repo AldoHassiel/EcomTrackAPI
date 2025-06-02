@@ -1,8 +1,12 @@
 	
 	
+
+	drop table Envio
+
 	create table Envio (
 		Id int identity primary key not null,
-		FechaEnvio datetime default getdate(),
+		FechaEnvio datetime,
+		FechaEntrega datetime,
 		IdPedido int,
 		IdTransportista int, 
 		IdEstado int,
