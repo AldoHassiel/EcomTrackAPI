@@ -16,13 +16,13 @@ CREATE TABLE Direccion(
     FOREIGN KEY (IdEstado) REFERENCES Estados(Id)
 );
 
-CREATE PROCEDURE ObtenerDirecciones
+ALTER PROCEDURE ObtenerDirecciones
     @IdCliente INT
 AS
 BEGIN
     SELECT
         d.Id,
-        d.TipoDireccion AS IdTipoDireccion,
+        d.TipoDireccion,
         td.Descripcion AS TipoDireccionNombre,
         d.Calle,
         d.Numero,
@@ -111,3 +111,4 @@ BEGIN
     SET EstaActiva = 0
     WHERE Id = @Id AND IdCliente = @IdCliente;
 END
+

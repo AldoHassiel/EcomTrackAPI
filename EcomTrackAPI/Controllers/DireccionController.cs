@@ -15,5 +15,23 @@ namespace EcomTrackAPI.Controllers
             var respuesta = DireccionesService.ObtenerDirecciones(cliente);
             return Ok(respuesta);
         }
+        [HttpPost("AgregarDireccion")]
+        public IActionResult AgregarDireccion([FromBody] DireccionAgregarDTO direccion)
+        {
+            var respuesta = DireccionesService.AgregarDireccion(direccion);
+            return Ok(respuesta);
+        }
+        [HttpPut("EditarDireccion")]
+        public IActionResult EditarDireccion([FromBody] DireccionEditarDTO direccion)
+        {
+            var respuesta = DireccionesService.EditarDireccion(direccion);
+            return Ok(respuesta);
+        }
+        [HttpDelete("EliminarDireccion")]
+        public IActionResult EliminarDireccion(int id, int idCliente)
+        {
+            var respuesta = DireccionesService.EliminarDireccion(id, idCliente);
+            return Ok(respuesta);
+        }
     }
 }

@@ -10,9 +10,10 @@
         public string EntreCalles { get; set; }
         public string Colonia { get; set; }
         public string Ciudad { get; set; }
-        public string Estado { get; set; }
+        public int IdEstado { get; set; }
+        public string EstadoNombre { get; set; }
         public string CodigoPostal { get; set; }
-        public string Pais { get; set; }
         public bool EsPredeterminado { get; set; }
+        public bool EstaActiva { get; set; }
     }
 }
