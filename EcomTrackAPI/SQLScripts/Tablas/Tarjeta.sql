@@ -12,7 +12,6 @@ CREATE TABLE Tarjeta(
 )
 
 GO 
-
 ALTER PROCEDURE GuardarTarjeta (
     @Cliente INT, 
     @NumeroTarjeta VARCHAR(16),
@@ -39,9 +38,9 @@ BEGIN
 END
 
 GO
-CREATE PROCEDURE EliminarTarjeta (
+ALTER PROCEDURE EliminarTarjeta (
     @Id INT, 
-    @Resultado BIT,
+    @Resultado BIT OUTPUT,
     @Mensaje VARCHAR(500) OUTPUT
 )
 AS
@@ -106,5 +105,8 @@ END
 
 insert Into MetodoPago(Descripcion)
 values('Debito')
+
+insert Into MetodoPago(Descripcion)
+values('Crédito')
 
 select * from MetodoPago
