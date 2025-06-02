@@ -33,6 +33,40 @@ CREATE TABLE Cliente(
     FOREIGN KEY(Id) REFERENCES Usuario(Id) ON DELETE CASCADE
 );
 
+select * from cliente
+
+
+
+SELECT TOP 5 
+    Nombre, 
+    TotalCompras, 
+    TotalGastado
+FROM 
+    Cliente
+ORDER BY 
+    TotalCompras DESC;
+
+UPDATE Cliente
+SET 
+    TotalCompras = 10,
+    TotalGastado = 5000.50
+WHERE 
+    Id = 6;
+
+UPDATE Cliente
+SET 
+    TotalCompras = 12,
+    TotalGastado = 456545
+WHERE 
+    Id =44;
+
+	UPDATE Cliente
+SET 
+    TotalCompras = 7,
+    TotalGastado = 7897987
+WHERE 
+    Id =7;
+
 CREATE TABLE Administrador(
     Id INT PRIMARY KEY NOT NULL,
     Nombre VARCHAR(100) NOT NULL,
