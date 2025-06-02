@@ -1,4 +1,5 @@
 ﻿using EcomTrackAPI.Models;
+using EcomTrackAPI.Models.DTO;
 using EcomTrackAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,65 +9,10 @@ namespace EcomTrackAPI.Controllers
     [ApiController]
     public class DireccionController : ControllerBase
     {
-        [HttpGet("ListaDirecciones")]
-        public IActionResult ListaDirecciones()
+        [HttpGet("ObtenerDirecciones")]
+        public IActionResult ObtenerDirecciones(int cliente)
         {
-            var respuesta = DireccionService.ListaDirecciones();
-
-            if (!respuesta.Resultado)
-            {
-                return BadRequest(respuesta);
-            }
-
-            return Ok(respuesta);
-        }
-
-        [HttpDelete("EliminarDireccion")]
-        public IActionResult EliminarDireccion(int id)
-        {
-            if (id <= 0)
-            {
-                return BadRequest(new RespuestaAPI
-                {
-                    Resultado = false,
-                    Mensaje = "El ID de la direccion no es válido",
-                    Datos = null
-                });
-            }
-
-            var respuesta = DireccionService.EliminarDireccion(id);
-
-            if (!respuesta.Resultado)
-            {
-                return BadRequest(respuesta);
-            }
-
-            return Ok(respuesta);
-        }
-
-        [HttpPost("GuardarDireccion")]
-        public IActionResult GuardarDireccion(Direccion direccion)
-        {
-            var respuesta = DireccionService.GuardarDireccion(direccion);
-
-            if (!respuesta.Resultado)
-            {
-                return BadRequest(respuesta);
-            }
-
-            return Ok(respuesta);
-        }
-
-        [HttpPost("EditarDireccion")]
-        public IActionResult EditarDireccion(Direccion direccion)
-        {
-            var respuesta = DireccionService.EditarDireccion(direccion);
-
-            if (!respuesta.Resultado)
-            {
-                return BadRequest(respuesta);
-            }
-
+            var respuesta = DireccionesService.ObtenerDirecciones(cliente);
             return Ok(respuesta);
         }
     }
