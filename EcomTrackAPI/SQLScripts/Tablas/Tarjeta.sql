@@ -12,7 +12,6 @@ CREATE TABLE Tarjeta(
 )
 
 GO 
-
 ALTER PROCEDURE GuardarTarjeta (
     @Cliente INT, 
     @NumeroTarjeta VARCHAR(16),
