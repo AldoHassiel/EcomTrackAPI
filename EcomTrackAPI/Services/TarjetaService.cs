@@ -14,10 +14,11 @@ namespace EcomTrackAPI.Services
             List<Tarjeta> tarjetas = new List<Tarjeta>();
 
             SqlConnection conx = Datos.conectar();
-            string query = "SELECT t.NumeroTarjeta, mp.Descripcion AS TipoTarjeta, t.MarcaTarjeta, " +
-               "t.Predeterminada FROM Tarjeta t " +
-               "INNER JOIN MetodoPago mp ON t.MetodoDePago = mp.Id " + 
-               "WHERE t.Cliente = " + id + " AND t.Activa = 1";
+            string query = "SELECT t.Id, t.Cliente, t.NumeroTarjeta, t.MetodoDePago, mp.Descripcion AS TipoTarjeta, " +
+                   "t.MarcaTarjeta, t.Activa, t.Predeterminada " +
+                   "FROM Tarjeta t " +
+                   "INNER JOIN MetodoPago mp ON t.MetodoDePago = mp.Id " +
+                   "WHERE t.Cliente = " + id + " AND t.Activa = 1";
 
             SqlCommand cmd = new SqlCommand(query, conx);
 
@@ -31,10 +32,14 @@ namespace EcomTrackAPI.Services
                 { 
                     Tarjeta tarjeta = new Tarjeta()
                     {
-                        NumeroTarjeta = reader.GetString(0),
-                        TipoTarjeta = reader.GetString(1),
-                        MarcaTarjeta = reader.GetString(2),
-                        Predeterminada = reader.GetBoolean(3)
+                        Id = reader.GetInt32(0),
+                        Cliente = reader.GetInt32(1),
+                        NumeroTarjeta = reader.GetString(2),
+                        MetodoDePago = reader.GetInt32(3),
+                        TipoTarjeta = reader.GetString(4), 
+                        MarcaTarjeta = reader.GetString(5),
+                        Activa = reader.GetBoolean(6),
+                        Predeterminada = reader.GetBoolean(7)
                     };
                     tarjetas.Add(tarjeta);
                 }
@@ -68,7 +73,8 @@ namespace EcomTrackAPI.Services
         public static RespuestaAPI GuardarTarjeta(Tarjeta tarjeta)
         {
             tarjeta.Activa = true;
-            
+            tarjeta.Predeterminada = false;
+
             var respuestaAPI = new RespuestaAPI();
 
             SqlConnection conx = Datos.conectar();
