@@ -58,5 +58,12 @@ namespace EcomTrackAPI.Controllers
             var respuesta = CarritoService.EliminarProductoDelCarrito(dto);
             return Ok(respuesta);
         }
+
+        [HttpPost("ConfirmarCompra")]
+        public IActionResult ConfirmarCompra([FromBody] ConfirmarCompraDTO dto)
+        {
+            var respuesta = CarritoService.ConfirmarCompra(dto);
+            return Ok(respuesta);
+        }
     }
 }

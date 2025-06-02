@@ -200,5 +200,43 @@ namespace EcomTrackAPI.Services
 
             return respuestaAPI;
         }
+        public static RespuestaAPI ConfirmarCompra(ConfirmarCompraDTO dto)
+        {
+            var respuesta = new RespuestaAPI();
+
+            SqlConnection conx = Datos.conectar();
+            SqlCommand cmd = new SqlCommand("ConfirmarCompra", conx);
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            cmd.Parameters.AddWithValue("@IdCliente", dto.IdCliente);
+            cmd.Parameters.AddWithValue("@IdTarjeta", dto.IdTarjeta);
+            cmd.Parameters.AddWithValue("@IdDireccion", dto.IdDireccion);
+
+            SqlParameter resultado = new SqlParameter("@Resultado", SqlDbType.Bit) { Direction = ParameterDirection.Output };
+            SqlParameter mensaje = new SqlParameter("@Mensaje", SqlDbType.VarChar, 500) { Direction = ParameterDirection.Output };
+            cmd.Parameters.Add(resultado);
+            cmd.Parameters.Add(mensaje);
+
+            try
+            {
+                conx.Open();
+                cmd.ExecuteNonQuery();
+                respuesta.Resultado = (bool)resultado.Value;
+                respuesta.Mensaje = mensaje.Value.ToString();
+                respuesta.Datos = null;
+            }
+            catch (Exception ex)
+            {
+                respuesta.Resultado = false;
+                respuesta.Mensaje = "Error al confirmar compra: " + ex.Message;
+                respuesta.Datos = null;
+            }
+            finally
+            {
+                conx.Close();
+            }
+
+            return respuesta;
+        }
     }
 }
