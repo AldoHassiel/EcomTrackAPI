@@ -132,6 +132,13 @@ CREATE TABLE TipoDireccion (
 )
 
 
+insert into Estado(Descripcion) values ('Entregado')
+insert into Estado(Descripcion) values ('En tránsito')
+insert into Estado(Descripcion) values ('Procesando')
+insert into Estado(Descripcion) values ('Cancelando')
+
+select Id, Descripcion from Estado
+
 insert into TipoDireccion(Descripcion) values ('Casa')
 insert into TipoDireccion(Descripcion) values ('Edificio')
 insert into TipoDireccion(Descripcion) values ('Departamento')
