@@ -38,15 +38,6 @@ namespace EcomTrackAPI.Services
                         FechaPedido = reader.GetDateTime(2),
                         Importe = reader.GetDecimal(3),
                         Estado = reader.GetInt32(4),
-                        Calle = reader.GetString(5),
-                        EntreCalles = reader.GetString(6),
-                        Numero = reader.GetString(7),
-                        Colonia = reader.GetString(8),
-                        Ciudad = reader.GetString(9),
-                        EstadoD = reader.GetString(10),
-                        CodigoPostal = reader.GetString(11),
-                        Pais = reader.GetString(12),
-
                     };
                     pedidos.Add(pedido);
                 }
@@ -132,14 +123,7 @@ namespace EcomTrackAPI.Services
             cmd.Parameters.AddWithValue("@Cliente", pedido.Cliente);
             cmd.Parameters.AddWithValue("@Importe", pedido.Importe);
             cmd.Parameters.AddWithValue("@Estado", pedido.Estado);
-            cmd.Parameters.AddWithValue("@Calle", pedido.Calle);
-            cmd.Parameters.AddWithValue("@EntreCalles", pedido.EntreCalles);
-            cmd.Parameters.AddWithValue("@Numero", pedido.Numero);
-            cmd.Parameters.AddWithValue("@Colonia", pedido.Colonia);
-            cmd.Parameters.AddWithValue("@Ciudad", pedido.Ciudad);
-            cmd.Parameters.AddWithValue("@EstadoD", pedido.EstadoD);
-            cmd.Parameters.AddWithValue("@CodigoPostal", pedido.CodigoPostal);
-            cmd.Parameters.AddWithValue("@Pais", pedido.Pais);
+          
 
             SqlParameter resultado = new SqlParameter("@Resultado", SqlDbType.Bit) { Direction = ParameterDirection.Output };
             SqlParameter mensaje = new SqlParameter("@Mensaje", SqlDbType.VarChar, 500) { Direction = ParameterDirection.Output };
