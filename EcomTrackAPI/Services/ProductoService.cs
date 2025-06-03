@@ -205,5 +205,57 @@ namespace EcomTrackAPI.Services
 
             return respuestaAPI;
         }
+        public static RespuestaAPI ProductosMasVendidos()
+        {
+            var respuestaAPI = new RespuestaAPI();
+            List<Producto> productos = new List<Producto>();
+
+            using (SqlConnection conx = Datos.conectar())
+            using (SqlCommand cmd = new SqlCommand("ProductosMasVendidos", conx))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                SqlParameter resultado = new SqlParameter("@Resultado", SqlDbType.Bit)
+                {
+                    Direction = ParameterDirection.Output
+                };
+                SqlParameter mensaje = new SqlParameter("@Mensaje", SqlDbType.VarChar, 500)
+                {
+                    Direction = ParameterDirection.Output
+                };
+                cmd.Parameters.Add(resultado);
+                cmd.Parameters.Add(mensaje);
+
+                try
+                {
+                    conx.Open();
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            productos.Add(new Producto
+                            {
+                                Nombre = reader.GetString(0),
+                                CantidadVendida = reader.GetInt32(2),
+                            });
+                        }
+                    }
+
+                    respuestaAPI.Resultado = (bool)resultado.Value;
+                    respuestaAPI.Mensaje = mensaje.Value?.ToString();
+                    respuestaAPI.Datos = productos;
+                }
+                catch (Exception ex)
+                {
+                    respuestaAPI.Resultado = false;
+                    respuestaAPI.Mensaje = $"Error inesperado: {ex.Message}";
+                    respuestaAPI.Datos = null;
+                }
+            }
+
+            return respuestaAPI;
+        }
+
     }
 }
