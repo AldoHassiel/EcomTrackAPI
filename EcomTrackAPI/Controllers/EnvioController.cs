@@ -61,6 +61,13 @@ namespace EcomTrackAPI.Controllers
 
             return Ok(respuestaAPI);
         }
+        [HttpGet("ObtenerEstadoPorEnvio")]
+        public IActionResult ObtenerEstadoPorEnvio(int envioId)
+        {
+            var respuestaAPI = EnvioService.ObtenerEstadoPorEnvio(envioId);
+
+            return Ok(respuestaAPI);
+        }
 
 
     }

@@ -124,6 +124,8 @@ END;
 
 
 GO
+select * from envio
+
 ALTER PROCEDURE ActualizarPedido(
 	@Id INT,
     @Estado INT

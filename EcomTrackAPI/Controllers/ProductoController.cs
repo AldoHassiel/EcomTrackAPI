@@ -15,6 +15,13 @@ namespace EcomTrackAPI.Controllers
 
             return Ok(respuestaAPI);
         }
+        [HttpGet("ProductosMasVendidos")]
+        public IActionResult ProductosMasVendidos()
+        {
+            var respuestaAPI = ProductoService.ProductosMasVendidos();
+
+            return Ok(respuestaAPI);
+        }
         [HttpPost("GuardarProducto")]
         public IActionResult GuardarProducto([FromBody] ProductoNuevo producto)
         {

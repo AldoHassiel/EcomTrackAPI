@@ -188,3 +188,36 @@ BEGIN
        SET @Mensaje = ERROR_MESSAGE()
     END CATCH
 END;
+
+GO
+ALTER PROCEDURE ProductosMasVendidos
+(
+	@Resultado BIT OUTPUT,
+	@Mensaje VARCHAR(500) OUTPUT
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        SELECT TOP (5)
+			p.Nombre,
+			dp.IdProducto,
+			SUM(dp.Cantidad) AS TotalVendido
+		FROM 
+			DetallePedido dp
+		JOIN 
+			Producto p ON dp.IdProducto = p.Id
+		GROUP BY 
+			dp.IdProducto, p.Nombre
+		ORDER BY 
+			TotalVendido DESC;
+
+		SET @Resultado = 1;
+		SET @Mensaje = 'Productos obtenidos correctamente';
+    END TRY
+    BEGIN CATCH
+       SET @Resultado = 0;
+       SET @Mensaje = ERROR_MESSAGE();
+    END CATCH
+END;
