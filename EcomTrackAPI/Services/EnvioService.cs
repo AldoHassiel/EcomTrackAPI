@@ -87,34 +87,45 @@ namespace EcomTrackAPI.Services
 
         public static IActionResult ObtenerEstadoPorEnvio(int envioId)
         {
-            SqlConnection conx = Datos.conectar();
-            SqlCommand cmd = new SqlCommand("ObtenerEstadoPorEnvio", conx);
+            using (SqlConnection conx = Datos.conectar())
+            using (SqlCommand cmd = new SqlCommand("ObtenerEstadoPorEnvio", conx))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
 
-            cmd.CommandType = CommandType.StoredProcedure;
-            cmd.Parameters.AddWithValue("@EnvioId", envioId);
+                // Parámetro de entrada
+                cmd.Parameters.AddWithValue("@IdEnvio", envioId);
 
-            conx.Open();
-            try
-            {
-                SqlDataReader reader = cmd.ExecuteReader();
-                if (reader.Read())
+                // Parámetros de salida
+                SqlParameter resultado = new SqlParameter("@Resultado", SqlDbType.Bit) { Direction = ParameterDirection.Output };
+                SqlParameter mensaje = new SqlParameter("@Mensaje", SqlDbType.VarChar, 500) { Direction = ParameterDirection.Output };
+                cmd.Parameters.Add(resultado);
+                cmd.Parameters.Add(mensaje);
+
+                try
                 {
-                    // Leer el resultado del procedimiento almacenado
-                    string descripcionEstado = reader["Descripcion"].ToString();
-                    return new OkObjectResult(descripcionEstado);
+                    conx.Open();
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            string descripcionEstado = reader["EstadoDescripcion"].ToString();
+
+                            return new OkObjectResult(new
+                            {
+                                Estado = descripcionEstado,
+                                Mensaje = mensaje.Value?.ToString()
+                            });
+                        }
+                        else
+                        {
+                            return new NotFoundObjectResult("No se encontró el estado para el envío especificado.");
+                        }
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    return new NotFoundObjectResult("No se encontró el estado para el envío especificado.");
+                    return new BadRequestObjectResult($"Error al consultar el estado del envío: {ex.Message}");
                 }
-            }
-            catch (Exception ex)
-            {
-                return new BadRequestObjectResult($"No se pudo realizar la consulta: {ex.Message}");
-            }
-            finally
-            {
-                conx.Close();
             }
         }
 
