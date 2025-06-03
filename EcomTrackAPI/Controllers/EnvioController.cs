@@ -35,7 +35,7 @@ namespace EcomTrackAPI.Controllers
         }
 
         [HttpPut("ActualizarEnvio")]
-        public IActionResult ActualizarEnvio([FromBody] Envio envio)
+        public IActionResult ActualizarEnvio(Envio envio)
         {
             if (envio == null)
             {
