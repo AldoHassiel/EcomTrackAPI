@@ -10,6 +10,10 @@ DROP TABLE DetallePedido
 DROP TABLE Pedido
 DROP TABLE Pago
 
+select SUM(Importe) from Pedido
+
+
+select * from Pedido
 Create TABLE Pedido(
 	Id INT IDENTITY PRIMARY KEY NOT NULL,
 	IdCliente INT,
