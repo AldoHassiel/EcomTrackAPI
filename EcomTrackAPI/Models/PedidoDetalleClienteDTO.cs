@@ -20,5 +20,6 @@ namespace EcomTrackAPI.Models
 
         public string EstadoPedido { get; set; }
         public decimal Importe { get; set; }
+        public string Transportista { get; set; }
     }
 }

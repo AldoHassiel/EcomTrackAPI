@@ -153,23 +153,10 @@ BEGIN
 	WHERE Id = @Id
 END
 
-EXEC ActualizarPedido @Id = 3, @Estado = 1
+EXEC ActualizarPedido @Id = 3, @Estado = 3
 SELECT * FROM Envio
 SELECT * FROM Pedido
 
-
-DECLARE @Resultado BIT;
-DECLARE @Mensaje VARCHAR(500);
-
-EXEC ConfirmarCompra
-    @IdCliente = 47,
-    @IdTarjeta = 49,
-    @IdDireccion = 12,
-    @Resultado = @Resultado OUTPUT,
-    @Mensaje = @Mensaje OUTPUT;
-
--- Ver los resultados
-SELECT @Resultado AS Resultado, @Mensaje AS Mensaje;
 
 CREATE TRIGGER ActualizarStock
 ON DetallePedido
@@ -260,12 +247,31 @@ BEGIN
     INNER JOIN Estados es ON d.IdEstado = es.Id
     WHERE p.Id = @IdPedido;
 
-    -- Estado del pedido e importe
-    SELECT 
-        e.Descripcion AS EstadoPedido,
-        p.Importe
-    FROM Pedido p
-    INNER JOIN Estado e ON p.IdEstado = e.Id
-    WHERE p.Id = @IdPedido;
+    -- Estado del pedido, importe y transportista
+	SELECT 
+		e.Descripcion AS EstadoPedido,
+		p.Importe,
+		t.Nombre AS Transportista
+	FROM Pedido p
+	INNER JOIN Estado e ON p.IdEstado = e.Id
+	LEFT JOIN Envio en ON en.IdPedido = p.Id
+	LEFT JOIN Transportista t ON t.Id = en.IdTransportista
+	WHERE p.Id = 3;
+
+	-- Transportista
+	SELECT * FROM Envio
 END
 
+-- SOLO DE PRUEBA: NO VA EN LA API
+CREATE PROCEDURE EliminarPedidoCompleto
+    @IdPedido INT
+AS
+BEGIN
+    DELETE FROM DetallePedido WHERE IdPedido = @IdPedido;
+
+    DELETE FROM Envio WHERE IdPedido = @IdPedido;
+
+    DELETE FROM Pago WHERE IdPedido = @IdPedido;
+
+    DELETE FROM Pedido WHERE Id = @IdPedido;
+END

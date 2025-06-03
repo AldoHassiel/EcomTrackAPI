@@ -126,6 +126,7 @@ namespace EcomTrackAPI.Services
                     {
                         detalle.EstadoPedido = reader["EstadoPedido"]?.ToString();
                         detalle.Importe = reader["Importe"] != DBNull.Value ? Convert.ToDecimal(reader["Importe"]) : 0;
+                        detalle.Transportista = reader["Transportista"]?.ToString();
                     }
                 }
 
