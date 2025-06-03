@@ -59,5 +59,7 @@ namespace EcomTrackAPI.Services
 
             return respuestaAPI;
         }
+
+
     }
 }

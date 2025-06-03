@@ -9,3 +9,36 @@ CREATE TABLE Envio(
 	foreign key (IdTransportista) references Transportista(Id),
 	foreign key (IdEstado) references Estado(Id)
 )
+
+
+select * from envio
+select * from estado
+select * from estados
+
+go
+
+CREATE PROCEDURE ObtenerEstadoPorEnvio
+    @EnvioId INT
+AS
+BEGIN
+    SELECT 
+        es.Descripcion
+    FROM 
+        Envio e
+    INNER JOIN 
+        Estado es
+    ON 
+        es.Id = e.IdEstado
+    WHERE 
+        e.Id = @EnvioId;
+END;
+
+EXEC ObtenerEstadoPorEnvio @EnvioId = 3;
+
+SELECT
+ es.Descripcion
+FROM Envio e
+INNER JOIN Estado es
+ON es.Id = e.IdEstado
+WHERE e.Id = 3
+

@@ -12,7 +12,7 @@ namespace EcomTrackAPI.Services
             List<Envio> envios = new List<Envio>();
             SqlConnection conx = Datos.conectar();
 
-            string query = "select Id, FechaEnvio, FechaEntrega, IdPedido, IdTransportista, IdEstado from Envio";
+            string query = "SELECT Id, FechaEnvio, FechaEntrega, IdPedido, IdTransportista, IdEstado FROM Envio";
             SqlCommand command = new SqlCommand(query, conx);
 
             conx.Open();
@@ -22,11 +22,11 @@ namespace EcomTrackAPI.Services
                 Envio envio = new Envio()
                 {
                     Id = reader.GetInt32(0),
-                    FechaEnvio = reader.GetDateTime(1),
-                    FechaEntrega = reader.GetDateTime(2),
+                    FechaEnvio = reader.IsDBNull(1) ? (DateTime?)null : reader.GetDateTime(1),
+                    FechaEntrega = reader.IsDBNull(2) ? (DateTime?)null : reader.GetDateTime(2),
                     IdPedido = reader.GetInt32(3),
-                    IdTransportista = reader.GetInt32(4),
-                    IdEstado = reader.GetInt32(5)
+                    IdTransportista = reader.IsDBNull(4) ? (int?)null : reader.GetInt32(4),
+                    IdEstado = reader.IsDBNull(5) ? (int?)null : reader.GetInt32(5)
                 };
                 envios.Add(envio);
             }
@@ -85,7 +85,38 @@ namespace EcomTrackAPI.Services
             finally { conx.Close(); }
         }
 
+        public static IActionResult ObtenerEstadoPorEnvio(int envioId)
+        {
+            SqlConnection conx = Datos.conectar();
+            SqlCommand cmd = new SqlCommand("ObtenerEstadoPorEnvio", conx);
 
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@EnvioId", envioId);
+
+            conx.Open();
+            try
+            {
+                SqlDataReader reader = cmd.ExecuteReader();
+                if (reader.Read())
+                {
+                    // Leer el resultado del procedimiento almacenado
+                    string descripcionEstado = reader["Descripcion"].ToString();
+                    return new OkObjectResult(descripcionEstado);
+                }
+                else
+                {
+                    return new NotFoundObjectResult("No se encontró el estado para el envío especificado.");
+                }
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult($"No se pudo realizar la consulta: {ex.Message}");
+            }
+            finally
+            {
+                conx.Close();
+            }
+        }
 
     }
 }
