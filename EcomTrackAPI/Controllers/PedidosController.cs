@@ -20,5 +20,12 @@ namespace EcomTrackAPI.Controllers
             var respuesta = PedidosService.ObtenerDetallePedidoCliente(IdCliente, IdPedido);
             return Ok(respuesta);
         }
+
+        [HttpGet("ObtenerIngresosTotales")]
+        public IActionResult ObtenerIngresosTotales()
+        {
+            var respuesta = PedidosService.ObtenerIngresosTotales();
+            return Ok(respuesta);
+        }
     }
 }
