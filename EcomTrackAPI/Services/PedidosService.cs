@@ -1,160 +1,149 @@
 ﻿using Microsoft.Data.SqlClient;
 using EcomTrackAPI.Models;
 using System.Data;
-using Microsoft.AspNetCore.Mvc;
-
+using EcomTrackAPI.Models.DTO;
 
 namespace EcomTrackAPI.Services
 {
     public class PedidosService
     {
-        public static RespuestaAPI ObtenerPedidos(int id)
+        public static RespuestaAPI ObtenerPedidosDelCliente(int IdCliente)
         {
-
-            var respuestaAPI = new RespuestaAPI();
-
-            List<Pedidos> pedidos = new List<Pedidos>();
+            var respuesta = new RespuestaAPI();
 
             SqlConnection conx = Datos.conectar();
+            SqlCommand cmd = new SqlCommand("ObtenerPedidosDelCliente", conx);
+            cmd.CommandType = CommandType.StoredProcedure;
 
-            string query = "SELECT p.Id, p.IdCliente, p.FechaPedido, c.Nombre AS NombreCliente, " +
-                   "p.FechaPedidoINT, p.Importe, p.IdEstado, p.IdDireccion " +
-                   "FROM Pedido p " +
-                   "JOIN Cliente c ON p.IdCliente = c.Id " +
-                   "WHERE p.IdCliente = @ClienteId;";
-
-            SqlCommand command = new SqlCommand(query, conx);
-            command.Parameters.AddWithValue("@ClienteId", id);
+            cmd.Parameters.AddWithValue("@IdCliente", IdCliente);
 
             try
             {
-
                 conx.Open();
-
-                SqlDataReader reader = command.ExecuteReader();
+                SqlDataReader reader = cmd.ExecuteReader();
+                var pedidos = new List<PedidoClienteDTO>();
 
                 while (reader.Read())
                 {
-                    Pedidos pedido = new Pedidos()
+                    var pedido = new PedidoClienteDTO
                     {
                         Id = reader.GetInt32(0),
-                        Cliente = reader.GetInt32(1),
-                        FechaPedido = reader.GetDateTime(2),
-                        NombreCliente = reader.GetString(3),
-                        Importe = reader.GetDecimal(4),
-                        Estado = reader.GetInt32(5),
-                        Direccion = reader.GetInt32(6)
+                        FechaPedido = reader.GetDateTime(1),
+                        Total = reader.GetDecimal(2),
+                        Estado = reader.GetString(3)
                     };
                     pedidos.Add(pedido);
                 }
 
-                reader.Close();
-                command.Dispose();
-                conx.Close();
-
                 if (pedidos.Count == 0)
                 {
-                    respuestaAPI.Resultado = false;
-                    respuestaAPI.Mensaje = "No se encontraron pedidos";
-                    respuestaAPI.Datos = null;
-                    return respuestaAPI;
+                    respuesta.Resultado = false;
+                    respuesta.Mensaje = "No se encontraron pedidos para el cliente.";
+                    respuesta.Datos = null;
+                    return respuesta;
                 }
 
-                respuestaAPI.Resultado = true;
-                respuestaAPI.Mensaje = "Pedidos obtenidas correctamente";
-                respuestaAPI.Datos = pedidos;
-
-
+                respuesta.Resultado = true;
+                respuesta.Mensaje = "Pedidos obtenidos correctamente.";
+                respuesta.Datos = pedidos;
             }
             catch (Exception ex)
             {
-                respuestaAPI.Resultado = false;
-                respuestaAPI.Mensaje = ex.Message;
-                respuestaAPI.Datos = null;
+                respuesta.Resultado = false;
+                respuesta.Mensaje = "Error al obtener pedidos del cliente: " + ex.Message;
+                respuesta.Datos = null;
             }
             finally
             {
                 conx.Close();
             }
 
-            return respuestaAPI;
+            return respuesta;
         }
-        public static RespuestaAPI ActualizarEstadoPedido(Pedidos pedido)
+        public static RespuestaAPI ObtenerDetallePedidoCliente(int IdCliente, int IdPedido)
         {
-            var respuestaAPI = new RespuestaAPI();
+            var respuesta = new RespuestaAPI();
 
             SqlConnection conx = Datos.conectar();
-            SqlCommand cmd = new SqlCommand("ActualizarPedido", conx);
 
+            SqlCommand cmd = new SqlCommand("ObtenerDetallePedidoCliente", conx);
             cmd.CommandType = CommandType.StoredProcedure;
-            cmd.Parameters.AddWithValue("@Id", pedido.Id);
-            cmd.Parameters.AddWithValue("@Estado", pedido.Estado);
 
-            SqlParameter resultado = new SqlParameter("@Resultado", SqlDbType.Bit) { Direction = ParameterDirection.Output };
-            SqlParameter mensaje = new SqlParameter("@Mensaje", SqlDbType.VarChar, 500) { Direction = ParameterDirection.Output };
-
-            cmd.Parameters.Add(resultado);
-            cmd.Parameters.Add(mensaje);
-
+            cmd.Parameters.AddWithValue("@IdCliente", IdCliente);
+            cmd.Parameters.AddWithValue("@IdPedido", IdPedido);
 
             try
             {
                 conx.Open();
-                cmd.ExecuteNonQuery();
+                SqlDataReader reader = cmd.ExecuteReader();
 
-                respuestaAPI.Resultado = (bool)resultado.Value;
-                respuestaAPI.Mensaje = mensaje.Value.ToString();
-                respuestaAPI.Datos = null;
+                var detalle = new PedidoDetalleClienteDTO();
+
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        detalle.Productos.Add(new ProductosPedidoDTO
+                        {
+                            IdProducto = reader.GetInt32(reader.GetOrdinal("IdProducto")),
+                            NombreProducto = reader.GetString(reader.GetOrdinal("NombreProducto")),
+                            Cantidad = reader.GetInt32(reader.GetOrdinal("Cantidad")),
+                            Precio = reader.GetDecimal(reader.GetOrdinal("Precio")),
+                            SubtotalProducto = reader.GetDecimal(reader.GetOrdinal("SubtotalProducto")),
+                            UrlImagen = reader.GetString(reader.GetOrdinal("UrlImagen"))
+                        });
+                    }
+                }
+
+                if (reader.NextResult() && reader.HasRows)
+                {
+                    if (reader.Read())
+                    {
+                        detalle.NumeroTarjeta = reader["NumeroTarjeta"]?.ToString();
+                        detalle.MetodoPago = reader["MetodoDePago"]?.ToString();
+                        detalle.MarcaTarjeta = reader["MarcaTarjeta"]?.ToString();
+                    }
+                }
+
+                if (reader.NextResult() && reader.HasRows)
+                {
+                    if (reader.Read())
+                    {
+                        detalle.NombreTipoDireccion = reader["NombreTipoDireccion"]?.ToString();
+                        detalle.Calle = reader["Calle"]?.ToString();
+                        detalle.Numero = reader["Numero"]?.ToString();
+                        detalle.EntreCalles = reader["EntreCalles"]?.ToString();
+                        detalle.Colonia = reader["Colonia"]?.ToString();
+                        detalle.Ciudad = reader["Ciudad"]?.ToString();
+                        detalle.EstadoDireccion = reader["EstadoDireccion"]?.ToString();
+                        detalle.CodigoPostal = reader["CodigoPostal"]?.ToString();
+                    }
+                }
+
+                if (reader.NextResult() && reader.HasRows)
+                {
+                    if (reader.Read())
+                    {
+                        detalle.EstadoPedido = reader["EstadoPedido"]?.ToString();
+                        detalle.Importe = reader["Importe"] != DBNull.Value ? Convert.ToDecimal(reader["Importe"]) : 0;
+                    }
+                }
+
+                respuesta.Resultado = true;
+                respuesta.Mensaje = "Detalle del pedido obtenido correctamente";
+                respuesta.Datos = detalle;
             }
             catch (Exception ex)
             {
-                respuestaAPI.Resultado = false;
-                respuestaAPI.Mensaje = ex.Message;
-                respuestaAPI.Datos = null;
+                respuesta.Resultado = false;
+                respuesta.Mensaje = "Error al obtener detalles del pedido: " + ex.Message;
+                respuesta.Datos = null;
             }
-            finally { conx.Close(); }
-
-            return respuestaAPI;
-        }
-        public static RespuestaAPI RegistrarPedido(Pedidos pedido)
-        {
-            var respuestaAPI = new RespuestaAPI();
-
-            SqlConnection conx = Datos.conectar();
-
-            SqlCommand cmd = new SqlCommand("RegistrarPedido", conx);
-
-            cmd.CommandType = CommandType.StoredProcedure;
-            cmd.Parameters.AddWithValue("@Id", pedido.Id);
-            cmd.Parameters.AddWithValue("@Cliente", pedido.Cliente);
-            cmd.Parameters.AddWithValue("@Importe", pedido.Importe);
-            cmd.Parameters.AddWithValue("@Estado", pedido.Estado);
-          
-
-            SqlParameter resultado = new SqlParameter("@Resultado", SqlDbType.Bit) { Direction = ParameterDirection.Output };
-            SqlParameter mensaje = new SqlParameter("@Mensaje", SqlDbType.VarChar, 500) { Direction = ParameterDirection.Output };
-
-            cmd.Parameters.Add(resultado);
-            cmd.Parameters.Add(mensaje);
-
-            try
+            finally
             {
-                conx.Open();
-                cmd.ExecuteNonQuery();
-
-                respuestaAPI.Resultado = (bool)resultado.Value;
-                respuestaAPI.Mensaje = mensaje.Value.ToString();
-                respuestaAPI.Datos = null;
+                conx.Close();
             }
-            catch (Exception ex)
-            {
-                respuestaAPI.Resultado = false;
-                respuestaAPI.Mensaje = ex.Message;
-                respuestaAPI.Datos = null;
-            }
-            finally { conx.Close(); }
-
-            return respuestaAPI;
+            return respuesta;
         }
     }
 }

@@ -194,4 +194,78 @@ BEGIN
 END;
 
 SELECT * FROM Pedido
+SELECT * FROM Estado
+SELECT * FROM Direccion
 SELECT * FROM Producto WHERE Id = 8
+
+EXEC ObtenerPedidosDelCliente @IdCliente = 47
+EXEC ObtenerDetallePedidoCliente @IdCliente = 47, @IdPedido = 3
+
+ALTER PROCEDURE ObtenerPedidosDelCliente
+    @IdCliente INT
+AS
+BEGIN
+    SELECT 
+        p.Id,
+        p.FechaPedido,
+        p.Importe,
+        e.Descripcion AS Estado
+    FROM Pedido p
+    JOIN Estado e ON p.IdEstado = e.Id
+    WHERE p.IdCliente = @IdCliente;
+END
+
+ALTER PROCEDURE ObtenerDetallePedidoCliente
+    @IdCliente INT,
+    @IdPedido INT
+AS
+BEGIN
+	SET NOCOUNT ON;
+    -- Productos del pedido
+    SELECT 
+        prod.Id AS IdProducto,
+        prod.Nombre AS NombreProducto,
+        dp.Cantidad,
+        dp.Precio,
+        dp.Subtotal AS SubtotalProducto,
+		prod.UrlImagen
+    FROM DetallePedido dp
+    INNER JOIN Producto prod ON dp.IdProducto = prod.Id
+    INNER JOIN Pedido p ON dp.IdPedido = p.Id
+    WHERE p.IdCliente = @IdCliente
+      AND p.Id = @IdPedido;
+   -- Tarjeta 
+	SELECT 
+		t.NumeroTarjeta,
+		mp.Descripcion AS MetodoDePago,
+		t.MarcaTarjeta
+	FROM Pago p
+	INNER JOIN Tarjeta t ON t.Id = p.IdTarjeta
+	INNER JOIN MetodoPago mp ON mp.Id = t.MetodoDePago
+	WHERE IdPedido = @IdPedido
+	
+    -- Dirección
+    SELECT 
+        td.Descripcion AS NombreTipoDireccion,
+        d.Calle,
+        d.Numero,
+        d.EntreCalles,
+        d.Colonia,
+        d.Ciudad,
+        es.Nombre AS EstadoDireccion,
+        d.CodigoPostal
+    FROM Pedido p
+    INNER JOIN Direccion d ON p.IdDireccion = d.Id
+    INNER JOIN TipoDireccion td ON d.TipoDireccion = td.Id
+    INNER JOIN Estados es ON d.IdEstado = es.Id
+    WHERE p.Id = @IdPedido;
+
+    -- Estado del pedido e importe
+    SELECT 
+        e.Descripcion AS EstadoPedido,
+        p.Importe
+    FROM Pedido p
+    INNER JOIN Estado e ON p.IdEstado = e.Id
+    WHERE p.Id = @IdPedido;
+END
+

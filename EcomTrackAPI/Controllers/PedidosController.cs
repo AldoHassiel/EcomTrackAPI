@@ -8,47 +8,17 @@ namespace EcomTrackAPI.Controllers
     [ApiController]
     public class PedidosController : ControllerBase
     {
-        [HttpGet("ObtenerPedidos")]
-        
-        public IActionResult ObtenerPedidos(int id)
+        [HttpGet("ObtenerPedidosDelCliente")]
+        public IActionResult ObtenerPedidosCliente(int IdCliente)
         {
-            var respuesta = PedidosService.ObtenerPedidos(id);
-
-            if (!respuesta.Resultado)
-            {
-                return BadRequest(respuesta);
-            }
-
+            var respuesta = PedidosService.ObtenerPedidosDelCliente(IdCliente);
             return Ok(respuesta);
         }
-
-        [HttpPost("RegistrarPedido")]
-
-        public IActionResult RegistrarPedido(Pedidos pedido)
+        [HttpGet("ObtenerDetallePedidoCliente")]
+        public IActionResult ObtenerDetallePedidoCliente(int IdCliente, int IdPedido)
         {
-            var respuesta = PedidosService.RegistrarPedido(pedido);
-
-            if (!respuesta.Resultado)
-            {
-                return BadRequest(respuesta);
-            }
-
-            return Ok(respuesta);
-
-        }
-
-        [HttpPost("ActualizarEstadoPedido")]
-        public IActionResult ActualizarEstadoPedido(Pedidos pedido)
-        {
-            var respuesta = PedidosService.ActualizarEstadoPedido(pedido);
-
-            if (!respuesta.Resultado)
-            {
-                return BadRequest(respuesta);
-            }
-
+            var respuesta = PedidosService.ObtenerDetallePedidoCliente(IdCliente, IdPedido);
             return Ok(respuesta);
         }
-
     }
 }
