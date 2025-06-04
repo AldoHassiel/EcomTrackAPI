@@ -146,5 +146,70 @@ namespace EcomTrackAPI.Services
             }
             return respuesta;
         }
+        public static RespuestaAPI ObtenerPedidosPeriodo(int FechaInicio = 0, int FechaFin = 0, int Estado = 0)
+        {
+            var respuesta = new RespuestaAPI();
+            SqlConnection conx = Datos.conectar();
+            SqlCommand cmd = new SqlCommand("ObtenerVentasPeriodo", conx);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@FechaInicio", FechaInicio);
+            cmd.Parameters.AddWithValue("@FechaFin", FechaFin);
+            cmd.Parameters.AddWithValue("@Estado", Estado);
+            try
+            {
+                conx.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+                var calculo = new PedidoPeriodo();
+                var pedidosList = new List<PedidoPeriodoList>();
+
+                if (reader.Read())
+                {
+                    calculo.TotalVenta = reader.IsDBNull(reader.GetOrdinal("TotalVenta")) ? 0 : reader.GetDecimal(reader.GetOrdinal("TotalVenta"));
+                    calculo.TotalPedidos = reader.IsDBNull(reader.GetOrdinal("TotalPedidos")) ? 0 : reader.GetInt32(reader.GetOrdinal("TotalPedidos"));
+                    calculo.Promedio = reader.IsDBNull(reader.GetOrdinal("Promedio")) ? 0 : reader.GetDecimal(reader.GetOrdinal("Promedio"));
+                }
+
+                if (reader.NextResult())
+                {
+                    while (reader.Read())
+                    {
+                        var pedido = new PedidoPeriodoList
+                        {
+                            IdPedido = reader.GetInt32(reader.GetOrdinal("IdPedido")),
+                            IdCliente = reader.GetInt32(reader.GetOrdinal("IdCliente")),
+                            NombreCliente = reader.GetString(reader.GetOrdinal("NombreCliente")),
+                            FechaPedido = reader.GetDateTime(reader.GetOrdinal("FechaPedido")),
+                            Total = reader.GetDecimal(reader.GetOrdinal("Total")),
+                            MarcaTarjeta = reader.GetString(reader.GetOrdinal("MarcaTarjeta")),
+                            Estado = reader.GetString(reader.GetOrdinal("Estado"))
+                        };
+                        pedidosList.Add(pedido);
+                    }
+                }
+
+                if (pedidosList.Count == 0)
+                {
+                    respuesta.Resultado = false;
+                    respuesta.Mensaje = "No se encontraron pedidos en el periodo especificado.";
+                    respuesta.Datos = null;
+                    return respuesta;
+                }
+                respuesta.Resultado = true;
+                respuesta.Mensaje = "Pedidos obtenidos correctamente.";
+                respuesta.Datos = new { Calculo = calculo, Pedidos = pedidosList };
+            }
+            catch (Exception ex)
+            {
+                respuesta.Resultado = false;
+                respuesta.Mensaje = "Error al obtener pedidos del periodo: " + ex.Message;
+                respuesta.Datos = null;
+            }
+            finally
+            {
+                conx.Close();
+            }
+
+            return respuesta;
+        }
     }
 }

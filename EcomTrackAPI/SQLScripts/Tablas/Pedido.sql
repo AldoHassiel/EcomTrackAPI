@@ -258,10 +258,7 @@ BEGIN
 	INNER JOIN Estado e ON p.IdEstado = e.Id
 	LEFT JOIN Envio en ON en.IdPedido = p.Id
 	LEFT JOIN Transportista t ON t.Id = en.IdTransportista
-	WHERE p.Id = 3;
-
-	-- Transportista
-	SELECT * FROM Envio
+	WHERE p.Id = @IdPedido;
 END
 
 -- SOLO DE PRUEBA: NO VA EN LA API
@@ -277,3 +274,8 @@ BEGIN
 
     DELETE FROM Pedido WHERE Id = @IdPedido;
 END
+
+SELECT * FROM Pedido
+SELECT * FROM DetallePedido
+
+EXEC EliminarPedidoCompleto @IdPedido=25
