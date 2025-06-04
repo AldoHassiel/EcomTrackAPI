@@ -78,7 +78,6 @@ namespace EcomTrackAPI.Services
                 // Parámetros de entrada
                 cmd.Parameters.AddWithValue("@Id", envio.Id);
                 cmd.Parameters.AddWithValue("@IdEstado", envio.IdEstado);
-                cmd.Parameters.AddWithValue("@IdTransportista", envio.IdTransportista);
 
                 // Parámetros de salida
                 SqlParameter resultadoParam = new SqlParameter("@Resultado", SqlDbType.Bit)
@@ -109,6 +108,52 @@ namespace EcomTrackAPI.Services
                 catch (Exception ex)
                 {
                     return new BadRequestObjectResult($"Error en la API al actualizar el envío: {ex.Message}");
+                }
+            }
+        }
+
+        public static IActionResult ActualizarEnvioTransportista(Envio envio)
+        {
+            using (SqlConnection conx = Datos.conectar())
+            using (SqlCommand cmd = new SqlCommand("ActualizarEnvioTransportista", conx))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                // Parámetros de entrada
+                cmd.Parameters.AddWithValue("@Id", envio.Id);
+                cmd.Parameters.AddWithValue("@IdTransportista", envio.IdTransportista);
+                cmd.Parameters.AddWithValue("@FechaEnvio", DateTime.Now);
+
+
+                // Parámetros de salida
+                SqlParameter resultadoParam = new SqlParameter("@Resultado", SqlDbType.Bit)
+                {
+                    Direction = ParameterDirection.Output
+                };
+                cmd.Parameters.Add(resultadoParam);
+
+                SqlParameter mensajeParam = new SqlParameter("@Mensaje", SqlDbType.VarChar, 500)
+                {
+                    Direction = ParameterDirection.Output
+                };
+                cmd.Parameters.Add(mensajeParam);
+
+                try
+                {
+                    conx.Open();
+                    cmd.ExecuteNonQuery();
+
+                    bool resultado = Convert.ToBoolean(resultadoParam.Value);
+                    string mensaje = mensajeParam.Value.ToString();
+
+                    if (resultado)
+                        return new OkObjectResult(mensaje);
+                    else
+                        return new BadRequestObjectResult(mensaje);
+                }
+                catch (Exception ex)
+                {
+                    return new BadRequestObjectResult($"Error en la API al actualizar el transportista: {ex.Message}");
                 }
             }
         }
