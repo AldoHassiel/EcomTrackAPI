@@ -12,10 +12,15 @@ namespace EcomTrackAPI.Services
             List<Envio> envios = new List<Envio>();
             SqlConnection conx = Datos.conectar();
 
-            string query = "SELECT e.Id, e.FechaEnvio, e.FechaEntrega, e.IdPedido, e.IdTransportista, " +
-                "t.Nombre AS NombreTransportista, e.IdEstado, es.Descripcion AS EstadoDescripcion "  +
-                "FROM Envio e LEFT OUTER JOIN Transportista t ON e.IdTransportista = t.Id " +
-                "LEFT OUTER JOIN Estado es ON e.IdEstado = es.Id;";
+            string query = "SELECT e.Id, e.FechaEnvio, e.FechaEntrega, e.IdPedido, " +
+                   "e.IdTransportista, t.Nombre AS NombreTransportista, " +
+                   "e.IdEstado, es.Descripcion AS EstadoDescripcion, " +
+                   "c.Nombre AS NombreCliente " +
+                   "FROM Envio e " +
+                   "LEFT OUTER JOIN Transportista t ON e.IdTransportista = t.Id " +
+                   "LEFT OUTER JOIN Estado es ON e.IdEstado = es.Id " +
+                   "INNER JOIN Pedido p ON e.IdPedido = p.Id " +
+                   "INNER JOIN Cliente c ON p.IdCliente = c.Id;";
             SqlCommand command = new SqlCommand(query, conx);
 
             conx.Open();
@@ -32,6 +37,7 @@ namespace EcomTrackAPI.Services
                     NombreTransportista = reader.IsDBNull(5) ? "" : reader.GetString(5),
                     IdEstado = reader.IsDBNull(6) ? (int?)null : reader.GetInt32(6),
                     DescripcionEstado = reader.IsDBNull(7) ? "" : reader.GetString(7),
+                    NombreCliente = reader.IsDBNull(8) ? "" : reader.GetString(8),
                 };
                 envios.Add(envio);
             }

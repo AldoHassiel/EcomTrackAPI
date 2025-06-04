@@ -6,6 +6,7 @@
         public DateTime? FechaEnvio { get; set; } // Cambiado a DateTime?
         public DateTime? FechaEntrega { get; set; } // Cambiado a DateTime?
         public int IdPedido { get; set; }
+        public string NombreCliente { get; set; }
         public int? IdTransportista { get; set; } // Cambiado a int?
         public string NombreTransportista { get; set; }
         public int? IdEstado { get; set; } // Cambiado a int?
