@@ -146,6 +146,41 @@ namespace EcomTrackAPI.Services
             }
             return respuesta;
         }
+
+
+        public static RespuestaAPI ObtenerIngresosTotales()
+        {
+            var respuestaAPI = new RespuestaAPI();
+
+            using (SqlConnection conx = Datos.conectar())
+            using (SqlCommand cmd = new SqlCommand())
+            {
+                cmd.Connection = conx;
+                cmd.CommandText = "select SUM(Importe) from Pedido";
+                cmd.CommandType = CommandType.Text;
+
+                try
+                {
+                    conx.Open();
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    if (reader.Read())
+                    {
+                        respuestaAPI.Datos = reader.GetDecimal(0);
+                        respuestaAPI.Resultado = true;
+
+                    }
+                }
+                catch (Exception ex)
+                {
+                    respuestaAPI.Resultado = false;
+                    respuestaAPI.Mensaje = $"Error inesperado: {ex.Message}";
+                }
+                return respuestaAPI;
+            }
+               
+        }
+
         public static RespuestaAPI ObtenerPedidosPeriodo(int FechaInicio = 0, int FechaFin = 0, int Estado = 0)
         {
             var respuesta = new RespuestaAPI();

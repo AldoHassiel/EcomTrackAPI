@@ -35,7 +35,11 @@ CREATE TABLE Cliente(
 
 select * from cliente
 
+update Cliente
+set TotalGastado=0 
 
+update Cliente
+set TotalCompras =0
 
 SELECT TOP 5 
     Nombre, 
@@ -45,6 +49,34 @@ FROM
     Cliente
 ORDER BY 
     TotalCompras DESC;
+
+CREATE TRIGGER ActualizarTotalComprasyTotalGastado
+ON Pedido
+AFTER INSERT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    UPDATE Cliente
+    SET TotalCompras = TotalCompras + 1,
+        TotalGastado = TotalGastado + inserted.Importe
+    FROM Cliente
+    INNER JOIN inserted ON Cliente.Id = inserted.IdCliente;
+END;
+
+
+/*ALTER TRIGGER ActualizarTotalGastado
+ON Pedido
+AFTER INSERT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    UPDATE Cliente
+		SET TotalGastado = TotalGastado + (SELECT Importe FROM inserted)
+	WHERE Id = (SELECT IdCliente FROM inserted)
+END;*/
+
 
 UPDATE Cliente
 SET 

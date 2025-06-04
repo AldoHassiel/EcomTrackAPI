@@ -12,7 +12,10 @@ namespace EcomTrackAPI.Services
             List<Envio> envios = new List<Envio>();
             SqlConnection conx = Datos.conectar();
 
-            string query = "SELECT Id, FechaEnvio, FechaEntrega, IdPedido, IdTransportista, IdEstado FROM Envio";
+            string query = "SELECT e.Id, e.FechaEnvio, e.FechaEntrega, e.IdPedido, e.IdTransportista, " +
+                "t.Nombre AS NombreTransportista, e.IdEstado, es.Descripcion AS EstadoDescripcion "  +
+                "FROM Envio e LEFT OUTER JOIN Transportista t ON e.IdTransportista = t.Id " +
+                "LEFT OUTER JOIN Estado es ON e.IdEstado = es.Id;";
             SqlCommand command = new SqlCommand(query, conx);
 
             conx.Open();
@@ -26,7 +29,9 @@ namespace EcomTrackAPI.Services
                     FechaEntrega = reader.IsDBNull(2) ? (DateTime?)null : reader.GetDateTime(2),
                     IdPedido = reader.GetInt32(3),
                     IdTransportista = reader.IsDBNull(4) ? (int?)null : reader.GetInt32(4),
-                    IdEstado = reader.IsDBNull(5) ? (int?)null : reader.GetInt32(5)
+                    NombreTransportista = reader.IsDBNull(5) ? "" : reader.GetString(5),
+                    IdEstado = reader.IsDBNull(6) ? (int?)null : reader.GetInt32(6),
+                    DescripcionEstado = reader.IsDBNull(7) ? "" : reader.GetString(7),
                 };
                 envios.Add(envio);
             }
@@ -65,25 +70,94 @@ namespace EcomTrackAPI.Services
 
         public static IActionResult ActualizarEnvio(Envio envio)
         {
-            SqlConnection conx = Datos.conectar();
-            SqlCommand cmd = new SqlCommand("ActualizarEnvio", conx);
-
-            cmd.CommandType = CommandType.StoredProcedure;
-            cmd.Parameters.AddWithValue("@Id", envio.Id);
-            cmd.Parameters.AddWithValue("@IdEstado", envio.IdEstado);
-
-            conx.Open();
-            try
+            using (SqlConnection conx = Datos.conectar())
+            using (SqlCommand cmd = new SqlCommand("ActualizarEnvio", conx))
             {
-                cmd.ExecuteNonQuery();
-                return new OkObjectResult("Estado del envío actualizado");
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                // Parámetros de entrada
+                cmd.Parameters.AddWithValue("@Id", envio.Id);
+                cmd.Parameters.AddWithValue("@IdEstado", envio.IdEstado);
+
+                // Parámetros de salida
+                SqlParameter resultadoParam = new SqlParameter("@Resultado", SqlDbType.Bit)
+                {
+                    Direction = ParameterDirection.Output
+                };
+                cmd.Parameters.Add(resultadoParam);
+
+                SqlParameter mensajeParam = new SqlParameter("@Mensaje", SqlDbType.VarChar, 500)
+                {
+                    Direction = ParameterDirection.Output
+                };
+                cmd.Parameters.Add(mensajeParam);
+
+                try
+                {
+                    conx.Open();
+                    cmd.ExecuteNonQuery();
+
+                    bool resultado = Convert.ToBoolean(resultadoParam.Value);
+                    string mensaje = mensajeParam.Value.ToString();
+
+                    if (resultado)
+                        return new OkObjectResult(mensaje);
+                    else
+                        return new BadRequestObjectResult(mensaje);
+                }
+                catch (Exception ex)
+                {
+                    return new BadRequestObjectResult($"Error en la API al actualizar el envío: {ex.Message}");
+                }
             }
-            catch (Exception ex)
-            {
-                return new BadRequestObjectResult($"No se pudo actualizar el estado del envío: {ex.Message}");
-            }
-            finally { conx.Close(); }
         }
+
+        public static IActionResult ActualizarEnvioTransportista(Envio envio)
+        {
+            using (SqlConnection conx = Datos.conectar())
+            using (SqlCommand cmd = new SqlCommand("ActualizarEnvioTransportista", conx))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                // Parámetros de entrada
+                cmd.Parameters.AddWithValue("@Id", envio.Id);
+                cmd.Parameters.AddWithValue("@IdTransportista", envio.IdTransportista);
+                cmd.Parameters.AddWithValue("@FechaEnvio", DateTime.Now);
+
+
+                // Parámetros de salida
+                SqlParameter resultadoParam = new SqlParameter("@Resultado", SqlDbType.Bit)
+                {
+                    Direction = ParameterDirection.Output
+                };
+                cmd.Parameters.Add(resultadoParam);
+
+                SqlParameter mensajeParam = new SqlParameter("@Mensaje", SqlDbType.VarChar, 500)
+                {
+                    Direction = ParameterDirection.Output
+                };
+                cmd.Parameters.Add(mensajeParam);
+
+                try
+                {
+                    conx.Open();
+                    cmd.ExecuteNonQuery();
+
+                    bool resultado = Convert.ToBoolean(resultadoParam.Value);
+                    string mensaje = mensajeParam.Value.ToString();
+
+                    if (resultado)
+                        return new OkObjectResult(mensaje);
+                    else
+                        return new BadRequestObjectResult(mensaje);
+                }
+                catch (Exception ex)
+                {
+                    return new BadRequestObjectResult($"Error en la API al actualizar el transportista: {ex.Message}");
+                }
+            }
+        }
+
 
         public static IActionResult ObtenerEstadoPorEnvio(int envioId)
         {
@@ -126,6 +200,8 @@ namespace EcomTrackAPI.Services
                 {
                     return new BadRequestObjectResult($"Error al consultar el estado del envío: {ex.Message}");
                 }
+
+
             }
         }
 
