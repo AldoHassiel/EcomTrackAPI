@@ -3,12 +3,18 @@ var builder = WebApplication.CreateBuilder(args);
 //Cosas de las COORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowNextJS",
+    options.AddPolicy("Local",
         builder => builder
             .WithOrigins("http://localhost:5173") // URL de tu frontend Next.js
             .AllowAnyHeader()
             .AllowAnyMethod()
-            .AllowCredentials()); // Solo si usas cookies o autenticación
+            .AllowCredentials());
+    options.AddPolicy("Vercel",
+        builder => builder
+            .WithOrigins("https://ecomtrack.vercel.app/") // URL de tu frontend Next.js
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials());
 });
 
 // Add services to the container.
@@ -28,7 +34,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors("AllowNextJS");
+app.UseCors("Local");
+app.UseCors("Vercel");
+
 
 app.UseAuthorization();
 
